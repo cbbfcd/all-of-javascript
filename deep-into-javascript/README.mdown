@@ -5,7 +5,7 @@
 
 # 目录
 
-<a href="./scope.mdown">你真的了解作用域吗？</a>
+<a href="./scope.mdown">1. 你真的了解作用域吗？</a>
 
 # author
 <a href="https://github.com/cbbfcd">@波比小金刚</a>

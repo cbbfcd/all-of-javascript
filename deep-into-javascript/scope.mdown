@@ -1,0 +1,617 @@
+# 你真的了解JavaScript的作用域吗?
+
+#### author
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。
+
+<hr/>
+
+## 1. 什么是作用域
+
+域，在中文里面表示的是一个范围。<br/>
+所以从字面理解作用域表示的应该是可以作用的范围，这样去理解很接近作用域的实际作用了。但是还是不太准确。<br/>
+作用域本质其实是一套规则，目的是为了确定在哪里以及怎么样去查找变量(标识符)。<br/>
+
+为了弄清楚在哪里找以及怎么找的规则，我们需要先了解几个概念。
+
+### 编译原理
+
+首先JavaScript(后续简称js)通常被认为是 '动态','解释执行'的一门语言。<br/>
+这里涉及到了<a href="https://www.zhihu.com/question/19918532">动态类型、静态类型、强弱类型</a>。
+
+事实上js是一门编译语言。只不过不是提前编译的。大多数情况是在代码执行前编译。
+
+对于编译，大概经历三个步骤：
+1. 词法分析
+2. 语法分析
+3. 代码生成
+
+简单来说，<p style='color: "blue"'>词法分析</p>干的事情就是拆分代码为一个个的词法单元(token):<br/>
+
+```
+比如: var a = 2;
+在词法阶段被拆分为 var、a、=、2、; 空格在这个阶段被忽略掉。
+```
+
+<p style='color: "blue"'>语法分析</p>阶段干的活儿就是将上一阶段获得的词法单元流，转换成一个由元素逐级嵌套的代表了程序语法的树。<br/>
+通常，这个树被我们称为AST(抽象语法树)。
+
+
+<p style='color: "blue"'>代码生成</p>阶段就是将AST转化为可执行代码的过程。<br/>
+直白的说就是把AST转成了一组机器指令，用来干几件事，创建变量a,分配内存,赋值并存储。<br/>
+
+
+所以我们可以总结出 var a = 2;这段代码在执行的时候背后的引擎、编译器到底做了什么？<br/>
+
+>执行这段代码其实就只有两个动作，先通过作用域确定是否有同名变量存在，没有就新建一个。然后引擎在作用域找到这个a,执行生成代码对其赋值。
+
+这里怎么找这个a，涉及到两个概念， LHS & RHS
+
+### LHS & RHS
+
+引擎在作用域中查找变量 a 的两个规则。可以简单的用赋值操作符'='来划分。
+>变量在=号左边进行LHS查询。查询的目的是为了赋值。
+>变量在=号右边进行RHS查询。查询的目的是为了获取值。
+
+这样是为了更好的理解 LHS 和 RHS 的意义，但是用'='划分是太绝对了。
+更好的理解应该是 LHS 是为了找到赋值的目标。 RHS 是赋值操作的源头。
+也就是说RHS与获取变量的值等价， LHS是为了找到变量这个容器本身，给它赋值。
+
+一个案例用来分析:
+```
+function foo(a){
+    console.log(a)
+}
+
+foo(2)
+```
+
+这个简单的代码片段中大致进行的查找过程：
+1. 对最后一句foo(2)中的foo进行RHS查询，因为要获取它的值。
+2. 对function foo(a){...}中的形参a进行LHS查询，把2赋值给它。
+3. 对console进行RHS查询，并且验证它有没有一个log()的函数。
+4. 对log(a)中的a进行RHS查询，为了获取它的值2。
+
+理解以上内容，我们对作用域中的查找规则大致有了认识。那么查找的范围呢？<br/>这其实就是前边提到的在哪里找。
+作用域不仅定义了一套查找的规则，还给自己圈定了一个范围。这个范围还是可以嵌套的。
+
+### 作用域嵌套
+
+作用域嵌套的规则就一句话：
+
+>在当前作用域找不到就去外层嵌套作用域中找，直到找到停止，或者是一直找到了最外层(全局作用域)还没找到也会停止。
+
+这句话中直到找到全局还是没有找到的话，就会停止查找了，还会有什么操作呢？
+
+其实这就是为什么有两种查找规则，LHS和RHS的目的，他们的查询行为是不一样的。
+
+比如：
+```
+function foo(a){
+    console.log(a, b);
+    b = a;
+}
+
+foo(2);
+```
+
+这里的console.log(b)中会对 b 进行 RHS查询。显然 b 此时此刻还没有被声明。
+>如果RHS查询在整个作用域层级中都找不到一个变量，就会抛出ReferenceError异常。
+
+PS:注意ReferenceError 和 我们常见的TypeError是有区别的。
+
+但是如果是<a>非严格模式</a>下的 LHS查找就会有不同的结果。进行LHS查找，如果在最顶层还是没有找到的话，它就会好心分创建一个同名变量。并返回给引擎。<br/>
+
+>"use strict" 模式下，LHS在全局还是没找到也会抛出ReferenceError
+
+
+#### ReferenceError & TypeError
+
+ReferenceError表示的是在作用域中找不到这个变量的声明；
+TypeError表示的是这个变量在全局中有声明，但是对它的结果进行了错误的、非法的操作
+
+
+## 2. 词法作用域
+
+词法作用域就是定义在词法阶段的作用域。<br/>
+直白的说就是你的代码写在哪里，什么样的结构就定义了对应的词法作用域。
+词法作用域因此也是我们开发中最最常用，无处不在的作用域形式。
+
+看看下边的代码:
+```
+function foo(a){
+    var b = a * 2;
+    function bar(c){
+        console.log(a, b, c)
+    }
+    bar(b * 3)
+}
+
+foo(2) // 2, 4, 12
+```
+
+这段代码定了三个逐级嵌套的作用域，最外层的全局作用域，foo(){}定义的作用域，bar(){}定义的作用域。<br/>
+
+首先我们明确嵌套作用域查找的规则：
+>由内向外，逐级查找，直到全局，或者找到为止。
+
+所以上面的代码在执行console的时候会现在bar()的作用域中找 a, b, c变量，其中c在当前作用域就找到了。然后a,b在当前作用域没有，就向外一层，继续找，好在在外层foo()的作用域中找到了。RHS查找也就结束了，引擎给了我们 2，4，12的输出结果。
+
+<a>这里有几个知识点需要注意</a>：
+1. 遮蔽效应。
+```
+function outer(){
+    var a = 2;
+    function inner(){
+        var a = 'Pgone';
+        console.log(a)
+    }
+    inner();
+}
+
+outer() // Pgone
+```
+
+<a>作用域查找会在找到第一个匹配标签的时候就结束</a>，因此内外作用域有同名的变量的时候，会产生遮蔽效应，直接采用了内层的同名变量a。
+
+2. 全局作用域中的属性可以通过 window. 访问。
+
+>利用这个特点可以用window.来访问被遮蔽的全局属性。但是非全局属性是访问不到的。
+
+3. <a>词法作用域只会查找第一级的标识符</a>
+
+>上面的demo，如果调用outer.inner,作用域查找只会试图去找第一级标识foo，或许的查找则交给了对象属性访问规则接管了。
+
+
+词法作用域可不可以动态的修改呢？
+
+要实现这个目标，我们可以看看两个常见于我们代码中的魔法；
+
+#### eval & with
+
+##### 1. eval
+
+eval是一个常见的函数，它的作用就是把一段字符串放在一个你指定的地方并执行。这样就修改了原来的词法作用域环境。
+
+```
+function foo(str, a){
+    eval(str);
+    console.log(a, b)
+}
+
+var b = 2;
+
+foo('var b = 3', 1) // 1, 3
+```
+
+这段代码中的字符串 'var b = 3;'被放在了foo()内部的作用域中执行了，引擎没能发现。它还是按照流程执行下拉，导致声明的b遮蔽了全局的b，从而输出了1，3。
+>注意在严格模式下，eval()有自己的独立作用域，上述的方法会失效。
+
+类似这种可以把一个字符串动态插进去并执行的还有很多：
+1. setTimeout() setInterval()的第一个参数可以是字符串，被解释为动态生成的函数代码。
+2. new Function()的最后一个参数也可以接受代码字符串
+
+##### 2. with
+
+with()的用法我们最常用的就是方便访问对象的属性
+```
+var obj = {
+    a:1,
+    b:2
+}
+
+with(obj){
+    a=3;
+    b=4;
+}
+```
+
+with值得我们关注的就是它会为这个对象创立一个完全隔离的作用域。这就会产生问题了；
+```
+function foo(obj){
+    with(obj){
+        a = 2;
+    }
+}
+
+var o1 = {
+    a : 1;
+}
+
+var o2 = {
+    b : 1;
+}
+
+foo(o1);
+console.log(o1.a) //a
+
+foo(o2);
+console.log(o2.a)//undefined
+
+console.log(a) //2  --> 泄露到全局了
+```
+
+上面的代码在非严格模式下有效，严格模式下，with基本被禁用了。
+
+在foo()内部，with为obj创立了一个独立的作用域。对a进行的是LHS查询。所以执行foo(o1)的时候，可以在外层foo(o1)中找到o1.a，从而对其进行赋值，执行foo(o2)的时候同理，但是找不到o2.a,所以结果是undefined了？这里就是一个疑点，如果找不到不应该是RefferenceError吗，报错是undefined就说明这个 a 是有声明的。我们打印全局的a，发觉确实a=2了。有这个2也就是前边说的LHS查询，在非严格模式下的话，找不到会创建一个。
+
+<a>最佳实践: eval和with都应该消失在我们的代码中。</a>
+
+
+## 3. 函数作用域
+
+函数作用域，顾名思义就是函数定义的时候，由其定义的结构而确定的词法作用域。<br/>
+在这个函数内部的所有变量都可以在整个函数的范围内使用以及复用。
+
+函数作用域对于开发而言最最直接的好处就是完美的匹配最小暴露原则。<br/>
+也就是说我我们开发过程中一些不希望它暴露给外界的变量或者函数，我们可以用一个函数作用域将它包裹起来。这样外界就不能直接访问了。<br/>
+
+利用函数的作用于还可以有效的规避污染全局、命名冲突等问题。最常见的就是IIFE<br/>
+我们所熟知的一些框架，比如Backbone.js,Jquery的最外层结构都是IIFE。
+
+比如一个我们写一个co模块的实现，是常见的UMD模式：
+```
+'use strict'
+;(function(window,definition,undefined){
+    var hasDefine = typeof define === 'function' && (define.cmd || define.amd),
+        hasExports = typeof module !== 'undefined' && module.exports;
+    if(hasDefine){
+        define(definition);
+    }else if(hasExports){
+        module.exports = definition();
+    }else{
+        window.co = definition();
+    }
+})(window,function(){
+    function co(gen){
+        var args = [].slice.call(arguments,1), it;
+        it = gen.apply(this,args);
+        return Promise.resolve().then(function handleNext(value){
+            var next = it.next(value);
+            return (function handleResult(next){
+                if(next.done){
+                    return next.value;
+                }else{
+                    return Promise.resolve(next.value).then(
+                        handleNext,
+
+                        function handleError(err){
+                            return Promise.resolve(
+                                it.throw(err)
+                            ).then(handleResult);
+                        }
+                    );
+                }
+            })(next)
+        })
+    }
+    return co;
+})
+```
+
+
+## 4. 块作用域
+
+如果你有其他语言的开发经验的话，对块作用域应该不会陌生。<br/>
+在JavaScript中，虽然最最常见的是函数作用域，但是依然还是存在一些其他类型的作用域。<br/>块作用域就是其中一环。
+
+块作用域的好处? 我们看看一个我们写烂了的代码:
+
+```
+for(var i = 0, len = 10; i < len; i++){
+    console.log( i );
+}
+```
+
+这里其实我们内心的意愿是想让 i 绑定在 {...}里面使用，外界不能操作。<br/>
+但是事实是 var 声明的这个 i 还是会被绑定在外部作用域。
+
+```
+function foo( a ){
+    function bar(a){
+        i = 2; // 这里的LHS查询找到了 for 循环中的 i。所以...呵呵...
+        return a + i;
+    }
+
+    for(var i = 0, len = 10; i < len; i++){
+        bar( i * 2 )
+    }
+}
+```
+
+上面的结果是一个死循环。因为 i 并不是绑定到 {...}里面的，而是在外部的作用域中。
+
+
+## ES5 之前的块作用域举例
+
+#### 1. 之前提到的 with 会创建一个独立的块作用域。
+#### 2. try...catch...(ES3)
+
+try...catch...是常用的结构之一，不知道你注意没有，其实catch(){...}语句块就是一个典型的块作用域。外界是不能访问的。<br/>
+
+```
+try{
+    10 / 0; //故意抛出一个异常
+}
+catch(err){
+    console.log(err) // 这里正常执行
+}
+
+console.log(err) // ReferenceError: err not found
+```
+
+利用这一特性，我们可以实现在ES6之前环境下的块作用域。虽然会很丑陋。
+
+我们知道在ES6环境下，下面这段代码是ok的：
+```
+{
+    let a = 2;
+    console.log( a ); //2
+}
+console.log( a ); // ReferenceError
+```
+如果要在ES6之前的环境下实现:
+```
+try{throw 2;}catch(a){console.log( a )} // 2
+console.log( a ) //ReferenceError
+```
+
+
+
+## ES6 中的块作用域
+
+### let
+***
+
+ES6新增，let允许你声明一个作用域被限制在块级中的变量、语句或者表达式。与var关键字不同的是，var声明的变量只能是全局或者整个函数块的。
+
+```
+ // let
+ var a = 3;
+ {
+    let a = 2;
+    console.log(a) // 2
+ }
+ console.log(a) // 3
+```
+
+var声明变量是会提升的、函数声明也是要提升的(函数表达式不会)，let呢?
+
+```
+// let 提升
+ var a = 3;
+ {
+    //let a;
+    console.log(a) // ReferenceError: a is not defined 
+    let a = 2; 
+    //a = 2; // undefined
+ }
+```
+
+let只是绑定到了块级作用域内，并没有被初始化。如果在声明并初始化之前调用了该变量，就会抛出ReferenceError。因为这个时候变量还是在暂时性死区(TDZ)呆着。
+如果声明之后，初始化之前调用则会抛出undefined。
+
+let声明应该包裹在{...}中，应该写在块级作用域最上面，毕竟没有提升，万一出错了。
+建议如果有多个声明，最好也只用一个let。
+
+```
+{
+    let a = 2, b, c;
+}
+```
+
+此外还应该注意的有:
+let声明的全局变量不是全局对象的属性，你不能通过window.来访问。
+我们常用的typeof也不再安全。比如声明未赋值情景下进行typeof操作会抛出错误，没有声明的变量进行typeof操作反而不会报错，只是undefined
+
+```
+{
+    // `a` 没有被声明
+    if (typeof a === "undefined") {
+        console.log( "cool" ); // cool
+    }
+    // `b` 被声明了，但位于它的TDZ中
+    if (typeof b === "undefined") {        // ReferenceError!
+        // ..
+    }
+    // ..
+    let b;
+}
+```
+
+还有一种非标准写法，最终没有被ES6采用，虽然表达的意思更清晰:
+
+```
+let(a = 2, b, c){
+    //...
+}
+```
+
+为了强化对let的理解，请思考以下代码:
+
+```
+ // consider for let demo1
+let a = 2;
+if(a > 1){
+    let b = a * 3;
+    console.log(b); // 6
+
+    for(let i = a ; i <= b ; i++){
+        let j = i + 10;
+        console.log(j) // 12,13,14,15,16
+    }
+
+    let c = a + b;
+    console.log(c) // 8
+}
+```
+
+Q1:哪些变量只存在于<block>if</block>中，哪些变量只存在于<block>for</block>循环中?
+
+A1:只存在if中的是块级作用域变量b, c ; 只存在于for循环的是块级作用域变量i, j。
+
+通过这个简单的demo可以体会块作用域的范围，其中i是在for中的，因为，无论let声明在哪儿，都会依附在封闭函数范围，并绑定到块级范围。
+
+### let + for
+***
+
+let与for循环简直是绝妙的搭配，以往使用var+for的搭配的一些问题可以被完美解决，
+比如:
+
+```
+// for loop
+for(var i = 0 ; i <= 5 ;i++){
+    setTimeout(function(){
+        console.log(i); //每隔1秒输出6
+    },i*1000)
+}
+console.log(i);//最后输出6
+```
+
+替换成let，之后:
+
+```
+for(let i = 0 ; i <= 5 ;i++){
+    setTimeout(function(){
+        console.log(i); // 间隔1秒输出0,1,2,4,5
+    },i*1000)
+}
+console.log(i); // ReferenceError: i is not defined
+```
+
+这两个demo的对比可以说明很多let的特性:
+1. let绑定在for循环的块级作用域中，不会提升，外界不能访问这个i。
+2. var只有一个公共的、被提升的声明，所以会产生覆盖。输出的是最后一个值。
+3. let在每次迭代中除了给for声明一个i，还会声明一个新的i给迭代器，每次迭代的都是一个新的i，所以在for循环中的闭包，也会以你期待的值关闭，如下demo3:
+
+```
+// demo3
+// for loop with let and closure
+var arrfunc = [];
+for(let i = 0 ; i < 5 ; i++){
+    arrfunc.push(function(){
+        console.log(i)
+    })
+}
+
+arrfunc[3](); // 3  如果是var 输出5
+```
+
+深入一点:
+通俗的说for循环，()和{}对应的作用域是不一样的
+> for循环还有一个特别之处，就是循环语句部分是一个父作用域，而循环体内部是一个单独的子作用域
+
+```
+for(var i = 0 ;/*作用域a*/ i < 3 ; console.log('in for expression', i), i++){
+    let i; // 这里没有报错，说明与a作用域不一样。
+    console.log('in for block', i)
+}
+
+输出:
+in for block undefined
+in for expression 0
+in for block undefined
+in for expression 1
+in for block undefined
+in for expression 2
+```
+
+for(...)里面不管用var i 还是let i ，我们在{...}里面都可以直接获取i的值。
+如果是var声明的还比较好理解，变量提升，{...}里面可以获取到外界的i值，也因为只有一个共同的i，所以会产生覆盖，但是let呢？如何传值的？
+我个人理解可能是如下的方式(针对demo3的代码):
+
+```
+{
+    let i = 0;
+    {
+        let _i = i;
+        arrfunc.push(function(){
+            console.log(_i);
+        })
+    }
+}
+```
+
+也就是说每次其实是有一个新的i在迭代。这可以说明let在上述文章中所提到的迭代中绑定新的值的特点。而且绑定的是上一个值。
+
+
+### const
+***
+
+const声明的变量与let声明的变量类似，它们的不同之处在于，const声明的变量只可以在声明时显式赋值，不可随意修改，否则会导致SyntaxError（语法错误）。
+
+还有一点值得注意的是const声明并不是意味着指向的值不可以改变，只是只能显式的赋值一次。
+
+```
+// const
+
+const MAX_NUM = 100;
+MAX_NUM = 1000; // TypeError: Assignment to constant variable.
+
+const MIN_NUM // SyntaxError: Unexpected identifier
+MIN_NUM = 100;
+
+const ARR_NUM = [1,2,3]
+ARR_NUM.push(4);
+console.log(ARR_NUM); // 1,2,3,4
+
+const ANOTHER_NUM = 7;
+if(true){
+    //var ANOTHER_NUM = 10;
+    //console.log(ANOTHER_NUM); //SyntaxError: Identifier 'ANOTHER_NUM' has already been declared
+    
+    let ANOTHER_NUM = 100;
+    console.log(ANOTHER_NUM); // 100
+}
+console.log(ANOTHER_NUM); // 7
+```
+
+常量拥有块作用域，和使用let 定义的变量十分相似。常量的值不能通过再赋值改变，也不能再次声明。
+一个常量不能和它所在作用域内的其他变量或函数拥有相同的名称
+
+看过有文章说多用const声明可以提高性能，这我不敢肯定。对const的使用一定要合理、清晰。如果你想告诉别人这个变量不可以再被赋值的时候才用最好。不要过分依赖。
+
+### 块作用域函数
+***
+
+从ES6开始，函数声明可以定义在块作用域中。在ES6之前，规范并没有要求这样做，但是很多实现都是这样做的。现在，规范与现实相遇了。
+
+```
+{
+    foo(); // it works
+    function foo(){
+        console.log('it works')
+    }
+}
+
+foo(); //ReferenceError: foo is not defined
+```
+
+上面的例子说明:
+1. 可以在块作用域中声明函数，外界不能访问。
+2. 函数声明在块作用域中可以提升。应该注意。
+
+所以注意我们的一些书写习惯:
+
+```
+if(true){
+    function foo(){
+        console.log('1')
+    }
+}else{
+    function foo(){
+        console.log('2')
+    }
+}
+
+foo(); //in ES6: ReferenceError: foo is not defined
+       //in Pre-ES6: 2
+```
+
+
+### 块作用域与垃圾回收
+
+这个简单说一下，比如有一个很大的数据，作为一个参数传进一个方法。<br/>
+这个方法执行完成后，垃圾回收机制回收过程中，如果这个函数有一个覆盖整个作用域的闭包。<br/>那特么就呵呵了。
+
+块作用域就会打消回收机制这个顾虑，回收的肆无忌惮。

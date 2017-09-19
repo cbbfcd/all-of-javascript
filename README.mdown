@@ -1,0 +1,23 @@
+# 学习JavaScript
+
+收集并整理了对JavaScript的学习和理解，记录下来。
+知识源于分享。
+项目持续补充中...
+
+# 目录
+
+<a href="./deep-into-javascript/README.mdown">深入理解JavaScript</a>
+<a href="./Backbone/backbone.js">Backbone.js源码解析</a>
+<a href="./TS/README.mdown">TypeScript文档笔记</a>
+
+# 搭建的脚手架
+<a href="https://github.com/cbbfcd/Help.git">React-Redux-Router-Webpack脚手架</a>
+<a href="https://github.com/cbbfcd/wukong.git">Mobx-React-Router4-Webpack2.0脚手架</a>
+<a href="https://github.com/cbbfcd/wukong-React-Mobx-TypeScript-.git">Mobx-React-Router4-Webpack2.0-TypeScript脚手架</a>
+<a href="https://github.com/cbbfcd/avalon2-mmRouter-starter.git">Avalon2-mmRouter-Webpack2.0脚手架</a>
+
+
+# author
+
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。

@@ -1,0 +1,13 @@
+# 深入理解JavaScript
+
+总结了自己对JavaScript的理解，整理了一些书籍和自己开发过程中得到的知识。<br/>
+基本包含了原生js中所有的知识点。
+
+# 目录
+
+<a href="./scope.mdown">你真的了解作用域吗？</a>
+
+# author
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。
+

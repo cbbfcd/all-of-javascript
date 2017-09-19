@@ -3,7 +3,7 @@
 #### author
 <a href="https://github.com/cbbfcd">@波比小金刚</a>
 > 如要转载，请注明出处。
-
+> 如果觉得还不错，请不要吝惜您的star
 <hr/>
 
 ## 1. 什么是作用域

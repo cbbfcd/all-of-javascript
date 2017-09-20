@@ -1,0 +1,109 @@
+# 关于提升
+
+#### author
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。
+> 如果觉得还不错，请不要吝惜您的star
+<hr/>
+
+
+## 1. 提升初识
+
+假设你已经熟悉JS中<a href="./scope.mdown">作用域</a>的各种把戏。<br/>
+作用域和声明在其中的变量有着玄妙的关系，事实上，JS并不是我们通常看起来的那样<br>
+严格的自上而下的执行;
+
+```
+a = 2;
+var a;
+console.log(a); //2
+```
+
+上面这段代码，乍看起来应该输出 'undefined' 更容易接受，因为var a;声明在赋值之后<br/>。a 应该被重新赋值为 'undefined' 啊。留着这个疑问，接着往下读。
+
+```
+console.log(a); //undefined
+var a = 2;
+```
+
+按照之前在<a href="./scope.mdown">作用域</a>章节中的知识，在声明之前调用变量，<br/>应该会抛出 RefferenceError 的异常，但是这里是 undefined;<br/>
+也就是说引擎在执行这段代码的时候在作用域中找到了 a 的声明，只是进行LHS查询之前<br/>，被调用了这时候变量未定义值。
+
+## 2. 提升初解
+
+能够合理解释上边的代码结果的猜想就是声明应该是先执行的。<br/>
+恰恰JS中就有这样一个机制，我们叫它 提升(Hoisting);<br/>
+
+可以简单理解上边的var a = 2;在编译器执行过程中被拆分为两个部分:<br/>
+var a; a = 2;其中赋值语句留在原地等到执行阶段执行。声明则会提前到编译阶段执行。相当于被提升到了当前作用域的最顶层。然后自上而下执行。
+
+这里需要注意几个细节之处：
+1. 所有的作用域都存在提升，函数内部亦是如此。
+2. 函数声明会提升，函数表达式则不会提升。
+
+```
+foo(); // 函数声明提升，代码正常执行
+
+function foo(){
+    console.log( a ); //undefined
+    var a = 2;
+}
+```
+
+对比：
+
+```
+foo(); // foo is not a function; TypeError
+bar();// bar is not defined; RefferenceError
+var foo = function bar(){
+    console.log( a );
+    var a = 2;
+}
+```
+
+上面的代码提升后大概是这样：
+
+```
+var foo;
+foo(); // foo在这里还没被赋值一个函数，就调用foo()，会报TypeError
+bar();// bar在外边的作用域根本找不到，所以是RefferenceError
+foo = function (){
+    var bar = ......
+}
+```
+
+## 3. 提升的优先级
+
+提升当然也是有老大和小弟之分的，总的来说就是一个原则最重要：
+
+>函数提升优先于变量提升。
+
+talk is cheap, show me your code!
+
+```
+foo(); // 这里输出的是 2 ！
+
+var foo; // 这个声明会被忽略。
+
+function foo(){ // 这个函数声明会被优先提升。
+    console.log( 2 );
+}
+
+foo = function(){
+    console.log( 3 );
+}
+```
+
+所以上面的代码提升后就是：
+
+```
+function foo(){ 
+    console.log( 2 );
+}
+
+foo(); 
+
+foo = function(){
+    console.log( 3 );
+}
+```

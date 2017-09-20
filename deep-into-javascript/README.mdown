@@ -6,7 +6,7 @@
 # 目录
 
 <a href="./scope.mdown">1. 你真的了解作用域吗？</a><br/>
-<a href="./scope.mdown">2. 关于提升</a><br/>
+<a href="./hoisting.mdown">2. 关于提升</a><br/>
 
 # author
 <a href="https://github.com/cbbfcd">@波比小金刚</a>

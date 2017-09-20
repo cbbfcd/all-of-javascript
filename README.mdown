@@ -6,9 +6,9 @@
 
 # 目录
 
-<a href="./deep-into-javascript/README.mdown">深入理解JavaScript</a><br/>
-<a href="./Backbone/backbone.js">Backbone.js源码解析</a><br/>
-<a href="./TS/README.mdown">TypeScript文档笔记</a><br/>
+<a href="./deep-into-javascript/README.mdown">1. 深入理解JavaScript</a><br/>
+<a href="./Backbone/backbone.js">2. Backbone.js源码解析</a><br/>
+<a href="./TS/README.mdown">3. TypeScript文档笔记</a><br/>
 
 # 搭建的脚手架
 <a href="https://github.com/cbbfcd/Help.git">React-Redux-Router-Webpack脚手架</a><br/>

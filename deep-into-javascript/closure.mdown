@@ -1,0 +1,204 @@
+# 100%解读JS中的闭包
+
+#### author
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。
+> 如果觉得还不错，请不要吝惜您的star
+<hr/>
+
+
+## 1. 闭包
+
+闭包并不是什么特殊的语法或者模式，它几乎在每个人写的js代码中都存在。<br/>
+闭包之所以让人觉得很难，是因为难以识别、合理运用它。
+
+
+闭包的概念五花八门，我见过一个描述，我比较认可。
+
+>当函数能够记住并访问所在的作用域的时候，就产生了闭包，即使函数是在当前作用域之外执行。
+
+我们来看一段代码，清晰的展示了闭包：
+
+```
+function foo(){
+    var a = 2;
+
+    function bar(){
+        console.log( a );
+    }
+
+    return bar;
+}
+
+var baz = foo();
+
+baz(); // 2 -->这就是闭包的效果。
+```
+
+解析：<br/>
+
+bar()函数的词法作用域可以访问foo()的内部作用域。所以对 a 进行RHS查询，可以获取值2.<br/>
+然后，函数本身作为一个值类型进行传递，这里就是bar所引用的函数本身被返回了。<br/>
+当foo()执行，返回值被赋值给了baz，实际上baz在执行的时候，也就是bar()被调用了。
+这里执行是在bar()函数定义的词法作用域之外执行的。<br/>
+
+
+通常在foo()函数执行之后，其作用域会被销毁，垃圾回收器会释放不再使用的内存。这里看上去foo()函数不会再被使用了，理应是被释放，但是实际上闭包阻止了垃圾回收器释放foo()的内存空间。<br/>
+
+
+事实上foo()的内部作用域依然存在，不会被销毁，因此没有被回收。而使用者就是bar()函数<br/>
+
+bar()函数声明的位置是在foo()内部作用域中，因此bar()函数拥有了覆盖foo()内部作用域的闭包，使得该作用域一直存活，以供bar()在任何时候调用。<br/>
+
+>bar()函数拥有对该作用域的引用，这个引用就叫做闭包。
+
+关于如何使得避免闭包导致的不可回收可参考<a href="./scope.mdown">作用域</a>一节
+<br/>
+
+总结来说就是：
+>闭包产生了一个覆盖作用域，使得函数可以继续访问定义时的词法作用域。
+
+函数类型的值传递可以是多种形式。掌握其核心就可以灵活使用
+```
+function foo(){
+    var a = 2;
+
+    function bar(){
+        console.log( a );
+    }
+
+    baz(bar);
+}
+
+function baz(fn){
+    fn(); // --> 闭包
+}
+```
+
+同理，bar()拥有覆盖foo()作用域的闭包，当把bar()函数类型的值进行传递，在baz()的内部作用域执行的时候，bar()依然可以继续访问foo()内部的作用域。
+
+把一个内部函数传递到作用域外的方式多种多样，但是它都会保持对原始定义作用域的引用。无论在何处执行都会使用闭包。
+
+我们可以武断的总结，只要在异步的任务中使用了回调函数，实际上就是在使用闭包。
+
+闭包无处不在，现在你可能还是模糊的，没关系。不断的积累，终会柳暗花明。<br/>
+
+## 2. 模块
+
+模块是一个很酷的模式。之所以在这里提到，是因为模块与闭包之间千丝万缕的联系。
+
+我们还是看看一段简单的代码:
+
+```
+function foo(){
+    var str = 'cool!';
+
+    function say(){
+        console.log( str )
+    }
+
+    return{
+        say: say
+    }
+}
+
+var f = foo();
+f.say() // cool！
+```
+
+这段代码中有闭包，自己试试去分析。<br/>
+同时这也是一个听起来就很高大上的模式：模块。
+通过调用foo()创建了一个模块的实例。如果不执行这个外部函数，内部作用域和闭包都不会被创建。<br/>
+
+我们综合上面的代码，简单的总结模块的两个必要条件：
+1. 必须有外部的函数封装，该函数至少被调用一次，每次调用都会创建一个新的模块实例
+2. 封装函数必须返回至少一个内部函数，这样内部函数才能在私有作用域中形成闭包。
+
+也就是说调用外部函数得到的对象只有数据属性而没有闭包函数，就不是真正的模块。
+
+#### 单例模式
+
+如果封装函数调用，都只返回一个模块。不会创建新的模块，就是单例模式。
+
+```
+var foo = (function(){
+    var str = 'cool!';
+
+    function say(){
+        console.log( str )
+    }
+
+    return{
+        say: say
+    }
+})()
+
+foo.say() // cool!
+```
+
+这里采用了IIFE，执行的结果赋值给了 foo。避免采用foo()的方式创建模块实例，得到的foo指向一个模块实例，而且是同一个，不会创建新的。
+
+## 3. 模块机制实现
+
+现在我们身边常见的模块管理机制包括 AMD、CMD、UMD、COMMONJS...
+这里并不会对这些模块管理机制做介绍。
+我们尝试着自己去写一个简单的模块机制。
+
+```
+// 采用单例模式模块
+var myModules = (function(){
+    var modules = {};
+    // 定义模块的方法，参数：模块名字、依赖的模块、实现函数
+    function define(name, deps, impl){
+        for(var i = 0; i < deps.length; i++){
+            // 找到modules中对应的依赖，放进deps数组
+            deps[i] = modules[deps[i]];
+        }
+        modules[name] = impl.apply( impl, deps );
+    }
+
+    function get(name){
+        return modules[name];
+    }
+
+    return {
+        define: define,
+        get: get
+    }
+})()
+```
+
+我们这样使用：
+
+```
+myModules.define('foo', [], function(){
+    function sayHello(who){
+        return 'hello' + who;
+    }
+
+    return{
+        sayHello: sayHello
+    }
+})
+
+myModules.define('bar', ['foo'], function(){
+    function awesome(who){
+        console.log(foo.sayHello(who).toUpperCase())
+    }
+
+    return {
+        awesome: awesome
+    }
+})
+
+var foo = myModules.get('foo');
+var bar = myModules.get('bar');
+
+console.log(foo.sayHello('tom')); // hello tom
+bar.awesome(); //HELLO TOM
+```
+
+
+
+
+

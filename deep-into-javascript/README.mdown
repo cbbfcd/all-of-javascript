@@ -8,6 +8,7 @@
 <a href="./scope.mdown">1. 你真的了解作用域吗？</a><br/>
 <a href="./hoisting.mdown">2. 关于提升</a><br/>
 <a href="./closure.mdown">3. 100%解读JS中的闭包</a><br/>
+<a href="./this.mdown">4. this全面解析</a><br/>
 
 # author
 <a href="https://github.com/cbbfcd">@波比小金刚</a>

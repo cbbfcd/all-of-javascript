@@ -1,0 +1,756 @@
+# this全面解析
+
+#### author
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。
+> 如果觉得还不错，请不要吝惜您的star
+<hr/>
+
+
+## 1. 为什么要使用this?
+
+对于javaScript开发者来说，常常被this的指向问题弄的晕头转向。<br/>
+我们将会全面的解析JS中的this机制，以求可以对this机制的一知半解。
+这里我们先思考，为什么我们要使用this。
+
+我们实现一个方法，可以被不同的对象调用，输出对应的结果。
+```
+function sayHello(content){
+    console.log(content.name.toUpperCase());
+}
+
+var tom = {
+    name: 'tom'
+}
+
+var jack = {
+    name: 'jack'
+}
+
+sayHello( tom ); // TOM
+sayHello( jack ); // JACK
+```
+
+这里在sayHello方法中显示的传入了一个参数，我们理解为函数执行的上下文环境。<br/>
+这种写法常见于我们的代码之中，但是当模式越来越复杂的时候，显示传递上下文对象会让代码变得更加混乱。我们尝试用this更优雅的实现。让this来隐式的传递一个对象引用。
+
+
+重构上边的代码为：
+```
+function sayHello(){
+    console.log(this.name.toUpperCase());
+}
+
+var tom = {
+    name: 'tom'
+}
+
+var jack = {
+    name: 'jack'
+}
+
+sayHello.call( tom ); // TOM
+sayHello.call( jack ); // JACK
+```
+
+这里用到了 call 方法，如果不熟悉没关系，我们后边会讲到。这段代码通过this隐式的把sayHello方法的上下文绑定到了 tom 和 jack 上。
+
+综述，使用this是为了更优雅的实现隐式的对象引用传递。避免工程中到处都是显示的上下文对象传递。当然this比你想的还要更加强大。
+
+## 2. 让人迷惑的this指向
+
+前边既然提到了this的指向具有极强的迷惑性。我们试试一段经典的代码。
+```
+function foo(num){
+    console.log( num );
+    this.count++;
+}
+
+foo.count = 0;
+
+for(var i = 0; i<10; i++){
+    if(i>5){
+        foo(i)
+    }
+}
+
+// 6
+// 7
+// 8
+// 9
+
+console.log(foo.count); // 0  纳尼！！！
+```
+
+这里很明显，foo()函数执行了4次，但是foo()函数内部的this并不是指向foo()本身。
+foo.count = 0,因为foo()函数也是一个对象，所以这里是给它赋予了一个count属性，并赋值为0。但是外边的count和函数内部的count不是一码事哦！最后输出的是对象的count属性0.
+
+更神奇的是，如果你打印全局的话，会发觉全局变量中多了一个count属性，并且它的值为NaN。
+
+这里解释一下：
+
+foo()函数内部的this是默认绑定到全局对象上的，这就解释了全局对象为什么会有一个count属性，至于为什么默认绑定到全局，后边会有更多的内容解释。然后对一个声明但是没有初始化的变量进行 ++ 的操作，这里会进行 <a href="./scope.mdown">RHS 查询 再进行 LHS 查询</a>。这时获取的count的值是 undefined, 然后 undefined++ = NaN。
+
+既然我们找到了问题，尝试着解决：
+
+1. 第一种解决办法，就是把foo内部的this换成foo
+```
+...
+function foo(num){
+    console.log( num );
+    foo.count++;
+}
+foo.count = 0;
+...
+
+```
+
+2. 上边这种解决办法只是利用了词法作用域的特性，回避了this。我们不逃避问题的话这样解决：
+```
+// 这次我们只改下边的调用部分
+
+...
+for(var i = 0; i<10; i++){
+    if(i>5){
+        foo.call(foo, i); // 显示绑定，this指向foo本身。
+        // 或者  foo.apply(foo, [i]);
+    }
+}
+...
+```
+
+我们现在回过头想想，this 是在运行时进行绑定的，而不是在编写的时候绑定的。<br/>
+this的绑定和函数的声明位置没有关系，只取决于函数的调用方式。谁调用就指向谁。
+
+函数在调用的时候会创建一个执行上下文，这个上下文包含了函数调用栈、调用方式、传入的参数等等。this也是上下文中的一个属性。
+
+
+## 3. 调用栈
+
+前边已经提到了this是在调用的时候绑定的。取决于函数的调用位置。那么函数调用的位置是什么?
+
+>函数调用位置就是函数在代码中被调用的位置。
+
+为了分析这个调用位置，我们需要知道调用栈。调用栈可以形象的理解成函数调用链。
+
+那么我们想要获取的调用位置就是当前执行函数调用栈的前一个位置，this也就指向它。
+
+那么调用栈怎么去判断呢？ 我们尝试理解下边的代码：
+
+```
+function baz(){
+    // 当前调用栈 baz
+    // 调用位置是全局
+    console.log( "baz" );
+    bar() // <-- bar的调用位置
+}
+
+function bar(){
+    // 当前调用栈 baz -> bar
+    // 调用位置是在 baz 中
+    console.log( "bar" );
+    foo() // <-- foo的调用位置
+}
+
+function foo(){
+    // 当前调用栈 baz -> bar -> foo
+    // 调用位置是在 bar 中
+    console.log( "foo" );
+}
+
+baz(); // <-- baz的调用位置
+```
+
+当然这样的分析在复杂的环境中是很容易出错的。最好的方式还是借助工具实现。
+比如在你需要获悉其调用栈的地方加一个 debugger; 然后chrome F12 断点调试。注意调试面板右侧有一个call Stack 的输出栏，在那里可以清晰的看见你想知道的调用栈信息。
+
+
+## 4. this的4种绑定
+
+上边我们学习到了this是在运行时绑定，绑定取决于调用栈(获取当前执行函数的调用位置)。那么根据这个调用的位置，是怎么绑定的呢?
+
+this的绑定规则有4种。你需要找到调用位置，并判断是下面4种绑定规则中的哪一种。这并不简单。我们尝试着总结一些规律。
+
+### 4.1 默认绑定规则
+
+之所以叫做默认绑定规则，指的是无法应用别的绑定规则了。常用于独立函数调用时this的绑定。
+
+所谓的独立函数调用指的是没有任何修饰的函数引用调用。
+
+比如:
+```
+function foo(){
+    console.log( this.a )
+}
+
+var a = 2;
+foo() // 2
+```
+
+>非严格模式下，默认绑定中的this，指向全局。
+
+注意：foo()在严格模式下，默认绑定规则的this指向 undefined
+```
+function foo(){
+    'use strict';
+    console.log( this.a )
+}
+
+var a = 2;
+foo(); // TypeError: this is undefined
+```
+
+区别：
+```
+function foo(){
+    console.log( this.a )
+}
+
+var a = 2;
+
+(function(){
+    'use strict';
+    foo(); // 2 这里的this还是指向全局
+})()
+```
+
+默认绑定规则其实就是非严格模式下，调用栈是全局对象的情况。
+
+技巧就是如果一个函数声明调用的时候没有任何其他修饰，比如前面有个someother.，就是独立函数调用，那就是默认绑定规则，不论是写在一个函数内部还是外部都是用默认绑定规则。
+
+### 4.2 隐式绑定规则
+
+隐式绑定指的是当调用位置存在上下文的情况，根据调用规则，this的指向是上一级的调用栈位置。
+
+```
+function foo(){
+    console.log( this.a )
+}
+
+var obj = {
+    a: 2,
+    foo: foo
+}
+
+obj.foo(); // 2
+```
+
+当foo函数被调用的时候，在控制台观察其调用栈，其上一级指向obj对象。也就是说其执行环境上下文对象指向obj,所以 this.a == obj.a
+
+this的指向是其之前一级的调用栈，记住这个细节，是上一级，如果是多级，仍然只是指向上一级。
+
+```
+function foo(){
+    console.log( this.a )
+}
+
+var obj = {
+    a: 2,
+    foo: foo
+}
+
+var obj1 = {
+    a: 3,
+    obj: obj
+}
+
+obj1.obj.foo(); // 2  这里不管有多少层，都是指向上一级的obj
+```
+
+
+隐式绑定规则在一些特殊的情况下会失效，丢失this的绑定，变成了默认绑定规则。从而把this绑定到了全局对象或者是undefined上(是否是严格模式)
+
+```
+function foo(){
+    console.log( this.a )
+}
+var obj = {
+    a: 2,
+    foo: foo
+}
+var a = 'this is a global a';
+var bar = obj.foo;
+bar(); // 'this is a global a'
+```
+
+这其实很好理解，obj.foo 和 obj.foo()的区别就是一个是函数引用，一个是函数调用。
+bar引用指向的是foo函数本身，然后bar()的调用就是一个独立函数调用，调用上下文环境是全局对象，使用默认绑定规则。在非严格模式下，this指向全局对象。
+
+这种会丢失绑定的情况有很多，需要我们理解到this绑定后合理的使用。
+
+比如：延时函数中的this指向全局(非严格模式)。
+```
+function foo(){
+    console.log( this.a )
+}
+var obj = {
+    a: 2,
+    foo: foo
+}
+var a = 'this is a global a';
+setTimeout( obj.foo, 1000 ); // this is a global a
+```
+
+
+比如：函数引用作为参数传递(非严格模式)
+```
+function foo(){
+    console.log( this.a )
+};
+var obj = {
+    a: 2,
+    foo: foo
+};
+var a = 'this is a global a';
+
+function doFoo( fn ){
+    var a = "local a";
+    fn(); // 这里是默认绑定规则，this指向全局对象
+};
+
+doFoo( obj.foo ); // this is a global a
+```
+上面这个案列如果你误以为是要输出 " local a "，那就是没有真正理解<a href="./scope.mdown">词法作用域</a>规则。词法作用域取决你写在哪里，不是在哪里调用。
+作用域是不能通过引用传递的，它是固定死的，写在哪儿就在哪儿。所以foo()的作用域是不会去通过RHS找到doFoo中的 a 的。
+
+技巧：如果一个函数调用前边有上下文环境去点，那么就要注意分析了。需要注意的是丢失this绑定的情况。
+
+
+### 4.3 显式绑定规则
+
+顾名思义，就是可见的、明显的绑定this到一个上下文环境。
+一般是通过一些特殊的关键字实现，比如 bind、call、apply等。
+
+```
+function foo(){
+    console.log( this.a )
+}
+
+var obj = {
+    a: 2
+}
+
+foo.call( obj ); // 2
+```
+
+>call、apply、bind的用法自行参考MDN
+
+因为call、apply第一个参数要求是一个对象，如果你传入的不是一个对象obj，而是一个原始数据类型(字符串、数字、布尔)作为this绑定对象，这个原始值会被转为对象形式的(new String()，new Boolean(),new Number())，这个过程在Java中被形象的称为"装箱"。
+
+但是用call、apply实现的显式绑定还是无法解决绑定丢失的问题。
+
+#### 4.3.1 硬绑定
+
+这里提出一种解决办法。就是用一个函数来封装显式绑定。
+```
+function foo(){
+    console.log( this.a )
+}
+
+var obj = {
+    a: 2
+}
+
+var bar = function(){
+    foo.call( obj )
+}
+
+bar(); // 2
+setTimeout( bar, 1000 ); // 2
+bar.call(window); // 2
+```
+
+思路很简单，就是在bar函数内部显式的绑定foo到obj上，之后无论你怎么调用bar函数，foo中的this始终是指向obj的。这种模式我们称之为硬绑定。
+
+我们还可以创建一个专门用于绑定的工具函数，方便重复调用。
+```
+function foo(some){
+    console.log( this.a, some);
+    return this.a + some;
+}
+
+// 一个工具绑定函数
+function bind(fn, obj){
+    return function(){
+        fn.apply( obj, arguments )
+    }
+}
+
+var obj = {
+    a: 2
+}
+
+var bar = bind( fn, obj );
+var b = bar( 3 ); // 2 3
+console.log( b ) // 5
+```
+
+这里你应该也想到了，ES5中已经提出了 Function.prototype.bind 来实现硬绑定。
+
+```
+function foo(some){
+    console.log( this.a, some);
+    return this.a + some;
+}
+
+var obj = {
+    a: 2
+}
+
+var bar = foo.bind(obj)
+var b = bar( 3 ); // 2 3
+console.log( b ) // 5
+```
+
+bind(...)会返回一个硬编码的新函数，并把this绑定到obj后，执行原函数。
+
+想想MDN上各种API的参数说明，大多数最后有一个[context]，表示的是一个可选的上下文对象。现在看来其底层其实也就是用apply或者call实现了this显式的绑定到了你指定的上下文对象上。
+
+```
+function foo(el){
+    console.log( el, this.name )
+}
+
+var obj = {
+    name: 'jack'
+}
+
+[1,2,3].forEach( foo, obj);
+
+// 1 jack 2 jack 3 jack
+```
+
+
+### 4.4 new绑定
+
+new绑定牵扯到原型链的知识颇多。这里就不赘述，会在后边原型链的知识整理中详细阐述。
+
+这里我们首先要区别在JavaScript中的new 和传统的面向对象编程语言比如 Java 中的new的机制是不一样的。
+
+在Java中我们常常用 new 来初始化一个类，调用其构造函数获取类的实例。
+在JavaScript中new仅仅是一个操作符，用来修饰一个普通的函数。准确的说是构造函数调用。
+
+>JS中准确的说不存在所谓的构造函数，只有对函数的构造调用。
+
+这也说明了我们常常写这样的代码，但是其意义不同。
+```
+var a = foo(...)
+var b = new foo(...)
+```
+
+总结一下new执行过程：
+1. 构造一个新的对象
+2. 这个新对象会被执行[[prototype]]链接
+3. 函数调用的this会绑定到这个新对象上
+4. 如果函数没有返回其他对象，那么new表达式中的函数调用会自动返回这个新的对象
+
+我们暂时不关心第2步干了什么，后边会说。现在只关心1、3、4步骤
+```
+function foo(a){
+    this.a = a;
+}
+
+var bar = new foo( 2 );
+console.log( bar.a ); // 2
+```
+
+new绑定会返回一个对象bar，然后函数中的this会绑定到这个返回的新的对象bar上。
+
+## 5. 4种绑定的优先级
+
+对于混用的时候优先级的判断我们自己写代码测试一下。首先我们确定默认绑定规则肯定是优先级最低的，现在我们先判断隐式绑定规则和显式绑定规则的优先级。
+
+```
+function foo(some){
+    this.a = some;
+}
+
+var obj1 = {
+    foo: foo
+};
+
+var obj2 = {};
+
+// 隐式绑定 > 默认绑定
+obj1.foo( 2 );
+console.log( obj1.a ); // 2
+
+// 显式绑定 > 隐式绑定
+obj1.foo.call( obj2, 3 );
+console.log( obj2.a ); // 3
+
+// new 绑定 > 隐式绑定
+var bar = new obj1.foo( 4 );
+console.log( obj1.a ); // 2
+console.log( bar.a ); // 4
+```
+
+对于判断显式绑定和new绑定就稍微麻烦点了。
+因为硬绑定也是显式绑定的一种，所以我们判断new绑定和 bind(...)绑定的优先级即可。
+```
+function foo(some){
+    this.a = some;
+}
+var obj1 = {};
+
+// 硬绑定
+var bar = foo.bind( obj1 );
+bar( 2 );
+console.log( obj1.a ); //2
+
+// new
+var baz = new bar(3);
+console.log( obj1.a ); //2
+console.log( baz.a ); //3
+```
+
+这里可以看出new修改了硬绑定调用bar(...)中的this使其指向new返回的新的对象baz。
+
+WTF!! new操作符的调用竟然修改了硬绑定的this指向。我们看看MDN提供的bind的polyfill，尝试找找原因：
+
+```
+if(!Function.prototype.bind){
+    Function.prototype.bind = function(oThis){
+        if(typeof this !== "function"){
+            throw new TypeError("Function.prototype.bind what is trying to be bound is not callable");
+        }
+        
+        var aArgs = Array.prototype.slice.call( arguments, 1 ),
+            fToBind = this,
+            fNOP = function(){},
+            fBound = function(){
+                return fToBind.apply(
+                    (
+                        this instanceOf fNOP &&
+                        oThis ? this : oThis
+                    ),
+                    aArgs.concat(Array.prototype.slice.call(arguments))
+                )
+            }
+
+        fNOP.prototype = this.prototype;
+        fBound.prototype = new fNOP();
+
+        return fBound;
+    }
+}
+```
+
+这里关键的部分我们抽取出来
+```
+...
+this instanceOf fNOP && oThis ? this : oThis
+...
+fNOP.prototype = this.prototype;
+fBound.prototype = new fNOP();
+...
+```
+
+这里也是涉及到很多原型链的内容，后边才会讲，这里就提一提。记住instanceOf很关键。这里关键部分展示的就是判断硬绑定函数是不是被new调用了，如果是的话就会用新创建的this替换硬绑定的this(通过关键代码中的三目运算)。
+
+>instanceof运算符用来判断一个构造函数的prototype属性所指向的对象是否存在于另外一个要检测对象的原型链上
+
+如果我们手动实现一个 L instanceOf R:
+```
+function _instanceOf(L, R){
+    var o = R.prototype; //显式原型
+    L = L.__proto__;//隐式原型
+    while(true){
+        if(L === null) return false;
+        if(L === o) return true;
+        L = L.__proto__;
+    }
+}
+```
+
+instanceOf可以判断继承关系，也就是：
+```
+function Person(){};
+function Student(){};
+Student.prototype = new Person();  //继承原型
+var s = new Student();
+console.log(s instanceof Student); //true
+console.log(s instanceof Person);  //true
+```
+
+所以上面的polyfill中关键部分我们可以大致这么去解读：
+
+this instanceOf fNOP在硬绑定没有被new调用的时候为false。
+这个时候this绑定到oThis上。也就是正常的硬绑定调用，var bar = foo.bind( obj1 ); 所以输出obj1.a = 2;但是当使用 var baz = new bar(3); 的时候。
+首先 fBound.prototype = new fNOP();
+说明了硬绑定返回的函数继承了fNOP，然后通过baz对象通过new 建立了与fBound的继承关系，所以this instanceOf fNOP 返回true。
+这个时候this的指向就会改变了，指向new 调用返回的对象 baz。
+
+综述，我们总结出优先级规律：
+
+new绑定 > 显式绑定 > 隐式绑定 > 默认绑定
+
+
+## 6. 特殊情况
+
+### 6.1 call、apply、bind中传入null、undefined
+这种特殊情况在我们平时的应用中很常见。
+
+>如果在使用call、apply、bind的显示绑定中第一个参数传入 null 或者 undefined ,那么这些值在调用的时候就会被忽略，实际上应用的是默认绑定规则。
+
+```
+function foo(){
+    console.log( this.a )
+}
+
+var a = 2;
+
+foo.call( null ); // 2
+```
+
+这很有用，我们可以利用这样的特性做一些有意思的事情，比如展开一个数组。
+在ES6中我们可以使用 ... 这样的拓展剩余符，在ES5中则可以这样：
+
+```
+function foo(a,b){
+    console.log("a: " + a + ", b: " + b);
+}
+
+foo.apply( null, [1,2,3]); // a: 1 ,b: 2
+```
+
+利用bind还可以完成ES6不能直接做到的事情，比如柯里化。(有关柯里化的知识会在后边单独说明)
+```
+function foo(a,b){
+    console.log("a: " + a + ", b: " + b);
+}
+
+var bar = foo.bind(null, 2);
+bar( 3 ); // a: 2 ,b: 3
+```
+
+#### 6.1.1 DMZ
+
+直接使用 null 可能会产生副作用。最好的方式是利用DMZ创建一个空的非委托对象。
+它比null还要空。所谓非委托是指并不会创建Object.prototype这个委托。
+最常见的创建方式就是 Object.create(null);
+
+我们改进一下上边的列子：
+```
+function foo(a,b){
+    console.log("a: " + a + ", b: " + b);
+}
+var _null_ = Object.create( null );
+var bar = foo.bind(_null_, 2);
+bar( 3 ); // a: 2 ,b: 3
+```
+
+
+### 6.2 间接引用
+
+```
+var f(){
+    console.log( this.a )
+}
+var o = {
+    a: 2,
+    f: f
+}
+var p = {a: 4}
+var a = 3
+(p.foo = o.f)(); // 3
+```
+
+
+### 6.3 软绑定
+
+我们回忆一下，之所以使用硬绑定的目的是为了解决丢失this绑定的时候，采用默认绑定规则的情况。但是硬绑定也是有硬伤的啊，不够灵活，不能通过显式或者隐式绑定修改this。
+
+接着我们可以实现一种更cool的方式解决这一问题，设计思想很简单，就是如果丢失绑定了不是要采取默认绑定规则吗，就指向全局或者undefined了。那么我们让它在默认规则绑定的时候指向的是我们定义的一个上下文对象而不是全局或者undefined，然后隐式、显式绑定的时候不变。不就灵活实现了和硬绑定一样疗效但是更cool的方式了吗？
+
+实现的方式参考bind的写法
+
+```
+if(!Function.prototype.softBind){
+    Function.prototype.softBind = function(obj){
+        var fn = this;
+        var aArgs = [].prototype.slice.call( 1, arguments );
+        var bound = function(){
+            return fn.apply(
+                // 如果调用对象是全局对象或者是undefined
+                // 那么this指向obj。如果不是，不会修改this。
+                ( !this || this === (window || global) ) ? obj : this,
+                aArgs.concat.apply(aArgs, arguments)
+            )
+        }
+        // 建立原型关系
+        bound.prototype = Object.create( fn.prototype )
+        return bound;
+    }
+}
+```
+
+
+核心就是一句：( !this || this === (window || global) ) ? obj : this。
+这句话说明了如果调用的this绑定到的是全局或者undefined 这个时候采用默认绑定规则，但是我们修改其this指向一个obj上下文对象，而其他不是全局的情况我们保持this指向不变。这样就可以通过显式或者隐式绑定来修改this。
+
+实验一下：
+```
+function foo(){
+    console.log( "name: " + this.name );
+}
+
+var obj = {name: "obj"},
+    obj2 = {name: "obj2"},
+    obj3 = {name: "obj3"}
+
+var fooObj = foo.softBind(obj);
+// 独立函数引用调用，所以这里采用默认绑定规则，但是我们修改了this指向obj
+fooObj(); // name: obj
+
+// 显式绑定规则,修改this指向 obj3
+fooObj.call( obj3 ); // name: obj3 <-- 看这里
+
+// 隐式绑定规则,修改this指向 obj2
+obj2.foo = foo.softBind(obj);
+obj2.foo(); // name: obj2 <-- 看这里
+// 丢失绑定的情况,默认绑定规则 this指向obj
+setTimeout( obj2.foo, 1000); // name: obj  <-- 看这里
+```
+
+## 7. ES6中的箭头函数
+
+箭头函数是独立于上面4种规则之外的体系。其this绑定是不会被修改的，哪怕你用new调用。
+
+```
+function foo(){
+    return a => {
+        console.log( this.a )
+    }
+}
+
+var obj1 = {
+    a: 2
+}
+
+var obj2 = {
+    a: 3
+}
+
+var bar = foo.call( obj1 );
+bar.call( obj2 ); // 2 <-- 箭头函数的绑定是不会被修改的
+```
+
+
+箭头函数会继承外层函数调用的this绑定。类似于以前我们在setTimeout中的self的用法
+
+```
+function foo(){
+    var self = this;
+    setTimeout(function(){
+        console.log( self.a )
+    }, 1000)
+}
+var obj = {
+    a: 2
+}
+
+foo.call( obj ); // 2
+```
+
+不管你用var self = this; 还是胖箭头。目的都是为了取代this机制。

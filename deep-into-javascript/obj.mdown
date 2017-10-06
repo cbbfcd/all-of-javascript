@@ -1,0 +1,456 @@
+# 对象全面解析
+
+#### author
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。
+> 如果觉得还不错，请不要吝惜您的star
+<hr/>
+
+
+## 1. 语法
+
+对象的定义形式有两种：声明形式 和 构造形式
+
+声明形式:
+```
+var obj = {
+    name: "tom"
+}
+```
+
+构造形式:
+```
+var obj = new Object();
+obj.name = "tom"
+```
+
+我们开发过程中最常用的当然是声明形式了。
+
+## 2. 类型
+
+JavaScript中主要的类型有：
+1. string
+2. number
+3. boolean
+4. null
+5. undefined
+6. object
+
+其中string、number、boolean、null、undefined 属于简单基本类型。
+与之相对的还有复杂基本类型，指的是JavaScript中的特殊的对象的子类型，比如Array、Function。通常被称之为内置对象。
+
+这里有一个<a href="#">bug!!</a>，很多人觉得 null 应该也是一个对象。因为:
+```
+typeof null === "object" // true 
+```
+
+>但是实际上null本身就是一个基本类型。导致这个bug的原因是因为在JavaScript中底层二进制前三位都是0的话就会被判断为object类型。而null的二进制全是0，误会就这样产生了。
+
+
+内置对象:
+1. String
+2. Number
+3. Boolean
+4. Object
+5. Function
+6. Array
+7. Date
+8. RegExp
+9. Error
+...
+
+眨眼一看是不是有点雷同于 Java 中的包装类(比如: java.long.String)的感觉。
+但是它们是完全不同的，JS中的内置对象其实就是内置的函数。可以通过构造调用(new),
+构造出一个新的子类型实例。
+
+JavaScript是弱类型语言。所有类型一个 var 就可以搞定。但是我们要知道当我们声明一个字符串字面量，它是一个不可变常量，但是我们同样可以使用length等属性。引擎实际在背后是把字符串字面量转成了String对象。
+
+```
+var str = " i'm a string ";
+typeof str; // "string"
+str instanceOf String; // false
+" i'm a string ".length; // 14
+
+var strObj = new String(" i'm a string ");
+typeof strObj; // "object"
+strObj instanceOf String; // true
+new String(" i'm a string ").length; // 14
+```
+
+><a href="./this.mdown">instanceOf用法可以在这里看看</a>
+
+
+## 3. 对象的属性
+
+属性的值并不一定会存储在对象内部，大多数情况对象存储的是属性的"名称"(引用)。
+指向属性存储的位置。
+
+属性的访问方式有两种
+```
+obj.name = "tom"; // 属性访问
+obj["name"] = "tom";// 键访问
+```
+
+>在对象中属性名称一定是字符串。
+
+
+### 3.1 可计算属性名
+
+这是ES6中新增的。
+
+```
+var str = "aaa";
+
+var obj = {
+    [str + "1"]: "hello"
+}
+
+obj["aaa1"]; // hello
+```
+
+可计算属性名最佳搭配就是 Symbol:
+```
+var obj = {
+    [Symbol.some]: "hello"
+}
+obj[Symbol.some]; // hello
+```
+
+## 4. Array
+
+数组是我们使用频率颇高的内置对象。
+数组也是对象，也可以像普通对象一样使用键值赋值，但是注意如果键值看起来是个数字的话，可能会导致意想不到的bug。
+```
+var arr = [1,2,3]
+arr.length; // 3
+
+arr['name'] = 'arr';
+arr['3'] = 4;
+arr.length; // 4
+```
+
+## 5. 对象的拷贝
+
+记得在react项目开发中，遇到看很多需要拷贝对象的情况，因为没有使用Immutable.js。
+对象的拷贝分为浅拷贝和深拷贝。它们之间的区别从名字就可看出一二了。
+
+很多JavaScript库都提供了拷贝的方法，比如 lodash中的 cloneDeep()。
+感兴趣的话可以看看<a href="https://segmentfault.com/a/1190000002801042">深度拷贝实现</a>等文章。
+
+如果不想为了拷贝引入这些第三方库来消耗资源，可以使用常见的原生方式实现
+对于JSON安全的数据，实现深度拷贝可以使用:
+```
+var obj = JSON.parse( JSON.stringify( someObj ) )
+```
+
+对于浅拷贝:
+```
+var obj = Object.assign( {}, someObj )
+```
+
+Object.assign()是ES6定义的浅拷贝方法，第一个参数是目标对象，后边的参数是一个或者多个源目标对象。它会遍历一个或多个源对象的所有可枚举的自有键，并把他们复制到目标对象中(使用=赋值)，最后返回目标对象。但是，源对象属性的一些特征(比如writable等)不会被复制过去。
+
+
+## 6. 属性描述符
+
+ES5开始，所有的属性都有了属性描述符。
+
+```
+var obj = {
+    a: 2
+}
+
+Object.getOwnPropertyDescriptor( obj, "a" );
+// {
+//       value: 2, 
+//       writable: true, //可写
+//       enumerable: true, //可枚举
+//       configurable: true//可配置
+//  }
+```
+
+我们可以通过defineProperty(...)来设置这些特性
+
+```
+var myObj = {}
+
+Object.defineProperty( myObj, "a", {
+    value: 2,
+    writable: true,
+    configurable: true,
+    enumerable: true
+} )
+
+myObj.a; //2
+```
+
+
+#### 6.1 writable
+
+writable 表示是否可以修改属性的值
+
+```
+//"use strict"
+var myObj = {}
+
+Object.defineProperty( myObj, "a", {
+    value: 2,
+    writable: false, // 表示value的值不可改变
+    configurable: true,
+    enumerable: true
+} )
+
+myObj.a = 3;
+myObj.a; // 2
+```
+
+修改属性的值失败了。
+
+如果是在严格模式下，上述代码会抛出一个TypeError的错误。
+
+#### 6.2 configurable
+
+表示该属性是否可以使用defineProperty()来修改属性描述符的。
+
+```
+var myObj = {}
+myObj.a = 2;
+myObj.a; //2
+
+Object.defineProperty( myObj, "a", {
+    value: 3,
+    writable: true, 
+    configurable: false, // 属性是不可以配置的
+    enumerable: true
+} )
+
+myObj.a = 3;
+myObj.a; // 3
+
+// delete myObj.a;
+// myObj.a; // 3
+Object.defineProperty( myObj, "a", {
+    value: 4,
+    writable: true, 
+    configurable: true, // 这一步是不可能的了
+    enumerable: true
+} ) // TypeError
+
+```
+
+当设置了configurable为false的时候。对象的属性就不可以被配置了，
+再次调用defineProperty的时候就会报错。不管是不是在严格模式下。
+
+这里需要注意几个点：
+
+1. configurable: false; 是单向不可逆的操作。不可撤销
+2. 设置 configurable: false; 后不可以使用delete删除这个属性了。
+3. 即便configurable: false; 依然可以设置writable: true -> false,但是无法由false改为true。
+
+
+#### 6.3 enumerable
+
+enumerable控制该属性是否出现在对象的属性枚举中。
+比如说通过 for...in... , 或者 Object.keys() 能不能访问到。
+
+```
+var obj = {};
+
+Object.defineProperty( obj, "a", {enumerable: true, value: 2})
+Object.defineProperty( obj, "b", {enumerable: false, value: 3})
+
+obj.b; //3
+("b" in obj); // true
+obj.hasOwnProperty( "b" ); // true
+
+for (let k in obj){
+    console.log( k )
+} // a
+
+obj.propertyIsEnumerable('a'); //true
+obj.propertyIsEnumerable('b'); //false
+
+Object.keys(obj); // ["a"]
+Object.getOwnPropertyNames( obj ); // ["a", "b"]
+```
+
+说明一下几个API:
+<br/>
+"b" in obj 和 obj.hasOwnProperty('b') 都是用于判断 obj 中是否有 'b' 这个属性。
+不同的是 in 会去[[prototype]]链上寻找。<br/>
+in 操作符只是判断属性名在对象以及其原型链能不能找到。如果 4 in [1,2,3,4] ，
+结果会是false。因为存在的属性名应该是下标 0 1 2 3.
+
+Object.keys() 会返回一个数组，包含所有的可枚举属性。<br/>
+Object.getOwnPropertyNames()也会返回一个数组，包含所有的属性，不管是不是可枚举
+Object.keys()与Object.getOwnPropertyNames()都不会去原型链上查找。
+
+propertyIsEnumerable() 用于判定一个属性是不是可枚举的。
+
+最佳实践表明遍历数组的时候不要用 for...in...，会多出一些可枚举属性。
+而且获取到的也不是属性的值，只是属性的名称。
+
+
+## 7. Immutable Object Property
+
+不可变的对象在ES5中可以通过很多种方式实现。但是实际开发过程中不建议你使用以下会提到的方式。
+
+#### 7.1 对象常量
+
+设置 writable: false和 configurable: false就可以得到一个常量属性。
+
+```
+var obj = { };
+Object.defineProperty( obj, "A", {value: 2, writable: false, configurable: false})
+
+```
+
+#### 7.2 禁止拓展
+
+禁止对象添加新的属性。
+
+可以通过 Object.preventExtensions(...)；实现
+
+```
+var obj = { a: 2 };
+Object.preventExtensions(obj);
+obj.b = 3;
+obj.b; // undefined
+```
+
+#### 7.3 密封
+
+Object.seal(...);
+
+等同于使用了 Object.preventExtensions 并且设置了 configurable: false;
+
+
+#### 7.4 冻结
+
+Object.freeze(...);
+
+等同于使用了 Object.seal 并且设置了 writable: false;
+
+
+## 8. [[Get]] & [[Put]]
+
+对象默认的[[Get]] & [[Put]]可以分别控制属性值的获取和设置。
+
+#### 8.1 [[Get]]
+
+obj.a 是一次属性访问，但不是看起来的那么简单。实际上是实现了[[Get]]操作。
+过程大概就是在对象中查找有没有名称相同的属性，如果有就返回这个值，如果没有的话，那就复杂了。会去遍历原型链查找。如果都没有找到的话就会返回 undefined。
+
+#### 8.2 [[Put]]
+
+[[Put]] 的操作更加复杂，大致就是先判断有没有存在这个属性，然后判断是否是访问描述符，有没有setter，writable是不是false等。具体过程涉及原型链的知识，我们后边会讲。
+
+## 9. getter & setter
+
+在ES5中可以使用getter和setter部分改写默认操作。但是只能应用在单个属性上。无法应用到整个对象上。
+
+当你给一个属性定义getter、setter的时候，或者两者都有的时候。这个属性会被定义为访问描述符，对于访问描述符来说，JS会忽略它们的value和writable的特性。取而代之的是关心set和get(还有configurable和enumerable)特性。
+
+```
+var obj = {
+    get a(){
+        return 2
+    }
+};
+
+obj.a = 3;
+obj.a; // 2
+```
+
+还可以显式的定义:
+
+```
+var obj = {};
+Object.defineProperty( obj, "a", {
+    get: function(){ return 2 },
+    configurable: true,
+    enumerable: true
+})
+
+obj.a = 3;
+obj.a; // 2
+```
+
+一般来说get和set是成对出现的。不然会有隐患:
+```
+var obj = {
+    get a(){
+        return this._a_;
+    },
+    set a(val){
+        this._a_ = val * 2
+    }
+}
+
+obj.a = 2;
+obj.a;  // 4
+```
+
+
+## 10. 遍历
+
+遍历数组的方式有很多。传统的for循环、forEach、some、every等。
+这里介绍的是ES6中新增的 for...of...
+
+```
+var arr = [1,2,3]
+for(let i of arr){
+    console.log( i );
+}
+// 1 2 3
+```
+
+for...of... 不能直接去遍历一个对象。因为它是有使用条件的。
+必须要定义了迭代器，数组是默认就是定义了迭代器了的。
+
+```
+var arr = [1,2,3]
+var it = arr[Symbol.iterator]();
+it.next(); // {value:1, done:false}
+it.next(); // {value:2, done:false}
+it.next(); // {value:3, done:false}
+it.next(); // { done:true}
+```
+
+所以一个对象自己定义了迭代器的话是可以实现for...of...的：
+
+```
+var obj = {
+    a: 2,
+    b: "hello"
+}
+Object.defineProperty( obj, Symbol.iterator, {
+    enumerable: false,
+    writable: false,
+    configurable: true,
+    value: function(){
+        var o = this;
+        var idx = 0;
+        var keys = Object.keys(o);
+        return {
+            next: function(){
+                return{
+                    value: o[keys[idx++]],
+                    done: (idx > keys.length)
+                }
+            }
+        }
+    }    
+})
+
+// 手动遍历
+var it = obj[Symbol.iterator]();
+it.next(); // {value: 2, done: false}
+it.next(); // {value: "hello", done: false}
+it.next(); // {done: true}
+
+// for of
+for(let i of obj){
+    console.log(i)
+} // 2 hello
+```

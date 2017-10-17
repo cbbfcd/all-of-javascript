@@ -10,7 +10,7 @@
 <a href="./closure.mdown">3. 100%解读JS中的闭包</a><br/>
 <a href="./this.mdown">4. this全面解析</a><br/>
 <a href="./obj.mdown">5. 对象全面解析</a><br/>
-<a href="./obj.mdown">6. 原型</a><br/>
+<a href="./proto.mdown">6. 原型</a><br/>
 
 # author
 <a href="https://github.com/cbbfcd">@波比小金刚</a>

@@ -1,6 +1,6 @@
 # 深入理解JavaScript
 
-总结了自己对JavaScript的理解，整理了一些书籍和自己开发过程中得到的知识。<br/>
+整理了一些书籍和自己开发过程中得到的知识。<br/>
 基本包含了原生js中所有的知识点。
 
 # 目录
@@ -10,6 +10,7 @@
 <a href="./closure.mdown">3. 100%解读JS中的闭包</a><br/>
 <a href="./this.mdown">4. this全面解析</a><br/>
 <a href="./obj.mdown">5. 对象全面解析</a><br/>
+<a href="./obj.mdown">6. 原型</a><br/>
 
 # author
 <a href="https://github.com/cbbfcd">@波比小金刚</a>

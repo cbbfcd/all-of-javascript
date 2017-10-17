@@ -521,7 +521,7 @@ if(!Function.prototype.bind){
             fBound = function(){
                 return fToBind.apply(
                     (
-                        this instanceOf fNOP &&
+                        this instanceof fNOP &&
                         oThis ? this : oThis
                     ),
                     aArgs.concat(Array.prototype.slice.call(arguments))
@@ -539,7 +539,7 @@ if(!Function.prototype.bind){
 这里关键的部分我们抽取出来
 ```
 ...
-this instanceOf fNOP && oThis ? this : oThis
+this instanceof fNOP && oThis ? this : oThis
 ...
 fNOP.prototype = this.prototype;
 fBound.prototype = new fNOP();
@@ -550,10 +550,10 @@ fBound.prototype = new fNOP();
 
 >instanceof运算符用来判断一个构造函数的prototype属性所指向的对象是否存在于另外一个要检测对象的原型链上
 
-如果我们手动实现一个 L instanceOf R:
+如果我们手动实现一个 L instanceof R:
 ```
-function _instanceOf(L, R){
-    var o = R.prototype; //显式原型
+function _instanceof(L, R){
+    var o = R.prototype, //显式原型
     L = L.__proto__;//隐式原型
     while(true){
         if(L === null) return false;

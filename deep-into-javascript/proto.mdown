@@ -1,0 +1,125 @@
+<h1> 原型 </h1>
+
+<hr/>
+
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+
+>如果觉得不错请扔个star过来。
+
+> 如要转载，请注明出处。
+
+<hr/>
+
+[TOC]
+
+<hr/>
+
+
+## 1. \[[prototype]\]
+<hr/>
+之前在<a href="./obj.mdown">JS中的对象</a>一节中提到过对象有一个\[[GET]\]、\[[PUT]\]属性。
+
+就是说当访问 obj.a 的时候会通过 \[[GET]\] 操作获取 a 的值。但是如果 obj 中没有 a的话，过程就复杂了。会在obj的整条原型链上去找，如果找到了就返回，找不到就返回 undefined。
+
+>PS: 如果涉及ES6的proxy。这里的\[[GET]\]就没意义了。
+
+```
+var anotherObj = { a: 2 };
+var myObj = Object.create( anotherObj );
+console.log( myObj.a ); // 2
+console.log( 'a' in myObj); // true
+Object.getOwnPropertyNames(myObj); // []
+(myObj) instanceof anotherObj.constructor; // true
+```
+
+先说说方法吧。
+
+'a' in myObj 会在myObj关联的整条原型链上查找，并判断是不是含有 a 属性。
+Object.getOwnPropertyNames() 返回所有属性(不包括原型链上的)。
+这在<a href="./obj.mdown">JS中的对象</a>一节中提到过，就不再赘述。
+
+现在我们先关注一下 Object.create()。
+
+### 1.1 Object.create
+
+>Object.create() 方法会使用指定的原型对象及其属性去创建一个新的对象
+
+语法:
+
+>Object.create(proto\[, propertiesObject\])
+
+Object.create会在这一章节中大量使用，所以需要掌握其用法。
+第一个参数是一个原型对象，第二个可选参数是属性配置对象(见<a href="obj.mdown">对象解析</a>)。
+
+```
+var o = Object.create( null ); // 创建一个[[prototype]]为空的对象
+
+var p = {}; // 等价于 var p = Object.create( Object.prototype )
+// 这里思考为什么是Object.prototype。后边会提到
+// 也是之前的章节说用Object.create( null )创建的DMZ比var obj = {}还要空的原因。
+
+var k = Object.create({}, {
+    name: {
+        value: 'tom'
+    }
+}); // 省略了的属性特性默认为false,所以属性name是不可写,不可枚举,不可配置的
+
+
+// 除非：
+var k2 = Object.create({}, {
+    name: {
+        value: 'tom'，
+        writable: true,
+        enumerable: true,
+        configurable: true 
+    }
+});
+```
+
+那么Object.create()创建对象的作用还是不清晰吗？
+
+```
+var anotherObj = { a: 'jack'}
+var obj = Object.create( anotherObj )
+obj.a; // "jack"
+
+// 重点是这个
+obj instanceof anotherObj.constructor; // true
+```
+
+一句话就是 Object.create() 让obj的\[[prototype]\]关联到了anotherObj上。然后、后边会再次！再次！讲一下instanceof。
+
+现在跟着MDN实现一下Object.create()的polyfill:
+
+```
+if( typeof Object.create !== 'function'){
+    Object.create = function(proto, propConfig){
+        if(!(proto === null || proto === 'object' || proto === 'function') ){
+            throw TypeError('参数类型错误')
+        }
+        // new Object() 使得 temp的 [[prototype]] 关联了 Object.prototype
+        var temp = new Object(); 
+        temp.__proto__ = proto;
+        if( typeof propConfig === 'object' ){
+            Object.defineProperties( temp, propConfig )
+        }
+        return temp;
+    }
+}
+```
+
+隐式原型 \_\_proto\_\_后边也会讲到。
+这里可以用ES6的Object.setPrototypeOf(obj1, obj2)代替。
+
+### 1.2 new
+
+
+
+### 1.3 constructor
+
+### 1.4 instanceof
+
+### 1.5 \_\_proto\_\_ & prototype
+
+
+

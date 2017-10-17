@@ -1,0 +1,273 @@
+/**
+* 一个简单的按钮组件
+*/
+import sumUtils from '../../utils/sum'
+
+// ${} 中可以写任何的js表达式。
+// out.global获取全局的变量
+// 这些值是自动转义的，因此您不会意外地插入恶意代码。
+// 如果您确实需要传递未转义的HTML，您可以使用$!{}
+
+<div>
+	<h1>this is a ${input.name} demo</h1><h4>edit by: ${out.global.author.toUpperCase()}</h4>
+	<div>the current count is ${state.count}</div>
+	<button.button on-click('increment')>click me!</button>
+</div>
+
+// 通过 \ 转移$ 使其不再是一个占位符，而仅仅是一个文本
+<div>
+    Placeholder example: <code>\${input}</code>
+</div>
+
+// 与HTML相比，一个很大的改进是Marko提供的类型属性(而不仅仅只是字符串)。
+<div>
+	<tag string="name"/>
+	<tag number=1/>
+	<tag sum=1+2/>
+</div>
+
+// 动态属性，直接把一个对象结构为属性
+<div>
+	<a ${input.attrs}>Dynamic attributes</a>
+</div>
+
+// 属性为false的话 属性不会加到这个tag上
+<div class=(input.flag && input.attrs.class)>Conditional attributes</div>
+
+
+// Style attribute 样式来说，字符串和对象的形式都支持 
+<div>
+	<a style="color: red">字符串样式</a><br/>
+	<a style={color: "orange"}>对象样式</a>
+</div>
+
+
+// Class attribute class 也是支持数组和对象形式
+<div>
+	<br/>
+	<a class=['a', 'b', null]>数组形式</a><br/>
+	<a class={a: true, b: true, c: null}>对象形式</a><br/>
+</div>
+
+// Marko提供了一个简单的方法:在元素上声明类和id:
+<div>
+	<span.button>声明类和id</span><br/>
+</div>
+
+// 指令用括号表示，用参数代替值。许多指令可以用作标记和属性。
+<div>
+	<if(true)>
+		<span>可以显示吗?</span><br/>
+	</if>
+	<strong if(true)>
+	    Marko is awesome
+	</strong><br/>
+	<for(item in input.items)>
+		<li>${item}</li>
+	</for>
+</div>
+
+// 插入一条javascript表达式， 用$空一格 + 表达式
+<div>
+	$ var name = input.name
+	<h3>${name}</h3>
+
+	$ {
+		let arr = ['周', '倩'];
+		var newArr = arr.map(i=>{
+			return i + '~';
+		})
+	}
+	<for(item in newArr)>
+		<li>${item}</li>
+	</for>
+</div>
+
+// 遵循静态的JavaScript代码将在加载模板时运行一次，并由所有需要呈现的调用共享。它必须在顶层声明，并且不能访问在呈现时传递的值
+
+// 你只想初始化变量一次的话，就用static
+
+static {
+	var base = 2;
+	function sum(a,b){
+		return a + b;
+	}
+}
+
+<h5>${base + sum(2,4)}</h5>
+
+// $ 转义
+<div>
+	<code>
+	    \$ var num = 123;
+	</code>
+</div>
+
+// 核心标签
+// <if>, <else-if>, <else> 也可以作为属性
+<div if(Math.random() < 0.5)>小于0.5</div>
+<div if(Math.random() > 0.5)>大于0.5</div>
+
+// for循环前边已经有演示，但是它还可以支持循环状态变量
+// 该变量支持4个方法 getIndex() getLength() isFirst() isLast()
+$ var colors = ['red', 'orange', 'blue', 'pink']
+<for(color in colors | status-var=loop)>
+	<li style={'color': color}>
+		${color} : 
+		${loop.getIndex()+1} of ${loop.getLength()} 
+		<if(loop.isFirst())> and is first</if> 
+		<if(loop.isLast())> and is Last</if> 
+	</li>
+</for>
+
+
+// 循环分割符
+// 这里外边加div 不然循环出的4个span的id值是一样的
+<div>
+	<span for(color in colors | separator=", ") style="color: ${color}" >
+		${color}
+	</span>
+</div>
+
+
+// range loop
+// from ... to ... step...
+// 这里搭配循环分隔符，并没有起作用。
+<div>
+	<span for(i from 0 to 10 step 2 | separator=", ")>${i}</span>
+	<br/>
+	<span for(let j=0; j<=10; j++)>${j}</span>
+</div>
+
+
+// 循环一个对象
+$ let obj = {
+	'add': 'beijing',
+	'phone': '123456'
+}
+
+<div>
+	<for(name, value in obj)>
+		<b>${name}</b>: ${value}, 
+	</for>
+</div>
+
+
+// 自定义迭代器
+// 定义的迭代器必须要有一个callback
+static function reverseIterator(arrayList,call) {
+	call(arrayList.reverse())
+}
+<div>
+	<span for(item in ['a','b','c'] | iterator=reverseIterator)>${item}</span>
+</div>
+
+
+// <while>标签
+$ var c = 0
+<ul>
+	<li while(c<4)>
+		${c++}
+	</li>
+</ul>
+
+
+// body-only-if
+// 如果您发现有一个包装器元素是有条件的，但是它的主体应该始终被呈现，那么您可以使用body-on- If属性来处理这个用例。
+//例如，仅渲染包装< a >标记，如果有一个有效的URL，那么您可以执行以下操作
+// 如果判断为假，则渲染出主体，<a>body ony if</a>
+<a href=input.attrs.href bady-only-if(!input.attrs.href)>body ony if</a>
+
+// JavaScript
+// 1. import     eg: someFunc from './someUtils'
+<h5>the sum is ${sumUtils.sum(2,3)}</h5>
+
+// 复用
+// 1. include  
+// 可以引入另一个模板，并传递给它一个 input
+// 引入的这个模板可以是一个完整的html页面。  
+$ let new_data = {name: 'cqy'}
+<div>
+	<include('../../tempaltes/templateButton.marko', new_data)/><br/>
+</div>
+// 甚至可以在外部内容中注入额外的内容块,通过 @ 实现
+// 这个功能强大的一比
+<div>
+	<include('../../tempaltes/layout.marko'), {title:'Marko'}>
+		<@body>
+			<h3>可以把这部分传递到引用的模板中，通过 input.body 使用</h3>
+			<h4>但是 include 标签中的 input 传递会失效</h4>
+			<a href=input.attrs.href>额外的内容块</a>
+		</@body>
+	</include>
+</div>
+
+
+// 2. 可以通过<include-text> <include-html> 引入text和html文件
+
+// 3. 参数化宏允许在HTML模板中使用可重用的片段
+// 宏 必须使用 <macro > 标签定义
+<macro greeting(name, count)>
+	<h3>Hello, ${name}! You have ${count} new messages.</h3>
+</macro>
+
+<p>
+	<greeting('tom', 25)/>
+</p>
+// or
+<p>
+	<greeting name='jack' count=40/>
+</p>
+
+// Async content 异步的内容
+// 见 async_example.marko
+// 这里在外层的div中加id会报错，是因为演示的所有demo并没有包裹在一个大的div中。
+// 原因暂时不明，但是把所有代码放在一个<div>中 就可以正常使用 #id 了。
+// 这里使用异步 的时候会导致整个页面都会异步等待，解决办法是单独的render
+// 见 index.js
+<div>
+	<div#test>
+		
+	</div>
+</div>
+
+
+// 注释
+<!--注释-->
+/**
+* 注释
+*/
+<html-comment>会被编译的注释</html-comment>
+<h3>注释的正确使用</h3>
+
+// 编译选项
+//  1. marko-preserve-whitespace
+// 保留所有的空格
+<div marko-preserve-whitespace>
+    All of this
+    whitespace   will
+    be preserved.
+</div>
+<br/>
+<div>
+    All of this
+    whitespace   will
+    be preserved.
+</div>
+
+// 2. marko-body
+// 可以使用marko body属性来控制如何解析内容
+// html : 默认 正文内容将解析html
+// static-text:正文内容将被解析为静态文本(HTML标记将被忽略)。占位符将被忽略
+// parsed-text:正文内容将被解析为文本(HTML标记将被忽略)。占位符不会被忽略
+<div marko-body="static-text">
+    <span if(true)>
+            Hello!
+    </span>
+</div>
+
+<test-custom-tag name="欢" age=123/>
+
+<hr/>
+// 模板的根文本需要在任何标签之外，前面必须要有 --
+-- root text

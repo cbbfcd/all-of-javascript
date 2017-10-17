@@ -1,0 +1,11 @@
+# Marko.js 学习笔记
+
+<a href="http://markojs.com/docs/getting-started/">Marko</a>的学习笔记。
+
+# 目录
+<a href="./marko-demos/README.mdown">marko学习笔记</a>
+
+# author
+
+<a href="https://github.com/cbbfcd">@波比小金刚</a>
+> 如要转载，请注明出处。

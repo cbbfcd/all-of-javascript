@@ -21,15 +21,17 @@
 
 就是说当访问 obj.a 的时候会通过 \[[GET]\] 操作获取 a 的值。但是如果 obj 中没有 a的话，过程就复杂了。会在obj的整条原型链上去找，如果找到了就返回，找不到就返回 undefined。
 
->PS: 如果涉及ES6的proxy。这里的\[[GET]\]就没意义了。
+>PS: 如果涉及ES6的Proxy模式。这里的\[[GET]\]就没意义了。
 
 ```
 var anotherObj = { a: 2 };
-var myObj = Object.create( anotherObj );
+var myObj = Object.create( anotherObj ); // 建立原型关联
 console.log( myObj.a ); // 2
 console.log( 'a' in myObj); // true
 Object.getOwnPropertyNames(myObj); // []
 (myObj) instanceof anotherObj.constructor; // true
+anotherObj.isPrototypeOf(myObj); // true 同上。ES6中的方法
+Object.getPrototypeOf(myObj) === anotherObj; //true ES6中的方法
 ```
 
 先说说方法吧。
@@ -57,12 +59,13 @@ var o = Object.create( null ); // 创建一个[[prototype]]为空的对象
 var p = {}; // 等价于 var p = Object.create( Object.prototype )
 // 这里思考为什么是Object.prototype。后边会提到
 // 也是之前的章节说用Object.create( null )创建的DMZ比var obj = {}还要空的原因。
+// 你想啊，空的连原型都没有了，不能再空了，这样的对象保存数据是完美的啊。
 
 var k = Object.create({}, {
     name: {
         value: 'tom'
     }
-}); // 省略了的属性特性默认为false,所以属性name是不可写,不可枚举,不可配置的
+}); // 省略了的属性特性，默认为false,所以属性name是不可写,不可枚举,不可配置的
 
 
 // 除非：
@@ -81,13 +84,18 @@ var k2 = Object.create({}, {
 ```
 var anotherObj = { a: 'jack'}
 var obj = Object.create( anotherObj )
+var obj1 = Object.create( anotherObj.__proto__ ); // 比较
+
 obj.a; // "jack"
+obj1.a; // undefined // 比较一下
 
 // 重点是这个
-obj instanceof anotherObj.constructor; // true
+anotherObj.isPrototypeOf(obj);// true
+anotherObj.isPrototypeOf(obj1);// false // 比较一下
+anotherObj.__proto__.isPrototypeOf(obj1);// true
 ```
 
-一句话就是 Object.create() 让obj的\[[prototype]\]关联到了anotherObj上。然后、后边会再次！再次！讲一下instanceof。
+一句话就是 Object.create( ParamObj ) 让新生成的对象obj的\[[prototype]\]关联到了ParamObj上。然后、后边会再次！再次！讲一下instanceof。
 
 现在跟着MDN实现一下Object.create()的polyfill:
 
@@ -99,6 +107,7 @@ if( typeof Object.create !== 'function'){
         }
         // new Object() 使得 temp的 [[prototype]] 关联了 Object.prototype
         var temp = new Object(); 
+        // 通过__proto__属性修改对象的原型对象
         temp.__proto__ = proto;
         if( typeof propConfig === 'object' ){
             Object.defineProperties( temp, propConfig )
@@ -113,13 +122,377 @@ if( typeof Object.create !== 'function'){
 
 ### 1.2 new
 
+<a href="./this.mdown">this详细解析</a>一节中提到了new绑定与构造函数调用(JS中是没有构造函数一说的，实际上new会劫持所有普通函数并用构造对象的形式调用它)。
 
+实际上对"构造函数"最准确的说法就是带new的函数调用。
+
+其中对于new与原型之间的关系没有详细说明，这里补充一下。
+
+语法：
+
+```
+new constructor([args])
+```
+
+区别于Java等编程语言，JS中是没有类机制的，ES6中的class也只是语法糖，其实质还是原型继承。new 的作用就是让返回的实例的原型对象关联到constructor.prototype。
+
+```
+function Foo(){};
+var o = new Foo();
+o instanceof Foo; // true
+o.__proto__ === Foo.prototype // true
+```
+
+所以我们可以简单的这样去仿真new的原型继承过程：
+
+```
+function Foo(){};
+var o = new Foo();
+
+// 上面实际上执行的是：
+
+var o = new Object();
+o.__proto__ = Foo.prototype;
+Foo.call( o );
+```
 
 ### 1.3 constructor
 
+ES6中在class里面我们可以定义一个"构造函数"来初始化实例对象。但是这容易造成误解，与Java、C不同的是在JS中不存在类，也不存在构造函数，准确的说应该是构造函数调用。
+
+"构造函数"的说法往往给了我们太多的错觉：
+
+```
+function Foo(){};
+var o = new Foo();
+```
+
+如果按照"构造函数"来理解上面的代码的话，应该说 o 这个实例是由 Foo 这个函数("类")构造出来的。我们会证明这样的说法是错误的！
+
+不过我们要先理解并记住一段很绕的逻辑:
+
+1. 首先\[[prototype]\]属性 和 prototype对象是两个概念。
+
+2. <a style="color:red">几乎</a>每个JavaScript对象都有\[[prototype]\]属性，这是一个隐藏的内置属性，实质是一个引用，指向对象的原型。prototype对象当然就是被指向的这个原型了。
+
+3. 在ES5之前是没有很好的办法去访问对象的内置\[[prototype]\]属性的，但是大多数浏览器都支持隐式原型 \_\_proto\_\_,可以通过它访问并修改prototype,隐式原型实际是一个访问器属性，后边会具体阐述。
+
+4. \[[prototype]\]属性是一个隐藏的内置属性，所以基本上自定义对象的prototype为undefined。比如({a:2}).prototype;结果为undefined。但是<a style="color:steelblue">每一个函数被创建的时候会拥有一个prototype属性。除了Function.prototype.bind创建的函数是没有prototype属性的。</a>
+
+5. <a style="color:orange">函数的prototype属性指向一个原型对象，而对象(包括原型对象)有一个constructor属性(这个说法暂时这样，其实也是错误的，其实a并没有一个属性constructor)，指向它的"构造函数"。</a>这一点很重要。如图(自己画的，见笑了)：
+<a style="color:#333">图片看不到的话，请用chrome或者opera，除了IE</a>
+<img src="./proto.png"/>
+
+6. 一个对象的原型对象也有它自己的原型对象，层层追加就形成了原型链，至于尽头在哪儿呢？尽头几乎都指向 Object.prototype,而Object.prototype指向的原型就是null了。null是没有原型的，所以就此结束。不行你可以试试输出 Object.prototype.\_\_proto\_\_ === null;
+
+```
+var o = new Object();
+o.prototype; // undefined
+o.__proto__; // 会输出 Object.prototype 的内容，原型链是o --> Object.prototype --> null
+
+function Foo(){};
+Foo.prototype; // {constructor: ƒ}; 函数的prototype属性指向原型
+Foo.prototype.constructor === Foo; // true
+// 上式说明了函数的prototype属性指向原型对象，对象的constructor属性指向"构造函数"，这里就是 Foo 函数。不过，说是对象的constructor属性并不准确。
+
+```
+
+弄懂上面的内容，我们开始证明 constructor 的坑爹以及为什么不能说是"构造函数"？，而应该说是构造函数调用。而且为什么说a.constructor中，其实a并没有一个属性constructor？
+
+```
+// 这是一段正常使用的代码
+function Foo(){};
+var a = new Foo();
+
+Foo.prototype.constructor === Foo; // true
+a.constructor === Foo; // true
+Object.getOwnPropertyNames(a); // [];说明a中没有 constructor属性。
+Object.getOwnPropertyNames(Foo.prototype);// ["constructor"]
+// 原型链： a --> Foo.prototype --> Object.prototype --> null
+```
+
+然后我们看看这段代码:
+```
+function Foo(){};
+Foo.prototype = {};  // 把Foo.prototype改了。
+var a = new Foo();
+
+a.constructor === Foo; // false
+a.constructor === Object; //true
+Object.getOwnPropertyNames(a); // []
+Object.getOwnPropertyNames(Foo.prototype); // []
+Object.getOwnPropertyNames(Object.prototype); //["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString"]
+// 原型链： a --> Foo.prototype --> Object.prototype --> null
+```
+
+结论：
+
+1. a 中并没有一个属性 constructor。实际上是顺着原型链委托。首先委托原型链上的
+Foo.prototype,若是Foo.prototype也没有constructor属性就再委托顶层的Object.prototype。
+而Object.prototype.constructor指向内置的Object(..) 函数。
+所以第二段代码中 a.constructor === Object; //true
+
+2. a 由Foo函数构造也是错误的说法。因为如果说是Foo()构造了a对象，a.constructor应该指向Foo啊，在第二段代码中无疑打脸了。实际上a只是Foo()函数进行构造调用(new)的时候产生的副作用的产物。所以压根儿就没有什么"构造函数",有的只是构造函数调用。但是为了便于理解，我会都用"构造函数"说明。
+
+3. Foo.prototype 的 .constructor属性只是Foo函数在声明时的默认不可枚举的属性。如果你创建了一个新对象并替换了函数默认的.prototype对象引用，那么新对象并不会自动获得.constructor属性。constructor默认是一个可改写但是不可枚举的属性，所以当然也是可以修复的(参见<a href="./obj.mdown">对象解析</a>):
+```
+function Foo(){};
+Foo.prototype = {};
+var a = new Foo();
+
+// 修复丢失的 .constructor
+Object.defineProperty(Foo.prototype, 'constructor', {
+    enumerable: false,
+    writable: true,
+    configurable: true,
+    value: Foo
+})
+
+a.constructor === Foo; // true <--- 修好了
+```
+
+这也说明了constructor属性是不安全的。
+
 ### 1.4 instanceof
+
+有很多资料说instanceof是用来检查一个对象是不是一个方法构造调用后得到的实例，就是是不是new出来的，或者说检查是不是继承关系的，都有点对但是又不准确。
+
+>MDN上的解释：instanceof运算符用来测试一个对象在其原型链中是否存在一个构造函数
+的 prototype 属性。
+
+语法： object instanceof constructor;
+
+简单说就是：instanceof 运算符用来检测 constructor.prototype 是否存在于参数 object 的原型链上。
+
+这里的constructor指的是任意一个"构造函数"。函数被创建的时候会拥有一个prototype属性。除了Function.prototype.bind创建的函数是没有prototype属性的。也就是说
+instanceof的判断依据是 object.\_\_proto\_\_ === constructor.prototype。
+
+```
+// 定义"构造函数"
+function C(){} 
+function D(){} 
+
+var o = new C();
+
+// true，因为 Object.getPrototypeOf(o) === C.prototype
+o instanceof C; 
+
+// false，因为 D.prototype不在o的原型链上
+o instanceof D; 
+
+o instanceof Object; // true,因为Object.prototype.isPrototypeOf(o)返回true
+C.prototype instanceof Object // true,同上
+
+C.prototype = {};
+var o2 = new C();
+
+o2 instanceof C; // true
+
+o instanceof C; // false,C.prototype指向了一个空对象,这个空对象不在o的原型链上.
+
+D.prototype = new C(); // 继承
+var o3 = new D();
+o3 instanceof D; // true
+o3 instanceof C; // true
+```
+这里面提到了继承，后边会说，不过你现在应该也能理解了。
+继承就是一个函数的原型关联到另一个函数的原型。上边继承后对应原型链就是：
+d --> D.prototype --> C.prototype --> Object.prototype -->null
+
+这里D和C 就是原型继承。通俗的说C是父类，D是子类。
+
+手动实现一个instanceof(见<a href="./this.mdown">this详细解析</a>):
+
+```
+function _instanceof(L, R){
+    var o = R.prototype, //显式原型
+    L = L.__proto__;//隐式原型
+    while(true){
+        if(L === null) return false;
+        if(L === o) return true;
+        L = L.__proto__;
+    }
+}
+```
 
 ### 1.5 \_\_proto\_\_ & prototype
 
+讲到这里这个概念其实已经明朗。prototype是显示原型，每个函数在创建的时候都会有prototype属性(除Function.prototype.bind情况)指向其原型对象。但是普通对象的prototype是隐藏的、无法操作的，这个时候很多浏览器提供了一个非标准的\_\_proto\_\_属性用来可以操作并获取对象的原型。而且支持链式调用。我们可以用\_\_proto\_\_来打印原型链出来看看。
+
+但是\_\_proto\_\_是非标准的，ES6已经有了替代方案：
+>Object.getPrototypeOf 和  Object.setPrototypeOf
+
+now:
+```
+function Foo(){};
+function Bar(){};
+Foo.prototype = new Bar(); // 原型继承
+var f = new Foo();
+```
+
+上面的代码根据我们前边的讲述，其原型链应该是: f-->Foo.prototype-->Bar.prototype-->Object.prototype-->null
+
+我们打印出来验证一下：
+```
+f.__proto__ === Foo.prototype; // true
+Foo.prototype.__proto__ === Bar.prototype; // true
+Bar.prototype.__proto__ === Object.prototype; // true
+Object.prototype.__proto__ === null; // true
+
+f.__proto__.__proto__.__proto__.__proto__; // null
+```
+
+注意Bar.prototype是一个对象，所以继承于Object.prototype。
+但是Bar是继承于Function.prototype.
+```
+Bar.__proto__ === Function.prototype;
+Function.prototype.__proto__ === Object.prototype;
+```
+
+同".constructor"一样，\_\_proto\_\_属性并不存在于f中，也是通过委托机制。
+它实际存在Object.prototype中的。它是一个访问器属性(有getter/setter):
+```
+Object.defineProperty(Object.prototype, '__proto__',{
+    get: function(){
+        return Object.getPrototypeOf(this)
+    },
+    set: function(o){
+        Object.setPrototypeOf(this, o)
+        return o;
+    }
+})
+```
+
+
+## 2. 属性设置和屏蔽 
+
+假如执行 myObj.a = 'hello world'。背后发生的过程大概是这样的：
+
+找myObj内部是不是有一个叫做a的数据访问属性，如果没有就会遍历myObj的原型链去找。
+
+1. 如果myObj内部及其整条原型链没找到，就会在myObj新建一个a属性并赋值。
+
+2. 如果myObj内部有一个a属性，同时其原型链上层也有一个a属性，就会发生<a style="color: blue">屏蔽</a>。因为myObject.a总是会选择原型链中最底层的a属性。
+
+3. 如果myObj内部有没有a属性，同时其原型链上层也有一个a属性就复杂了。这里又会分为三种情况：
+    
+    一. 如果其原型链上层的a属性不是只读(writable:true)。就会在myObj中新建一个a属性，是一个屏蔽属性。
+
+    二. 如果其原型链上层的a属性是只读。myObj会继承(writable:false)的特性哦，如果运行在严格模式下，导致对其赋值会报错。非严格模式下没有任何反应。
+
+    三. 如果其原型链上层的a属性是一个setter。就一定会触发这个setter。并且a不会加到myObj中。也不会重新定义 foo 这 个 setter。
+
+    最最奇怪的是上面说的三点中，第2、3条在使用 = 赋值的时候是成立的。如果你采用Object.defineProperty()来赋值的话，也会在myObj中新增一个屏蔽属性a。而忽略了这些条件，关于这一点我也没弄明白，希望赐教。
+
+
+还要注意的是隐式屏蔽的情况。
+```
+var anotherObj = { a: 2 };
+var o = Object.create( anotherObj );
+o.a;// 2
+Object.hasOwnProperty('a'); // false;
+
+o.a++;
+o.a; // 3
+anotherObj.a; //2
+Object.hasOwnProperty('a');// true
+```
+
+因为o.a++ ==> o.a = o.a + 1;
+所以等于 o.a = 3;这是一个\[[PUT]\]操作，将3赋值给o上创建的屏蔽属性a。
+
+## 3. 不伦不类
+
+JavaScript才是真正的"面向对象"。因为只有对象，根本没有类机制。但是为了实现面向对象一样的效果，我们可以仿真嘛。
+
+想想学Java的时候老师是怎么说OOP的。我的老师说的就是类就是一个蓝图、模具，实例化对象的过程就是从这个模具中倒出多个模子的过程，就是重复的拷贝。产出的模子有一样的属性和行为。
+
+但是JS中没有类机制、没有复制的机制、你不可能创建一个类的实例，只能是多个对象。
+
+解决的办法就是利用绝大部分函数的prototype属性指向一个原型对象，关联到这个原型对象就会通过委托访问这个对象的属性和行为。这通常被称为原型继承。虽然也有争议，但是怎么好理解怎么来吧。记住原型继承并不是复制了"父类"的属性和行为，是委托关联。
+
+```
+function Foo(){};
+var a = new Foo(); // 关联不一定用new还有Object.create()或者Object.setPrototypeOf()...
+Object.getPrototypeOf(a) === Foo.prototype; // true
+```
+
+用原型实现继承和类(脑补ES6风格的代码，就不写来对比了)：
+```
+function Parent(name){
+    this.name = name;
+}
+
+Parent.prototype.sayHello = function(){
+    alert( this.name );
+}
+
+function Child(name, age){
+    Parent.call( this, name ); // --> 对比 super
+    this.age = age;
+}
+
+// 1. 使用new进行原型关联 -- 有副作用不建议
+// Child.prototype = new Parent()
+
+// 2. 使用Object.create() -- 每次都会创建新的对象
+// Child.prototype = Object.create( Parent.prototype )
+
+// 3. es6的方法  ---> 这三个都是对比 extend
+Object.setPrototypeOf(Child.prototype, Parent.prototype)
+
+// 使用Object.create()之后会丢失 constructor。
+console.log( (new Child('','')).constructor )
+
+Child.prototype.sayMyAge = function(){
+    alert( this.age )
+}
+
+var a = new Child('AA','BB');
+a.sayHello();
+a.sayMyAge();
+```
+
+使用原型建立了类似Java中的继承模型，但是这里并不是复制了"父类的属性和行为"，只适合应用了属性查找的时候找不到就会去原型链上找类仿真了继承机制。
+
+当然ES6提供了class1、extends、super等语法糖就更好理解了，但是其底层也是通过原型继承实现的，也导致了有一些意想不到的情况。
+
+<h5>class陷阱</h5>
+```
+class Num {
+    constructor() {
+        this.num = Math.random()
+    }
+    rand() {
+        console.log('num is ' + this.num)
+    }
+}
+var c1 = new Num();
+c1.rand(); // num is 0.20099193745148192
+
+Num.prototype.rand = function() {
+    console.log(~~(this.num*1000))
+}
+
+var c2 = new Num();
+c2.rand(); // 哇哦！103
+```
+
+抑或是:
+```
+class C {
+    constructor(id) {
+        this.id = id;
+    }
+    id() {
+        console.log('num is ' + this.num)
+    }
+}
+var c1 = new C('ccc');
+c1.id(); // 报错。--> c1.id是字符串了，不是方法
+```
+
+
+所以ES6中的class也是危险的，需要在使用的时候小心！！
 
 

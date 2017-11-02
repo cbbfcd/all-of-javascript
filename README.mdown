@@ -10,12 +10,14 @@
 <a href="./Backbone/backbone.js">2. Backbone.js源码解析</a><br/>
 <a href="./TS/README.mdown">3. TypeScript文档笔记</a><br/>
 <a href="./Marko/README.mdown">4. Marko学习笔记</a><br/>
+<a href="./JavaScript设计模式/README.md">5. JavaScript设计模式</a><br/>
 
 # 搭建的脚手架
 <a href="https://github.com/cbbfcd/Help.git">React-Redux-Router-Webpack脚手架</a><br/>
 <a href="https://github.com/cbbfcd/wukong.git">Mobx-React-Router4-Webpack2.0脚手架</a><br/>
 <a href="https://github.com/cbbfcd/wukong-React-Mobx-TypeScript-.git">Mobx-React-Router4-Webpack2.0-TypeScript脚手架</a><br/>
 <a href="https://github.com/cbbfcd/avalon2-mmRouter-starter.git">Avalon2-mmRouter-Webpack2.0脚手架</a><br/>
+<a href="https://github.com/cbbfcd/Markojs-demos">Marko-demos</a>
 
 
 # author

@@ -5,8 +5,95 @@
 	<title>单例模式</title>
 </head>
 <body>
+	<div id='app'>
+		<button onclick='handleOnClick()'>添加一个窗口</button>
+		<button onclick='handleClick()'>单例模式实现只会执行一次</button>
+		<button onclick='handleLazyClick()'>惰性函数实现只会执行一次</button>
+	</div>
 	<script type="text/javascript">
+		// 1. 单例模式
+		// 无论调用多少次都只会产生一个实例。
 		
+		// 我们开始设计单例模式的代码：
+		// 1. 单一职责原则。我们希望这个代码就是一个生产单例对象的代理、或者说工厂。
+		//    他不会干别的事儿，也不关心这个单例对象的构造函数的属性、需要的参数。个顾个，互不干涉，没有耦合。
+
+		// 2. 模式实质是为了更优雅的解决我们代码中容易变化的部分和固定不变的部分之间的结构和关系。
+		//    对于单例模式来说，判断instance是否存在，不存在新建，存在就返回的这一套路是固定的
+		//    变化的是每次需要单例的"类"，他可能是一个Message类、CreateDiv类，等等等
+
+		// 利用闭包实现一个简单的单例工厂
+		var SingleTonFactory = function(fn){
+			var instance;
+			return function(){
+				return instance || ( instance = fn.apply(this, arguments) );
+			}
+		};
+
+		// 上面4行代码就已经建立了一个简单的单例工厂。
+		// 我们试用一下
+		// 测试 1
+		// 让Message实例只有一个
+		var Message = function(msg){
+			this.msg = msg;
+		};
+		var createMessage = function(msg){
+			console.log(msg);
+			return new Message(msg);
+		};
+		console.log( createMessage('instance1') === createMessage('instance2') ); // false
+
+		var message = SingleTonFactory( createMessage );
+		console.log( message( 'instance1' ) === message( 'instance2' ) ); // true
+
+		// 测试 2
+		// 点击一个按钮，但是只会创建一个窗口
+		// 最多的做法是点击的时候把之前的div清除，现在用单例工厂实现。
+		var createDiv = function(){
+			var div = document.createElement( 'div' );
+			div.innerHTML = '窗口1';
+			div.style.width = '300px';
+			div.style.height = '300px';
+			div.style.textAlign = 'center';
+			div.style.lineHeight = '300px';
+			div.style.backgroundColor = '#e8e8e8';
+			div.style.color = 'steelblue';
+			document.querySelector('#app').appendChild( div );
+			return div;
+		}
+
+		var createSingleTonDiv = SingleTonFactory( createDiv );
+
+		function handleOnClick(){
+			//createDiv(); //不清除的话，每点一次创建一个div
+			createSingleTonDiv(); // 只会执行一次
+		}
+
+
+		// 类似惰性函数只执行一次的效果
+		// 不去关心返回的实例，只是让逻辑执行一次
+		var onlyRunOneTime = function(){
+			alert('执行1次');
+			return true; // 这个是关键
+		}
+		singleOnlyOne = SingleTonFactory( onlyRunOneTime )
+		function handleClick(){
+			singleOnlyOne();
+		}
+
+		// 惰性函数实现
+		var a = function(){
+			alert('执行1次');
+			a = function(){
+				
+			}
+
+			a();
+		}
+
+		function handleLazyClick(){
+			a();
+		}
 	</script>
 </body>
 </html>

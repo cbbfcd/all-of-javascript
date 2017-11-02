@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>Javascript设计模式</h1>
+	<div id="div1">点击我绑定事件</div>
+	<div id="div2">点击我绑定事件</div>
+</body>
+<script type="text/javascript">
+	// 柯里化
+
+	// currying 又称部分求值。一个 currying 的函数首先会接受一些参数，接受了这些参数之后， 该函数并不会立即求值，而是继续返回另外一个函数，刚才传入的参数在函数形成的闭包中被保 存起来。待到函数被真正需要求值的时候，之前传入的所有参数都会被一次性用于求值
+
+	var curring = function(fn){
+		var args = []
+
+		return function(){
+			if(arguments.length === 0){
+				return fn.apply(this, args) 
+			}else{
+				[].push.apply(args, arguments);
+				//return arguments.callee
+			}
+		}
+	}
+
+	var cost = (function(){
+		var m = 0
+
+		return function(){
+			Array.prototype.slice.apply(arguments).forEach(function(item){
+				m += item;
+			})
+			return m
+		}
+	})()
+
+	var c = curring(cost);
+	c(100);
+	c(200);
+	c(300);
+	d = c(); console.log(d)
+
+	
+	// uncurring
+	Function.prototype.uncurring = function(){
+		var that = this; //保留原函数的引用
+		
+		return function(){
+			var obj = Array.prototype.shift.call(arguments);
+			return that.apply(obj, arguments);
+		}
+	}
+
+	var Push = Array.prototype.push.uncurring();
+	var arr = [1,2,3]
+	Push(arr, 4)
+	console.log(arr);
+
+	// 节流
+	// 主要是避免高频率的调用事件        防抖
+	var throttle = function(fn, interval){
+		var timer, isFirst = true, _self = fn;
+
+		return function(){
+			var args = arguments;
+			_me = this;
+
+			if(isFirst){
+				_self.apply(_me, args);
+				return isFirst = false;
+			}
+
+			if(timer){
+				return false;
+			}
+
+			timer = setTimeout(function(){
+				clearTimeout(timer);
+				timer = null;
+				_self.apply(_me, args);
+			}, interval || 500);
+
+		}
+	}
+
+	window.onresize = throttle(function(){ console.log('test') })
+
+
+	// 分时函数
+	// 比如如果要建1000个<li>，肯定消耗惊人，可以采取分时，每500毫秒创建8个<li>
+	var timeChunk = function(data, fn, count, interval){
+		var timer, _data = data;
+
+		var start = function(){
+			for(var i = 0, len = Math.min(_data.length, count || 8); i< len; i++){
+				var arg = _data.shift();
+				fn(arg);
+			}
+		}
+
+		return function(){
+			timer = setInterval(function(){
+				if(_data.length === 0){
+					clearInterval(timer)
+				}
+
+				start();
+			}, interval || 1000)
+		}
+	}
+
+	var testData = [];
+	for(var i = 0;i<100;i++){
+		testData.push(i);
+	}
+
+	var T = timeChunk(testData, function(o){
+		var node = document.createElement('div');
+		node.innerHTML = o;
+		document.body.appendChild(node);
+	})
+
+	T();
+
+	// 惰性函数
+	var addEvent = function(ele, type, handler){
+		if(window.addEventListener){
+			console.info('该分支判断只会执行1次');
+			addEvent = function(ele, type, handler){
+				ele.addEventListener(type, handler, false)
+			}
+		}
+
+		if(window.attachEvent ){
+			addEvent = function(ele, type, handler){
+				ele.attachEvent('on'+type, handler)
+			}
+		}
+
+		return addEvent(ele, type, handler)
+	}
+
+	var div = document.querySelector('#div1');
+	var div2 = document.querySelector('#div2');
+	addEvent(div, 'click', function(){
+		alert(1)
+	})
+
+	addEvent(div2, 'click', function(){
+		alert(2)
+	})
+
+	// 惰性函数 最简单的实例
+	var ctime = function(){
+		console.log('第一次输出');
+		ctime = function(){
+			console.log('以后都输出这个');
+		}
+		return ctime()
+	}
+
+	ctime();
+	ctime();
+	ctime();
+</script>
+</html>

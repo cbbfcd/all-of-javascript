@@ -8,6 +8,18 @@
 这里以最简单清晰地代码总结一些设计模式的demo。对着它发呆，总会悟出点什么。
 争取用最简单的代价、花最少的时候能够对设计模式有一些感悟。
 
+设计模式的万能定律就是解决代码中变化的部分与不变的部分的结构和关系。
+
+
 <hr/>
 
-<a href="./singleton.html">1. 单例模式</a> 
+<a href="./singleton.html">1. 单例模式</a>
+<a href="./strategy.html">2. 策略模式</a>
+
+
+
+
+
+感谢：
+
+    inspired by @svenzeng

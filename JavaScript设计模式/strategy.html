@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>策略模式</title>
+</head>
+<body>
+	<div id="app">
+		<div style="position:absolute;background: steelblue;width: 30px;height: 30px;border-radius: 30px;" id="boal"></div>
+	</div>
+	<div style="position: absolute; top:200px;">
+		<form id="userInfoForm">
+			<input type="text" name="userName" placeholder="username...">
+			<input type="text" name="passWord" placeholder="password...">
+			<input type="text" name="telNum" placeholder="tel...">
+			<button onclick="handleOnSubmit()">提交</button>
+		</form>
+	</div>
+	<script type="text/javascript">
+		// 2. 策略模式
+		// 有可相互替换的多种选择实现一个功能
+		// 一个骚比喻就是"备胎模式",多个备胎都可以成为男朋友，而且可以随时替换。
+		// 空间画面就是一个点到另一个点拥有多条路径，每条路径就是一个策略。
+		// 多种选择的情景，每种情景对应的实现就是一条策略，封装成一个策略类，然后另一个类委托调用对应的
+		// 这个策略类中的相应策略，就是策略模式了。
+
+
+		// 还是那句话，设计模式解决的是功能实现中可变化的部分与不会变化的部分的关系。
+		// 我们来设计一段策略模式的代码。
+		// 假如计算100公里路途，分别乘坐大巴、自驾、自行车、走路的时间,假设他们速度分别固定为80，100，30，10
+		// 我们需要的参数是交通工具、总路程，返回时间。
+		// 第一反应就是写一个方法，里面用if...else...结构来组织，这样的代码没有弹性、不可复用
+		// 基于开放-封闭原则、可复用、弹性、可替换的设计原则。我们利用策略模式实现。
+		// 策略模式有两个"类",一个是策略类，一个content类。
+		// 策略类负责封装不变的部分，对应就是每种交通工具完成路途所需时间的算法。
+		// content类负责的是转发委托。就是你调用方法，传入参数后，它委托相应的策略算法实现。
+
+
+		// 策略类
+		var vehicleStrategy = {
+			'BUS': function(s){
+				return s/80
+			},
+			'CAR':function(s){
+				return s/100
+			},
+			'BIKE':function(s){
+				return s/30
+			},
+			'WALK':function(s){
+				return s/10
+			}
+		};
+
+		//  content类
+		var calculateTime = function(vehicle, S){
+			return vehicleStrategy[vehicle](S);
+		}
+
+		// test!
+		var time = calculateTime('BUS', 100);
+		var time2 = calculateTime('WALK', 100);
+		console.log(time, time2);
+
+
+
+		// 2. 缓动算法实现动画(来自@svenzeng)
+		// 其中不同的缓动算法是一个策略类，content类是Animate类。
+
+		// 策略类
+		// 参数分别为动画已消耗时间，小球原始位置，目标位置，动画总时间
+		var SlowAlgorithm = {
+			linear: function(t, b, c, d){
+				return c*t/d + b; 
+			},
+			easeIn: function(t, b, c, d){
+				return c * (t/=d) * t + b
+			},
+			strongEaseIn: function(t, b, c, d){     
+				return c * ( t /= d ) * t * t * t * t + b; 
+			}, 
+			strongEaseOut: function(t, b, c, d){     
+				return c * ( ( t = t / d - 1) * t * t * t * t + 1 ) + b; 
+			}, 
+			sineaseIn: function( t, b, c, d ){     
+				return c * ( t /= d) * t * t + b; 
+			}, 
+			sineaseOut: function(t,b,c,d){     
+				return c * ( ( t = t / d - 1) * t * t + 1 ) + b; 
+			}
+		}
+
+		// content类
+		var Animate = function( dom ){
+			this.dom = dom;
+			this.startTime = 0; // 动画开始时间
+			this.startPos = 0; // 动画开始位置
+			this.endPos = 0; // 动画结束位置
+			this.propertyName = null; // CSS属性
+			this.easing = null; // 缓动算法
+			this.duration = null; // 动画持续时间
+		}
+
+		// 动画启动方法
+		Animate.prototype.start = function(propertyName, endPos, duration, easing){
+			this.startTime = Date.now();
+			this.startPos = this.dom.getBoundingClientRect()[propertyName];
+			this.propertyName = propertyName;
+			this.endPos = endPos;
+			this.duration = duration;
+			this.easing = SlowAlgorithm[easing];
+
+			var self = this;
+			var timer = setInterval(function(){
+				if(!self.step()){
+					clearInterval(timer);
+				}
+			}, 19)
+		}
+
+		// 每一帧的任务
+		Animate.prototype.step = function(){
+			var t = Date.now();
+			if(t>= this.startTime + this.duration){
+				this.update();
+				return false;
+			}
+
+			var pos = this.easing(t-this.startTime, this.startPos, this.endPos-this.startPos, this.duration);
+			this.update( pos );
+		}
+
+		// 更新CSS
+		Animate.prototype.update = function(pos){
+			this.dom.style[this.propertyName] = pos + 'px';
+		}
+
+
+		// test!
+		var div = document.querySelector('#boal');
+		var animate = new Animate(div);
+		animate.start('right',8, 100, 'linear')
+
+
+
+		// 3. 表单验证
+		// 策略模式中封装在策略类中的策略不仅仅只能是算法逻辑，还可以是目标指向一致的业务逻辑。
+		// 比如表单验证有几个验证逻辑：
+		//     1. 输入不能为空
+		//     2. 密码不少于6位
+		//     3. 电话号码满足格式要求
+		// 传统的方式也是在一个方法中有各种if...else...判断，同样的存在复用性差，没有弹性，代码臃肿等缺点
+		// 这些验证逻辑指向一致，都是做表单输入的验证，可以封装在一个策略类中。
+
+
+		// 封装验证的策略
+		var ValidatorStrategies = {
+			isNull: function(value, err){
+				return value.trim() ? void 0 : err
+			},
+			MinLength: function(value,minlength, err){
+				return value.length < minlength ? err : void 0
+			},
+			isPhone: function(value, err){
+				return /(^1[3|5|8][0-9]{9}$)/.test(value) ? void 0 : err
+			}
+		}
+
+		// content类
+		var Validator = function(){
+			this.cache = [];	// 缓存		
+		}
+
+		Validator.prototype.add = function(dom, rules){
+			var self = this;
+			for(var i=0, rule; rule=rules[i++];){
+				(function(rule){
+					var strategyAry = rule.strategy.split(':');
+					var err = rule.err;
+
+					self.cache.push(function(){
+						var strategy = strategyAry.shift();
+						strategyAry.unshift(dom.value);
+						strategyAry.push(err)
+						return ValidatorStrategies[strategy].apply(dom, strategyAry)
+					})
+				})(rule)
+			}
+		}
+
+		Validator.prototype.start = function(){
+			var self = this;
+			for(var i = 0, validatorFunc; validatorFunc=self.cache[i++];){
+				var err = validatorFunc();
+				if(err){
+					return err;
+				}
+			}
+		}
+
+		// test!
+		var userForm = document.querySelector('#userInfoForm');
+
+		function valitor(){
+			var v = new Validator();
+			v.add(userForm.userName, [{strategy:'isNull', err:'用户名为空'}]);
+			v.add(userForm.passWord, [{strategy:'isNull', err:'密码为空'},{strategy:'MinLength:6', err:'密码不少于6位'}]);
+			v.add(userForm.telNum, [{strategy:'isNull', err:'电话号码为空'},{strategy:'isPhone', err:'电话格式不对'}])
+
+			return v.start()
+		}
+
+		function handleOnSubmit(){
+			var err = valitor();
+			err && alert(err);
+		}
+
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>代理模式</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 代理模式
+		// 代理模式就是让你不用直接访问一个对象，而是通过一个代理去跟这个目标对象连接
+		// 就像是明星的经纪人，就是一个代理，所有的演出、活动都是跟他联系
+		// 经纪人处理了之后给明星签个字就好了。
+
+
+
+		// 1. 利用代理实现图片的预加载
+		// 图片很大，网很卡的时候先显示一个菊花图，图片加载好了再显示出来。
+		var myImg = (function(){
+			var img = document.createElement('img');
+			document.body.appendChild(img);
+			return {
+				setSrc: function(src){
+					img.src = src;
+				}
+			}
+		})()
+
+		var proxyImg = (function(){
+			var img = new Image();
+			img.onload = function(){
+				myImg.setSrc(this.src)
+			}
+			return{
+				setSrc: function(src){
+					myImg.setSrc('./timg.gif');
+					img.src = src;
+				}
+			}
+		})()
+
+		proxyImg.setSrc('./tim.gif');
+
+		// 2.缓存代理
+
+		var mult = function(){
+			var a = 1;
+			for(var i = 0, len = arguments.length; i < len; i++){
+				a *= arguments[i]
+			}
+
+			return a
+		}
+
+		var proxyFactory = function(fn){
+			var cache = {};
+			return function(){
+				var args = Array.prototype.join.call(arguments, ',');
+				if(cache[args]){
+					return cache[args]
+				}
+				return cache[args] = fn.apply(this, arguments)
+			}
+		}
+
+		var multProxy = proxyFactory(mult);
+		var a = multProxy(1,2,3,4);
+		var b = multProxy(1,2,3,4);
+		console.log(a);
+		console.log(b);
+	</script>
+</body>
+</html>

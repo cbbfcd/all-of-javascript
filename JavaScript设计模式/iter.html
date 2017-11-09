@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>迭代器模式</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 迭代器模式
+
+
+		// 迭代器被很多框架都内部实现了。是一个相对简单的模式
+
+		// 内部迭代器
+		function each(arr, callback){
+			for(var i = 0,len=arr.length; i < len; i++){
+				if(callback(i, arr[i]) == false){
+					break;
+				}
+			}
+		}
+
+		each([1,2,3,4],function(i,item){
+			if(item == 3){
+				return false;
+			}
+
+			console.log(i, item)
+		})
+
+		// 输出 0 1, 1 2
+
+
+
+		// 外部迭代器
+		// 外部迭代器就是必需外部去触发迭代
+		function iter(arr){
+			var index = 0;
+
+			function done(){
+				return index >= arr.length;
+			}
+
+			function next(){
+				index++;
+				return arr[index];
+			}
+
+			return {
+				next: next,
+				done: done
+			}
+		}
+
+		function test(){
+			var arr = [1,2,3,4];
+			var it = iter(arr);
+			while(true){
+				if(it.done()){
+					throw new Error('over')
+				}
+
+				console.log(it.next())
+				}
+			}
+
+		test();
+
+
+		// 迭代器模式的应用场景。
+		// 比如如同<JavaScript设计模式与项目实战>中的案列
+		// 获取文件上传的对象，首选是使用浏览器的上传控件,然后是flash上传控件，然后是表单，然后是HTML5的控件
+		// 如果在一个getUploadObj方法中写，就会有很多if...else...
+
+		// 利用迭代器模式重构。
+		// 分开些，单一职责原则
+		function getActiveUploadObj(){...}
+		function getFlashUploadObj(){...}
+		function getFormUploadObj(){....}
+		function getHTMLUpadloadObj(){...}
+
+		// 然后迭代
+		function iterUploadObj(){
+			for(var i=0, fn;fn=arguments[i++];){
+				var upload = fn();
+				if(upload !== false){
+					return upload
+				}
+			}
+		}
+
+		// 使用
+		iterUploadObj(getActiveUploadObj, getFlashUploadObj, getFormUploadObj, getHTMLUpadloadObj())
+
+	</script>
+</body>
+</html>

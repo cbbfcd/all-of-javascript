@@ -12,6 +12,7 @@
 <a href="./obj.mdown">5. 对象全面解析</a><br/>
 <a href="./proto.mdown">6. 原型</a><br/>
 <a href="./type_change.md">7. 类型强制转换</a><br/>
+<a href="./grammar.md">8. 表达式</a><br/>
 
 # author
 <a href="https://github.com/cbbfcd">@波比小金刚</a>

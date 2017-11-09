@@ -13,9 +13,9 @@
 
 <hr/>
 
-<a href="./singleton.html">1. 单例模式</a>
-<a href="./strategy.html">2. 策略模式</a>
-<a href="./proxy.html">3. 代理模式</a>
+<a href="./singleton.html">1. 单例模式</a><br/>
+<a href="./strategy.html">2. 策略模式</a><br/>
+<a href="./proxy.html">3. 代理模式</a><br/>
 
 
 

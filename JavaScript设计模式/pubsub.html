@@ -96,6 +96,101 @@
 		// 触发事件通知小明
 		Apple.trigger('iphonexx16G','5000', '2017-11-18');
 
+
+		// 改进
+		// 1. 不用每个发布者都去创建一个对象。可以建立一个全局的发布者
+		// 2. 上面的demo如果是先发布，再去订阅的话就是没有反应的，实际项目中也会遇到先发布，再订阅的场景
+		//    比如 QQ 的离线消息
+		var Event = (function(){
+			var cache = {},
+				offlinestack = {},
+				once,
+				on,
+				off,
+				trigger,
+				Event,
+				_slice = Array.prototype.slice,
+				_shift = Array.prototype.shift,
+				_unshift = Array.prototype.unshift,
+				each = function(arr, fn){
+					var ret;
+					for(var i = 0,len=arr.length; i<len; i++){
+						var n = arr[i];
+						ret = fn.call(n, i, n);
+					}
+					return ret;
+				};
+
+			Event = function(){
+				on = function(key, fn){
+					var args = offlinestack[key];
+					if(!cache[key]){
+						cache[key] = [];
+					}
+					cache[key].push(fn);
+					if(args){
+						fn.apply(this,args);
+					}
+				}
+
+				off = function(key, fn){
+					if(cache[key]){
+						if(fn){
+							cache[key] = void 0;
+						}else{
+							var fns = cache[key];
+							for(var l = fns.length;l>=0;l--){
+								(fns[l] === fn) && fns.splice(i,1)
+							}
+						}
+					}
+				}
+
+				once = function(key, fn){
+					this.off(key, fn);
+					this.on(key, fn);
+				}
+
+				trigger = function(){
+					var key = _shift.call(arguments),
+						args = arguments,
+						fns = cache[key];
+
+					if(!fns || fns.length === 0){
+						offlinestack[key] = args;
+						return;
+					}
+					
+					each(fns, function(i, item){
+						item.apply(item,args);
+					})
+				}
+
+				return {
+					on: on,
+					once: once,
+					off: off,
+					trigger: trigger
+				}
+			}
+
+			return Event();
+
+		})()
+
+
+		// 测试
+		Event.trigger('test',{name: 'lilei'})
+
+		Event.on('test',function(data){
+			console.log(data.name);
+		})
+
+		Event.on('test',function(data){
+			console.log(data.name,'123');
+		})
+
+
 	</script>
 </body>
 </html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>发布订阅模式</title>
+</head>
+<body>
+	<script type="text/javascript">
+		
+		// 发布订阅模式
+		// 又叫观察者模式。建立对象间的一对多的关系。当其中一个对象的状态改变的时候
+		// 依赖于它的所有对象都会做出响应，在JavaScript中是依靠事件模型代替。
+
+
+		// 最典型的例子就是DOM事件，比如给一个button绑定一个click事件，就是很典型的观察者模式。
+
+		// 实现发布订阅模式：
+		// 1. 发布者，它拥有一个缓存，用于存放订阅者会接收到的回调。
+		// 2. 发布者，定义一个订阅的方法，很多框架采用的是 'on' 这个名字
+		// 3. 发布者，定义一个触发订阅事件的方法，很多框架采用的是 'trigger' 这个名字
+		//    当然还有取消订阅等一干方案，不赘述...
+		// 4. 发布者和订阅者是一对多的关系。订阅的事件名、订阅者会接收到的回调，是他们唯一的联系 
+
+
+		// demo1
+		// 场景：苹果发布IphoneXX。购买者订阅其售价和发售日期的事件。
+
+		// 发布者
+		var Apple = {};
+		// 发布者拥有一个缓存来保存订阅者可以接收到的回调函数
+		Apple.iphoneCache = {};
+		// 订阅者订阅事件的方法
+		Apple.on = function(event, fn){
+			if(!this.iphoneCache[event]){
+				this.iphoneCache[event] = [];
+			}
+			this.iphoneCache[event].push(fn);
+		};
+		// 发布者发布消息
+		Apple.trigger = function(){
+			var event = Array.prototype.shift.call(arguments),
+				callbacks = this.iphoneCache[event];
+
+			if(!callbacks || callbacks.length === 0){
+				return false;
+			}
+
+			for(var i = 0, callback; callback=callbacks[i++];){
+				callback.apply(this, arguments)
+			}
+		}
+		// 取消订阅
+		Apple.off = function(event, fn){
+			var callbacks = this.iphoneCache[event];
+			if(!callbacks || callbacks.length === 0 ){
+				return false;
+			}
+
+			if(!fn){ // 如果没有传入具体的函数名字，则取消该event对应的所有的订阅
+				callbacks.length = 0;
+			}else{
+				for(var i = callbacks.length-1; i>=0 ;i--){
+					var _fn = callbacks[i];
+					if(_fn === fn){
+						callbacks.splice(i,1)
+					}
+				}
+			}
+		}
+
+
+		// 好的 我们测试一下
+
+		// 小明订阅
+		Apple.on('iphonexx16G',fn1=function(price, time){
+			console.log('小明啊: ',price, time);
+		})
+
+		// 小红订阅
+		Apple.on('iphonexx256G',fn2=function(price, time){
+			console.log('小红啊: ',price, time)
+		})
+
+		// 触发事件通知小红
+		Apple.trigger('iphonexx256G','9999', '2017-11-12');
+
+		// 触发事件通知小明
+		Apple.trigger('iphonexx16G','5000', '2017-11-18');
+
+		// 取消小红的订阅
+		Apple.off('iphonexx256G', fn2);
+
+		// 触发事件通知小红
+		Apple.trigger('iphonexx256G','9999', '2017-11-12');
+
+		// 触发事件通知小明
+		Apple.trigger('iphonexx16G','5000', '2017-11-18');
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>命令模式</title>
+	<style type="text/css">
+	</style>
+</head>
+<body>
+	<div>
+		<button id='btn1'>btn1</button>
+		<button id='btn2'>btn2</button>
+		<button id='btn3'>btn3</button>
+		<button id='btn4'>btn4</button>
+
+		<button id='up'>up</button>
+		<button id='left'>left</button>
+		<button id='right'>right</button>
+		<button id='down'>down</button>
+		<button id='undo'>undo</button>
+		<button id='reviw'>reviw</button>
+		<div id='ball' style='
+		    position:absolute;
+			background-color:steelblue;
+			width: 20px;
+			height: 20px;
+			border-radius: 20px;
+			left:100px;
+			top:100px;'></div>
+	</div>
+	<script type="text/javascript">
+		// 命令模式
+		// 命令模式的作用是让发送命令的请求者和接收命令的执行者之间松耦合。
+		// 设计模式的核心是解决变化的部分与不变的部分的关系。
+		// 那么，命令封装的操作是变化的，但是发送命令给执行者是不变的
+
+		// demo1 实现3个按钮，点击执行不同的功能。
+		// 变化的部分是点击按钮的时候执行不同的事件，点击按钮触发事件执行一个命令是不变的。
+
+		// 首先确定不变的部分
+		// 不变的部分就是我确定我点击之后会触发一个命令，至于是什么命令，怎么实现，谁执行，我不关心。
+		var btn1 = document.querySelector('#btn1');
+		var btn2 = document.querySelector('#btn2');
+		var btn3 = document.querySelector('#btn3');
+		var btn4 = document.querySelector('#btn4');
+		var ball = document.getElementById('ball');
+		var up = document.querySelector('#up');
+		var down = document.querySelector('#down');
+		var left = document.querySelector('#left');
+		var right = document.querySelector('#right');
+		var undo = document.querySelector('#undo');
+		var review = document.querySelector('#reviw');
+		
+		var setCommand = function(button, command){
+			button.onclick = function(){
+				command.execute();
+			}
+		}
+
+		// 变化的是点击的时候执行不同的功能 ，作为接收命令的一方
+		var func = {
+			add: function(){
+				alert('add')
+			},
+			del: function(){
+				alert('del')
+			},
+			refresh: function(){
+				alert('refresh')
+			}
+		}
+
+		// 我们封装3个命令类 ，通过execute执行，不同的命令执行不同的功能
+		function refreshCommand(receiver){
+			this.receiver = receiver;
+		}
+		refreshCommand.prototype.execute = function(){
+			this.receiver.refresh()
+		}
+
+		function addCommand(receiver){
+			this.receiver = receiver;
+		}
+		addCommand.prototype.execute = function(){
+			this.receiver.add()
+		}
+
+		function delCommand(receiver){
+			this.receiver = receiver;
+		}
+		delCommand.prototype.execute = function(){
+			this.receiver.del()
+		}
+
+
+		// 测试一下
+		var refreshcommand = new refreshCommand(func);
+		setCommand(btn1, refreshcommand);
+
+		var addcommand = new addCommand(func);
+		setCommand(btn2, addcommand);
+
+		var delcommand = new delCommand(func);
+		setCommand(btn3, delcommand);
+
+
+		// 宏命令
+		// 其实就是一个命令组
+		function marcoCommand(commandlist){
+			return {
+				execute: function(){
+					for(var i = 0, len = commandlist.length; i<len; i++){
+						commandlist[i].execute()
+					}
+				}
+			}
+		}
+
+		commandlist = [refreshcommand, addcommand, delcommand];
+		var marco = new marcoCommand(commandlist);
+		setCommand(btn4, marco);
+
+
+		// 撤销和队列
+		// 命令除了定义执行方法execute，还可以增加 撤销 操作。就是回退到前一个命令。
+		// 还可以定义命令队列，比如下围棋的每一步都是一个命令，我们把执行了的命令存入一个队列中
+		// 就可以实现悔棋。
+
+		// 实现小球移动、撤销、录像功能的命令模式
+		var commandStack = []; // 存命令
+		var moves = {
+			up: function(){
+				ball.style.top = parseInt(ball.style.top) - 50 + 'px';
+			},
+			down: function(){
+				ball.style.top = parseInt(ball.style.top) + 50 +'px';
+			},
+			left: function(){
+				ball.style.left = parseInt(ball.style.left) - 50 + 'px';
+			},
+			right: function(){
+				ball.style.left = parseInt(ball.style.left) + 50 + 'px';
+			}
+		}
+
+		// 命令类
+		var upCommand = function(receiver){
+			return {
+				execute: function(){
+					receiver.up();
+					commandStack.push({event: 'up', pos: [ball.style.left, ball.style.top]})
+				}
+			}
+		}
+
+		var downCommand = function(receiver){
+			return {
+				execute: function(){
+					receiver.down();
+					commandStack.push({event: 'down', pos: [ball.style.left, ball.style.top]})
+				}
+			}
+		}
+
+		var leftCommand = function(receiver){
+			return {
+				execute: function(){
+					receiver.left();
+					commandStack.push({event: 'left', pos: [ball.style.left, ball.style.top]})
+				}
+			}
+		}
+
+		var rightCommand = function(receiver){
+			return {
+				execute: function(){
+					receiver.right();
+					commandStack.push({event: 'right', pos: [ball.style.left, ball.style.top]})
+				}
+			}
+		}
+
+		// 回放
+		var reviewCommand = function(receiver){
+			return {
+				execute: function(){
+					var timer;
+					var commandoo;
+					ball.style.top = 100 + 'px';
+					ball.style.left = 100 + 'px';
+					if(commandStack.length > 0){
+						timer = setInterval(function(){
+							var p = commandStack.shift();
+							if(p){
+								receiver[p.event]();
+							}else{
+								clearInterval(timer);
+							}
+						},2000)
+					}
+				}
+			}
+		}
+
+		// 撤销命令
+		var undoCommand = function(receiver){
+			return {
+				execute: function(){
+					var p = commandStack.pop();
+					if(commandStack.length > 0){
+						var pos = p.pos;
+						switch(p.event){
+							case 'up':
+								ball.style.top = parseInt(pos[1]) + 50 + 'px';
+								break;
+							case 'down':
+								ball.style.top = parseInt(pos[1]) - 50 + 'px';
+								break;
+							case 'left':
+								ball.style.left = parseInt(pos[0]) + 50 + 'px';
+								break;
+							case 'right':
+								ball.style.left = parseInt(pos[0]) - 50 + 'px';
+								break;
+							default:
+								alert('no this command!')
+						}
+					}
+				}
+			}
+		}
+
+		var upCommandz = upCommand(moves);
+		var downCommandz = downCommand(moves);
+		var leftCommandz = leftCommand(moves);
+		var rightCommandz = rightCommand(moves);
+		var undoCommandz = undoCommand(moves);
+		var reviewCommandz = reviewCommand(moves);
+
+		setCommand(up, upCommandz)
+		setCommand(down, downCommandz)
+		setCommand(left, leftCommandz)
+		setCommand(right, rightCommandz)
+		setCommand(undo, undoCommandz)
+		setCommand(review, reviewCommandz)
+
+
+	</script>
+</body>
+</html>

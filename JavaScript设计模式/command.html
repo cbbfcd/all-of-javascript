@@ -206,8 +206,8 @@
 		var undoCommand = function(receiver){
 			return {
 				execute: function(){
-					var p = commandStack.pop();
 					if(commandStack.length > 0){
+						var p = commandStack.pop();
 						var pos = p.pos;
 						switch(p.event){
 							case 'up':
@@ -223,7 +223,7 @@
 								ball.style.left = parseInt(pos[0]) - 50 + 'px';
 								break;
 							default:
-								alert('no this command!')
+								break;
 						}
 					}
 				}

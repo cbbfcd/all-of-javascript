@@ -3,5 +3,5 @@
 
 # 目录
 
-[1. 你不知道的JS系列](./你不知道的JS系列/README.mdown)</br>
-[2. JavaScript设计模式](./JavaScript设计模式/README.md)</br>
+<a href='你不知道的JS系列/README.mdown'>1. 你不知道的JS系列</a></br>
+<a href='JavaScript设计模式/README.md'>2. JavaScript设计模式</a></br>

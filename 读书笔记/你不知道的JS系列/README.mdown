@@ -1,7 +1,6 @@
-# 深入理解JavaScript
+# you don't know my heart?
 
-整理了一些书籍和自己开发过程中得到的知识。<br/>
-基本包含了原生js中所有的知识点。
+oh! my js, love you.
 
 # 目录
 
@@ -15,7 +14,4 @@
 <a href="./grammar.md">8. JS表达式</a><br/>
 <a href="./async.md">9. JS中的异步</a><br/>
 
-# author
-<a href="https://github.com/cbbfcd">@波比小金刚</a>
-> 如要转载，请注明出处。
 

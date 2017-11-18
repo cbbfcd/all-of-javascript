@@ -1,11 +1,8 @@
-<h1 style='text-align: center'>1. 内存空间</h1>
+# 1. 内存空间
 </hr>
 <div style='text-align: center'>
     <a href='https://github.com/cbbfcd'>波比小金刚</a>
     <p>2017.11.18</p>
-</div>
-<div align=center>
-    ![js](./imgs/js1.jpg)
 </div>
 
 </hr>

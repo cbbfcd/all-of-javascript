@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>组合模式</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 组合模式
+		// 具有相似性的更小单元组成一个大的单元。就是组合模式
+
+		// 组合模式可以理解成构造了一棵树。单一的顶层入口，其子节点和父节点执行的是相似的逻辑。
+
+		// 我们实现一个组合模式demo
+		// 用一个命令，画一个基本的html界面。
+
+		
+		// 1. 组合的顶层节点定义创建节点的命令
+		function Parent(type){
+			this.type = type;
+			this.childs = [];
+			this.parent = null;
+			this.node = document.createElement(type);
+		}
+		Parent.prototype.add = function(child){
+			this.childs.push(child);
+			child.parent = this;
+		}
+		Parent.prototype.create = function(p){
+
+			p.appendChild(this.node);
+
+			for(var i = 0,child, childs = this.childs; child = childs[i++];){
+				child.create(this.node);
+			}
+			
+		}
+		// 2. 组合的叶节点定义创建节点的命令
+		function Leaf(type, text){
+			this.type = type;
+			this.text = text;
+			this.parent = null;
+		}
+
+		Leaf.prototype.add = function(){
+			throw new Error('子节点没有子节点了');
+		}
+
+		Leaf.prototype.create = function(p){
+			var node = document.createElement(this.type);
+			node.innerText = this.text;
+			p.appendChild(node);
+		}
+
+		// 3. 组合
+		var h1 = new Leaf('h1', 'leaf1')
+		var h2 = new Leaf('h1', 'leaf2')
+		var h3 = new Leaf('h1', 'leaf3')
+		var h4 = new Leaf('h1', 'leaf4')
+		var ul = new Parent('ul', '')
+		var l1 = new Leaf('li', 'li1')
+		var l2 = new Leaf('li', 'li2')
+		var l3 = new Leaf('li', 'li3')
+
+		var div = new Parent('div');
+		div.add(h1);
+		div.add(h2);
+		div.add(h3);
+		div.add(h4);
+
+		ul.add(l1);
+		ul.add(l2);
+		ul.add(l3);
+
+		div.add(ul);
+		
+
+		// test
+		div.create(document.body);
+
+	</script>
+</body>
+</html>

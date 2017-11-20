@@ -59,3 +59,111 @@ Ajax('someurl', bar);
 所谓原子性，就是指上面代码中 foo 执行和 bar 执行是完整执行的。也就是说， foo 执行的时候不会被 bar 中断， bar 执行的时候不会被 foo 中断。二者谁先执行，需要竞争，而且输出的结果是不一样的。这就是竞态条件。
 
 假如JS可以多线程并行执行上面的代码，这样的并行是语句级别的，其结果和过程更加的复杂。需要我们外加条件，比如同步锁机制来限制并行的访问和操作内存。
+
+并发则是进程级别的"并行"，单线程事件循环是并发的一种形式。可以把一个事件看作一个进程。
+
+
+## 条件
+
+"进程"之间的交替执行可能会产生意想不到的结果，这个时候我们就需要给其一个条件。
+
+```
+var a ,b;
+
+function foo(){
+    a = 4;
+    baz()
+}
+
+function bar(){
+    b = 5;
+    baz()
+}
+
+function baz(){
+    console.log(a*b)
+}
+
+ajax('...', foo)
+ajax('...', bar)
+```
+
+上面的代码因为不管是foo先执行还是bar先执行，都可能造成异常，因为有一个变量没有赋值。解决办法是加一个条件(也叫做"门")。让他们都执行完了再一起打开门(执行baz)。
+
+```
+var a ,b;
+
+function foo(){
+    a = 4;
+    if(a && b){
+        baz()
+    }
+}
+
+function bar(){
+    b = 5;
+    if(a && b){
+        baz()
+    }
+}
+
+function baz(){
+    console.log(a*b)
+}
+
+ajax('...', foo)
+ajax('...', bar)
+```
+
+有时候我们不关心谁先执行，这就需要竞态条件。
+
+```
+var a;
+
+function foo(){
+    a = 5;
+    baz();
+}
+
+function bar(){
+    a = 6;
+    baz();
+}
+
+function baz(){
+    console.log(a)
+}
+
+ajax('...', foo);
+ajax('...', bar);
+```
+
+我们不关心谁先执行，但是这样会产生覆盖。我们加一个竞争条件，让第一个执行的执行，后执行的忽略。
+
+```
+var a;
+
+function foo(){
+    a = 5;
+    if(!a){
+        baz();
+    }
+}
+
+function bar(){
+    a = 6;
+    if(!a){
+        baz();
+    }
+}
+
+function baz(){
+    console.log(a)
+}
+
+ajax('...', foo);
+ajax('...', bar);
+```
+
+这样就是一个简单的竞态模型了。只有先达到的才会被执行。
+

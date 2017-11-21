@@ -90,7 +90,7 @@ ECStack = []
         
         首先这个题是抄袭的<a href='https://github.com/mqyqingfeng'>冴羽</a>的。两个都是输出"local scope"，结果是一样的，但是其上下文堆栈中却发生着不同的故事。如果你觉得输出的不是这个结果，建议看看<a href='https://github.com/mqyqingfeng'>冴羽</a>的文章关于词法作用域和动态作用域的区别。
 
-        我知道大家不喜欢看代码：
+        我知道大家不喜欢看文字：
 
         对于 1 中发生的故事:
         
@@ -102,13 +102,59 @@ ECStack = []
 
     2. ready... Go!
         
+        ```
+        (function foo(bar){
+            if(bar){
+                return;
+            }
+            foo(true);
+        })()
+        ```
+
+        上面的函数明显自己揍了自己一次(递归)。
         
+        即使是这样调用自己的时候也会创建一个执行上下文。便于理解，可以说是每次进入函数都会创建一个新的执行上下文。
+
+        知道你们还是喜欢看 png。
+
+        ![stack3](./imgs/stack3.png)
+
+        当相关段代码执行完以后，直到整个应用程序结束，ECStack都只包括全局上下文(global context)。
+
 * eval代码
 
+    eval 是万恶的!劫持作用域等罪名集于一身，不过我们还是简单了解一下。
 
+    **eval有一个概念叫做调用上下文(calling stack)，这是一个当eval函数被调用产生的上下文。**
 
+    ```
+    eval('var x = 10');
 
+    (function foo(){
+        eval('var y = 20');
+    })()
 
+    alert(x); // 10
+    alert(y); // "y" is not defined
+    ```
 
+    还是用png来说明问题(用evalContext-x，evalContext-y分别表示其上下文)
+    
+    ![eval](./imgs/eval1.png)
 
+    我们以前一般是这样理解的，eval劫持了foo内的作用域，全局环境中没有y声明了。
 
+    现在开始结合调用上下文理解吧!
+
+# 参考
+
+<a href='https://bclary.com/log/2004/11/07/#a-10'>ECMA-262 # 10</a></br>
+<a href='https://github.com/mqyqingfeng/Blog/issues/4'>冴羽 blog</a></br>
+
+# 下一章
+
+<a href='vo.md'>庖丁解牛-执行上下文 1. vo</a>
+
+# 结语
+
+撸主实力有限，高手历来在民间，希望广提意见，补肾感激。

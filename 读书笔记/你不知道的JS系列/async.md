@@ -33,6 +33,10 @@ while( true ){
 
 比如 setTimeout(...,0) 之类的代码并不是直接把回调放进了事件循环排队执行。而是放进了 Marco Tasks 中。与之相对的是 Micro Tasks。这个后边会说。
 
+我又改主意了，不打算说这个问题了。因为网上好文太多了。
+
+参考: <a href='https://juejin.im/post/59e85eebf265da430d571f89'>JS如何执行</a>
+
 ## 2. 并行线程
 
 异步执行指的是现在执行和未来执行的关系，并行强调的是同时执行。二者不能混为一谈。
@@ -166,4 +170,65 @@ ajax('...', bar);
 ```
 
 这样就是一个简单的竞态模型了。只有先达到的才会被执行。
+
+## 并发协作
+
+并发协作是一种并发合作方式。这中协作方式一般就不是通过共享作用域中的值进行交互了。
+
+而是旨在提供协作性更好，不会阻塞的并发系统。我们举一个例子说明。
+假如我们需要处理Ajax响应的一个超级大的数组。我们如果这样处理:
+
+```
+var res = [];
+
+function response(data){
+    res = res.concat(
+        data.map( function(val){
+            return val * 2
+        })
+    )
+}
+
+ajax('...1', response);
+ajax('...2', response);
+```
+
+这样处理的话，假如数组数组有个100万条数据，你就GG了。阻塞的你不要不要的。
+
+所以我们尝试着改造成更有好的并发系统：
+
+```
+var res = [];
+
+function response(data){
+    // 切片
+    var chunk = data.splice(0, 1000);
+
+    res = res.concat(
+        chunk.map( function(val){
+            return val * 2
+        })
+    )
+    
+    // 关键在这里
+    if(data.length>0){
+        setTimeout(function(){
+            response(data)    
+        },0)
+    }
+}
+
+ajax('...1', response);
+ajax('...2', response);
+```
+
+如果你读懂了前边说的:《 参考: <a href='https://juejin.im/post/59e85eebf265da430d571f89'>JS如何执行</a> 》中的内容。
+
+你就能理解这里的hack(setTimeout(..0))的作用。大概就是每次把response放进了Marco Tasks队列中，把主线程让出来给别的程序跑，当主线程上的代码和Micro Tasks执行完了再执行。
+
+这样就不会造成阻塞，而且并发提高了效率，但是有一个缺点就是顺序就不确定了。如果要排序的话，就要费劲的加一些条件了。
+
+事实上就算两个连续挨着的setTimeout，你也不能保证其按照调用顺序处理，诸如定时器飘逸之类的意外使其不能被预测。
+
+
 

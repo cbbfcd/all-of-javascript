@@ -422,37 +422,39 @@ console.log(this instanceof Object);// true
 
     其实前边已经说出了代码执行阶段的AO情况，就是解释过程中改写AO。
 
-    ```
-    alert(x); // function
- 
-    var x = 10; // 进入上下文阶段会被忽略
-    alert(x); // 10
+        ```
+        alert(x); // function
      
-    x = 20;
-     
-    function x() {};
-     
-    alert(x); // 20
-    ```
-    
+        var x = 10; // 进入上下文阶段会被忽略
+        alert(x); // 10
+         
+        x = 20;
+         
+        function x() {};
+         
+        alert(x); // 20
+        ```
+
+
     其AO:
 
-    ```
-    // 进入上下文阶段
-    AO:{
-        x: <reference 'x'>
-    }
 
-    // 代码执行阶段
-    AO:{
-        x: 10
-    }
+        ```
+        // 进入上下文阶段
+        AO:{
+            x: <reference 'x'>
+        }
 
-    // 然后
-    AO:{
-        x: 20
-    }
-    ```
+        // 代码执行阶段
+        AO:{
+            x: 10
+        }
+
+        // 然后
+        AO:{
+            x: 20
+        }
+        ```
 
 # 参考
 ***

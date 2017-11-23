@@ -13,5 +13,6 @@ oh! my js, love you.
 <a href="./type_change.md">7. 类型强制转换</a><br/>
 <a href="./grammar.md">8. JS语法</a><br/>
 <a href="./async.md">9. JS中的异步</a><br/>
+<a href="./promise.md">10. pormise</a><br/>
 
 

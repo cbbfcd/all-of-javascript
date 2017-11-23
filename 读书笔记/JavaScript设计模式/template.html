@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>模板方法模式</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 模板方法模式
+		// 这是一种基于继承的简单的设计模式。
+
+		// 熟悉后端开发的应该很熟悉这种模式。都不能说是模式了，已经是常见的编写技巧。
+		// 模板方法模式就是定义一个父类，将公共的行为和属性封装，然后子类通过继承可以
+		// 调用父类中的方法和属性，还可以重写。
+
+
+		// <<Head First设计模式>>中coffee or tea的实现
+		// 不管冲咖啡还是泡茶，大致分为4个流程
+		// 1. 煮开水
+		// 2. 冲泡/浸泡 材料
+		// 3. 倒进杯子
+		// 4. 加一些材料(柠檬、糖等)
+
+		// 我们把这4个过程抽象出来进行封装
+		function BaseOperation(){}
+		
+		BaseOperation.prototype.boilWater = function(){
+			console.log('烧开水');
+		}
+		// 冲泡方法，待子类重写
+		BaseOperation.prototype.brew = function(){
+			// 没有静态语言的检查机制，我们手动抛出异常，避免子类没有重写该方法
+			throw new Error('子类必须重写该方法');
+		} 
+
+		// 倒进杯子
+		BaseOperation.prototype.pourInCup = function(){
+			throw new Error('子类必须重写该方法');
+		}
+
+		// 加个什么
+		BaseOperation.prototype.addCondiments = function(){
+			throw new Error('子类必须重写该方法');
+		}
+
+		// 模板方法
+		BaseOperation.prototype.init = function(){
+			this.boilWater();
+			this.brew();
+			this.pourInCup();
+			this.addCondiments();
+		}
+
+		// 子类 Tea
+		function Tea(){}
+		Tea.prototype = new BaseOperation(); // 继承
+
+		// 重写方法
+		Tea.prototype.brew = function(){
+			console.log('用水泡茶')
+		}
+
+		Tea.prototype.pourInCup = function(){
+			console.log('倒进茶杯')
+		}
+
+		Tea.prototype.addCondiments = function(){
+			console.log('加一些菊花')
+		}
+
+		// test
+		var tea = new Tea();
+		tea.init();
+
+		// 子类 Tea
+		function Coffee(){}
+		Coffee.prototype = new BaseOperation(); // 继承
+
+		// 重写方法
+		Coffee.prototype.brew = function(){
+			console.log('冲泡咖啡')
+		}
+
+		Coffee.prototype.pourInCup = function(){
+			console.log('倒进咖啡杯子')
+		}
+
+		Coffee.prototype.addCondiments = function(){
+			console.log('加一些冰糖')
+		}
+
+		// test
+		var coff = new Coffee();
+		coff.init();
+
+		// 上面就是一个简单的模板方法模式，可以看出好处不仅仅是少写了init这个模板方法。
+		// 更多的体现了泛化的编程思想。
+		// 但是有一个缺点，就是模板方法里面的算法框架是固定了的，顺序也是定死了的。
+		// 假如一个子类不想按照这个顺序执行呢?
+		// 钩子方法（hook）可以用来解决这个问题，放置钩子是隔离变化的一种常见手段。
+		// 我们在父 类中容易变化的地方放置钩子，钩子可以有一个默认的实现，究竟要不要“挂钩”，这由子类自 行决定。
+		// 我们改造上面的demo。在最后一步加一个钩子，以适应有些客人并不想加糖之类的调料的情况。
+
+		function newBaseOperation(){}
+		newBaseOperation.prototype.boilWater = function(){
+			console.log('烧开水');
+		}
+		// 冲泡方法，待子类重写
+		newBaseOperation.prototype.brew = function(){
+			// 没有静态语言的检查机制，我们手动抛出异常，避免子类没有重写该方法
+			throw new Error('子类必须重写该方法');
+		} 
+
+		// 倒进杯子
+		newBaseOperation.prototype.pourInCup = function(){
+			throw new Error('子类必须重写该方法');
+		}
+
+		// 加个什么
+		newBaseOperation.prototype.addCondiments = function(){
+			throw new Error('子类必须重写该方法');
+		}
+
+		// 钩子
+		newBaseOperation.prototype.hookForAddCondiments=function(){
+			return true;
+		}
+
+		// 模板方法
+		newBaseOperation.prototype.init = function(){
+			this.boilWater();
+			this.brew();
+			this.pourInCup();
+			if(this.hookForAddCondiments()){
+				this.addCondiments();
+			}
+		}
+
+		// 现在模拟泡茶 hooktea
+		function hooktea(){}
+		hooktea.prototype = new newBaseOperation(); // 继承
+
+		// 重写方法
+		hooktea.prototype.brew = function(){
+			console.log('泡茶咯')
+		}
+
+		hooktea.prototype.pourInCup = function(){
+			console.log('倒茶咯')
+		}
+
+		hooktea.prototype.addCondiments = function(){
+			console.log('加菊花咯')
+		}
+
+		hooktea.prototype.hookForAddCondiments = function(){
+			return window.confirm('要不要加菊花啊?'); // 子类自行决定是不是挂钩
+		}
+
+		// test
+		var ht = new hooktea();
+		ht.init();
+
+
+
+		// 不用继承的实现
+		var Parent = function(p){
+			var boilWater =  function(){
+				console.log('不继承--烧水')
+			}
+			var brew = p.brew || function(){
+				throw new Error('必须重写方法')
+			}
+			var pourInCup = p.pourInCup || function(){
+				throw new Error('必须重写方法')
+			}
+			var addCondiments = p.addCondiments || function(){
+				throw new Error('必须重写方法')
+			}
+
+			var f =  function(){}
+
+			f.prototype.init=function(){
+				boilWater();
+				brew();
+				pourInCup();
+				addCondiments();
+			}
+
+			return f
+		}
+
+
+		// 泡茶
+		var t = Parent({
+			brew: function(){
+				console.log('不继承--泡茶')
+			},
+			pourInCup: function(){
+				console.log('不继承--倒茶')
+			},
+			addCondiments: function(){
+				console.log('不继承--加菊花')
+			}
+		})
+
+		var t1 = new t();
+		t1.init();
+	</script>
+</body>
+</html>

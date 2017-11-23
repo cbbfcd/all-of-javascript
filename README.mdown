@@ -5,6 +5,7 @@
 <a href="./读书笔记/README.md">1. 读书笔记</a><br/>
 <a href="./读读源码，思考人生/README.md">2. 读读源码，思考人生</a><br/>
 <a href="./深入到不能再深入之JS大法系列/README.md">3. 深入到不能再深入之JS大法系列</a><br/>
+<a href="./翻译集/README.md">4. 翻译系列</a><br/>
 
 # author
 

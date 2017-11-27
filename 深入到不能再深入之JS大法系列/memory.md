@@ -274,7 +274,7 @@ o.friends; // ["李彦宏", "马化腾"]
     
         ```
         function foo(){
-            this.bar = 'jack ma'
+            this.boss = 'jack ma'
         }
         foo();
         window.boss; // "jack ma"

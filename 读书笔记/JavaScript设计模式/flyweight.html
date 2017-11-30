@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>享元模式</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 享元模式
+
+		// 运用场景是运用共享技术来有效支持大量细粒度的对象，得以优化性能
+		// 简单的说就是假如需要 new 很多对象的场景，通过享元模式，
+		// 将对象的共有的属性封装在一个共享对象中。然后变化的，不能共享的属性作为外部的状态
+		// 在需要用的时候将外部状态传入共享对象中，组成一个完整的对象。
+		// 这是一种时间换空间的优化方式。
+
+		// 按照书上的例子
+		// 50件男装，50件女装，分别找50个男模特，50个女模特拍照
+		var Model = function(sex, underwear){
+			this.sex = sex;
+			this.underwear = underwear;
+		}
+
+		Model.prototype.takePhoto = function(){
+			console.log('sex:' + this.sex + 'underwear:' + this.underwear);
+		}
+
+		for(var i = 0; i<= 50; i++){
+			var man = new Model('man', 'underwear'+i);
+			man.takePhoto();
+		}
+
+		for(var i = 0; i<= 50; i++){
+			var woman = new Model('woman', 'underwear'+i);
+			woman.takePhoto();
+		}
+
+		// 这样的问题就是会创建100个对象。
+
+		// 现在我们通过享元模式优化
+
+		// 每个模特都会有的一个内在的属性就是性别。穿展示的衣服是外在的状态。
+		function NewModel(sex){
+			this.sex = sex;
+		}
+
+		NewModel.prototype.takePhoto = function(i){
+			console.log('享元模式下：sex--'+this.sex+' underwear--'+ i);
+		}
+
+		// 建立一个工厂方法返回对象(单例模式)
+		var ModelFactory = (function(){
+			var ModelObj = {};
+
+			return {
+				create: function(sex){
+					if(ModelObj[sex]){
+						return ModelObj[sex];
+					}
+
+					return ModelObj[sex] = new NewModel(sex)
+				}
+			}
+		})()
+
+		// 建立一个Model的管理器
+		var ModelManager = (function(){
+			return {
+				takePhoto: function(sex,i){
+					var model = ModelFactory.create(sex);
+					model.takePhoto(i)
+				}
+			}
+		})()
+
+		// test
+		for(var i = 0; i<= 50; i++){
+			ModelManager.takePhoto('男', i);
+		}
+
+		for(var i = 0; i<= 50; i++){
+			ModelManager.takePhoto('女', i);
+		}
+
+		// 其实实现可以没这么复杂，这样只是更清晰的展示出一个完整的享元模式的构成。
+		// 通过一个类似单例工厂的工厂方法制造对象，然后通过一个管理器为其添加不同的外部状态
+		// 我们只创建了两个对象，明显的时间换空间的策略。
+
+
+
+		// 对象池
+		// 来自于Java中的技术，原理就是池子里面有就返回，没有就加一个进去。
+		// 这也是一种享元模式的替代实现方式，减少了对象的创建，节约了空间。
+		// 我们来实现一个对象池
+
+
+		// 通用对象池工厂
+		var objPoolFactory = function(createObjFn){
+			var objPoolStack = [];
+			return {
+				create: function(){ // 池子里面有就返回，没有就加一个进去
+					var obj = objPoolStack.length === 0 ? 
+					createObjFn.apply(this, arguments) : objPoolStack.shift();
+
+					return obj;
+				},
+				recover: function(obj){ // 回收进池子
+					objPoolStack.push(obj);
+				}
+			}
+		}
+
+		// ok, 我们来做一个
+		var iframeFactory = objPoolFactory(function(){
+			var iframe = document.createElement('iframe');
+			document.body.appendChild(iframe);
+
+			iframe.onload = function(){
+				iframe.onload = null; // 避免重复加载
+				// 加载完了回收进池子
+				iframeFactory.recover(iframe);
+			}
+
+			return iframe
+
+		})
+
+		// 测试
+		var iframe1 = iframeFactory.create();
+		iframe1.src = 'http://www.baidu.com';
+
+		var iframe2 = iframeFactory.create();
+		iframe2.src = 'http://www.163.com';
+
+		 setTimeout(function(){       
+		 	var iframe3 = iframeFactory.create();      
+		 	iframe3.src = 'http://www.qq.com';  
+		 }, 3000 ); // 这个是从池子里面取出来的
+
+	</script>
+</body>
+</html>

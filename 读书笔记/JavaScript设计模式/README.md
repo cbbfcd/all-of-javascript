@@ -15,6 +15,7 @@ oh! js!
 <a href="./command.html">6. 命令模式</a><br/>
 <a href="./group.html">7. 组合模式</a><br/>
 <a href="./template.html">8. 模板方法模式</a><br/>
+<a href="./flyweight.html">9. 享元模式</a><br/>
 
 
 

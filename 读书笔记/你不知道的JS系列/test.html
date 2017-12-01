@@ -91,7 +91,7 @@
 
 
 	// 分时函数
-	// 比如如果要建1000个<li>，肯定消耗惊人，可以采取分时，每500毫秒创建8个<li>
+	// 比如如果要建1000个<li>，肯定消耗惊人，可以采取分时，每300毫秒创建8个<li>
 	var timeChunk = function(data, fn, count, interval){
 		var timer, _data = data;
 
@@ -109,7 +109,7 @@
 				}
 
 				start();
-			}, interval || 1000)
+			}, interval || 300)
 		}
 	}
 

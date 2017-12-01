@@ -1,0 +1,68 @@
+/*
+* @Author: 28906
+* @Date:   2017-12-01 15:08:17
+* @Last Modified by:   28906
+* @Last Modified time: 2017-12-01 17:29:03
+*/
+
+
+body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%；
+}
+
+.douban-movie-header {
+	width: 100%;
+	height: 100px;
+	border-bottom: 1px solid #e8e8e8;
+	text-align: center;
+}
+
+.douban-movie-header>img{
+	height: 100px;
+	width: 50px;
+	vertical-align:middle;
+}
+
+.douban-movie-header>span{
+	height: 100%;
+	line-height: 60px;
+	vertical-align:middle;
+	font-size: 30px;
+	color: #F8B03A;
+	text-align:center;
+}
+
+
+.douban-movie-wrapper {
+	position: relative;
+    top: 100px;
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+}
+
+
+.douban-movie-item {
+	border: 1px solid #f4f4f4;
+	width: 25%;
+	height: 350px;
+	margin: 0 20px;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-around;
+}
+
+.douban-movie-item-img {
+	width: 100%;
+	height: 300px;
+}
+
+.douban-movie-item>span {
+	text-align: center;
+	color: steelblue;
+	font-size: 20px;
+}

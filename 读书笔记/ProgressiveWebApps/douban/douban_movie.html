@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>豆瓣电影</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<header>
+		<div class='douban-movie-header'>
+			<img src="movie.svg"/>
+			<span>douban movie pwa</span>
+		</div>
+	</header>
+	<div class="douban-movie-wrapper" id='root'>
+		
+	</div>
+</body>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript">
+	// 注册service-worker
+	if('serviceWorker' in navigator){
+		navigator.serviceWorker.register('./sw.js').then(function(registration){
+			console.log('注册service-worker成功，scope：', registration.scope);
+		}).catch(function(err){
+			console.log('注册service-worker失败：', err);
+		})
+	}
+
+	// 简单说明一些核心点：
+	// 1. PWA 是基于 Promise的，上面代码中的 then ,catch
+	// 2. 为什么说是渐进式增强，上面的代码也可以看出来，如果注册service-worker成功，
+	//    就利用service-worker进行操作，不然就正常访问。
+	// 3. service-worker是PWA的核心，它有点像是一个代理一样，位于app和服务的中间，可以拦截请求，
+	//    并对app端进行响应，这样就可以在缓存数据后，直接从缓存中返回数据给app。从而加强页面体验
+	//    甚至你可以缓存整个页面，这样就实现了离线浏览了。
+	// 4. service-worker的生命周期，依次--> 下载、解析执行、激活install事件
+	// 5. 缓存分为动态页面的动态缓存和静态缓存。这个sw.js代码中细说
+</script>
+</html>

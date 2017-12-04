@@ -6,4 +6,4 @@
 
 # 目录
 
-<a href="douban/README.md">PWA示例1 -- 缓存 </a></br>
+<a href="douban/README.md">PWA示例1 -- 缓存基础 </a></br>

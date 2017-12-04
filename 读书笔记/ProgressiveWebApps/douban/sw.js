@@ -2,12 +2,12 @@
 * @Author: 28906
 * @Date:   2017-12-01 15:23:54
 * @Last Modified by:   28906
-* @Last Modified time: 2017-12-01 17:11:57
+* @Last Modified time: 2017-12-04 13:02:14
 * @Description: service-worker
 */
 
 
-var cacheName = 'douban_movie'; // 缓存的名字
+var cacheName = 'douban-movie-v1'; // 缓存的名字
 
 
 // service-worker下载、注册、激活之后，install事件就可以被监听了。
@@ -16,19 +16,50 @@ var cacheName = 'douban_movie'; // 缓存的名字
 // 每次进来都会加载的静态的，不会变化的数据，我们把它缓存起来，
 // 它们就像是这个demo app的外壳一样，缓存起来的好处就是没有网络的时候打开app，这个壳至少会
 // 显示出来，从而增加用户体验。当然第一次还是相对很慢的，以后的重复访问都是从缓存拿出来，就很快了。
-self.addEventListener('install', function(event){
-	event.waitUntil( //waitUntil表示等到资源加载好，service-worker激活
-		caches.open(cacheName)
-		.then(function(cache){ // 把外壳需要的不变的资源缓存起来
-			cache.addAll([
-				'./main.js',
-				'./movie.svg',
-				'./style.css',
-				'./movies.json'
-			])
-		})
-	)
-})
+// self.addEventListener('install', function(event){
+// 	event.waitUntil( //waitUntil表示等到资源加载好，service-worker激活
+// 		caches.open(cacheName)
+// 		.then(function(cache){ // 把外壳需要的不变的资源缓存起来
+// 			cache.addAll([
+// 				'./main.js',
+// 				'./movie.svg',
+// 				'./style.css',
+// 				'./movies.json',
+// 				'./douban_movie.html'
+// 			])
+// 		})
+// 	)
+// })
+
+
+// 现在升级一下上面的代码。使得其支持自动的更新service-worker。
+// 安装阶段跳过等待，直接进入 active
+self.addEventListener('install', function (event) {
+    event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('activate', function (event) {
+    event.waitUntil(
+        Promise.all([
+
+            // 更新客户端
+            self.clients.claim(),
+
+            // 清理旧版本
+            caches.keys().then(function (cacheList) {
+                return Promise.all(
+                    cacheList.map(function (cn) {
+                        if (cn !== cacheName) {
+                            return caches.delete(cn);
+                        }
+                    })
+                );
+            })
+        ])
+    );
+});
+
+
 
 
 // 当页面有了新的资源的时候，我们也要缓存起来。
@@ -41,6 +72,7 @@ self.addEventListener('fetch', function(event){
 	// 这也是respondWith的意思
 	event.respondWith( 
 		// caches.match判断缓存里面有没有对应的数据
+		// ignoreSearch 忽略查询字符串
 		caches.match(event.request, { ignoreSearch: true })
 		.then(function(response){
 			if(response){
@@ -63,14 +95,12 @@ self.addEventListener('fetch', function(event){
 
 				return response;
 			})
+		}).catch(function(){ // 设置一个失败的回退。
+			return caches.match('./douban_movie.html');
 		})
 	)
 })
 // 这只是一个基础的demo，用以揭示 PWA 应用中缓存的实现。
 // 缓存成功与否可以在 chrome F12 中找到 Cache下的 Cache Storage 查看。
 // 你刷新页面也会发现速度更加快了。
-// 当然，上面的demo还有很多缺点，比如上面的代码是对所有的请求数据做了缓存，实际上我们
-// 并不需要这么多数据都缓存，所以只需要缓存特定的一些资源就好了，比如外壳需要的css,js，svg
-// 至于动态的请求内容需要缓存不根据你的项目需要，另外加一些路由匹配可以精确的指定哪些请求
-// 资源是需要缓存的。这个后边会说。
 

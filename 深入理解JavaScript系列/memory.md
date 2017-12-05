@@ -1,11 +1,5 @@
-# 1. 内存空间
-</hr>
-<div style='text-align: center'>
-    <a href='https://github.com/cbbfcd'>波比小金刚</a>
-    <p>2017.11.18</p>
-</div>
-
-</hr>
+# 深入理解JavaScript系列（1）-- 内存空间
+***
 
 # 前言
 ***

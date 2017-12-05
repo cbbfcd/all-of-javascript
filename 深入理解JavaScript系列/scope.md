@@ -1,9 +1,9 @@
-# 执行上下文 -- scope chain
-
+# 深入理解JavaScript系列（4） -- 作用域链
+***
 
 # 前言
 ***
-上一章节我们讲了<a href="vo.md">VO</a>。
+上一章节我们讲了<a href="vo.md"> VO </a>。
 
 我们回顾一下之前的内容。
 

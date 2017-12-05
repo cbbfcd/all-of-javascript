@@ -1,11 +1,5 @@
-# 执行上下文 -- 1. vo
-</hr>
-<div style='text-align: center'>
-    <a href='https://github.com/cbbfcd'>波比小金刚</a>
-    <p>2017.11.23</p>
-</div>
-
-</hr>
+# 深入理解JavaScript系列（3）-- 变量对象
+***
 
 # 前言
 ***
@@ -31,7 +25,7 @@
 
 ![EC-LIFE](./imgs/vo1.png)
 
-大体上说EC的生命周期平稳无波折，健健康康。创建、执行、GG，就这么简单。
+大体上说EC的生命周期平稳无波折，健健康康。创建(进入)、执行、GG，就这么简单。
 
 也看出了EC中的三贱客:
 

@@ -2,11 +2,11 @@
 * @Author: 28906
 * @Date:   2017-12-01 15:23:54
 * @Last Modified by:   28906
-* @Last Modified time: 2017-12-04 13:02:14
+* @Last Modified time: 2017-12-05 21:36:51
 * @Description: service-worker
 */
 
-
+"use strict";
 var cacheName = 'douban-movie-v1'; // 缓存的名字
 
 
@@ -70,6 +70,15 @@ self.addEventListener('fetch', function(event){
 	// 我们作为一个代理，劫持请求，判断缓存有没有请求的数据，有就从缓存返回，
 	// 没有就正常去访问服务器响应的数据，然后缓存起来，再返回。
 	// 这也是respondWith的意思
+
+	// 如果要具体的拦截到特定的路径的请求，可以使用正则
+	// if(/\.jpg$/.test(event.request.url)){
+	// 	event.respondWith(
+	// 		new Response('<p>This is a response that comes from your service worker!</p>', {
+	// 	        headers: { 'Content-Type': 'text/html' }                                         ❸
+	// 	    });
+	// 	)
+	// }
 	event.respondWith( 
 		// caches.match判断缓存里面有没有对应的数据
 		// ignoreSearch 忽略查询字符串

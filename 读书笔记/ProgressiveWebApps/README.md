@@ -7,3 +7,4 @@
 # 目录
 
 <a href="douban/README.md">PWA示例1 -- 缓存基础 </a></br>
+<a href="demo2/README.md">PWA示例2 -- 拦截网络基础 </a></br>

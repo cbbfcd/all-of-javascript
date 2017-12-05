@@ -1,0 +1,16 @@
+/*
+* @Author: 28906
+* @Date:   2017-12-05 21:58:41
+* @Last Modified by:   28906
+* @Last Modified time: 2017-12-05 22:13:53
+*/
+
+.index-wrapper {
+	width: 500px;
+	height: 500px;
+	position: absolute;
+	top: 100px;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #f1f1f1;
+}

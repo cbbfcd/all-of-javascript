@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>利用轮子实现，场景2</title>
+	<script type="text/javascript" src="lib/ResizeSensor.js"></script>
+	<style type="text/css">
+		.container {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			background-color: orange;
+		}
+
+		.container>a{
+			position: absolute;
+			right: 10px;
+			top:0;
+			width: 10px;
+			height: 10px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<div class='container' style="width: 200px;">
+		<p>clientWidth: </p>
+		<h5 id='target'></h5>
+		<a onclick="handleTab()"> <- </a>
+	</div>
+</body>
+<script type="text/javascript">
+	function handleTab() {
+		var w = document.querySelector('.container').style.width;
+		w === '200px' ? document.querySelector('.container').style.width = '50px'
+					 :  document.querySelector('.container').style.width = '200px'
+	}
+
+	new ResizeSensor(document.querySelector('.container'), function(){
+		document.querySelector('#target').innerText = 
+				document.querySelector('.container').clientWidth;
+	})
+</script>
+</html>

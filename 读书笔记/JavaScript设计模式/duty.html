@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>职责链模式</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 职责链模式
+
+		// 职责可以理解为一个模块对某个请求的处理，职责链是将这些模块链接到一起成为一个线性的结构
+		// 一个请求就可以在这个链上传递下去，直到一个能够解决它的模块处理掉它，否则直达终点。
+		// 因此职责链不宜太长，应该有一个终点。
+		// 我们将通过一个demo，逐渐的理解职责链模式的使用场景及方式。
+
+
+		// demo
+		// 场景：
+		// 某电商平台推出的手机，其购买流程是：
+		//    1. 如果交付了 500 的定金，可以获得 100 优惠券，手机不限库存。如果预定了，
+		//       但是到期了没有交定金，降级为普通购买。
+		//    2. 如果交付了 200 的定金，可以获得 50 优惠券， 手机不限库存。如果预定了，
+		//       但是到期了没有交定金，降级为普通购买。
+		//    3. 普通购买，没有优惠，库存不够的话，手机不一定能买的到。
+
+		// 1. 第一种实现方式
+		// @param: type -- 1表示500，2表示200，3表示普通购买
+		// @param: pay -- true/false 是否交了定金
+		// @param: stock -- 库存数 
+		var buyPhone = function(type, pay, stock) {
+			if( type === 1 ){
+				if(pay){
+					console.log('获得500优惠券，购买成功！')
+				}else{
+					if(stock > 0){
+						console.log('未缴纳定金，普通购买成功！')
+					}else{
+						console.log('库存不足！')
+					}
+				}
+			}else if( type === 2 ){
+				if(pay){
+					console.log('获得200优惠券，购买成功！')
+				}else{
+					if(stock > 0){
+						console.log('未缴纳定金，普通购买成功！')
+					}else{
+						console.log('库存不足！')
+					}
+				}
+			}else{
+				if(stock > 0){
+					console.log('普通购买成功！')
+				}else{
+					console.log('库存不足！')
+				}
+			}
+
+		}
+
+		buyPhone(1, true, 200);
+	</script>
+</body>
+</html>

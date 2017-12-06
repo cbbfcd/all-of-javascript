@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>利用轮子实现，场景1</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" src="lib/ResizeSensor.js"></script>
+</head>
+<body>
+	<div class='target-container'>
+		<span>cientWidth: <h5 id='width_container'></h5></span>
+		<div class="drop"></div>
+	</div>
+</body>
+<script type="text/javascript">
+	// 记录位置
+	var flag, lastX = 0, lastY = 0, contaner = document.querySelector('.target-container');
+	// 鼠标按下
+	document.querySelector('.drop').addEventListener('mousedown',function(e){
+		lastX = e.clientX;
+		lastY = e.clientY;
+		flag = true;
+		contaner.style.willChange = 'width, height';
+	})
+
+	// 鼠标移动
+	document.addEventListener('mousemove',function(e){
+		var el;
+		if(flag){
+			el = contaner;
+		}else{
+			return
+		}
+		el.style.width = el.offsetWidth + e.clientX - lastX + 'px'
+	    el.style.height = el.offsetHeight + e.clientY - lastY + 'px'
+
+	    lastX = e.clientX
+	    lastY = e.clientY
+	})
+
+	// 鼠标放开
+	document.addEventListener('mouseup',function(e){
+		contaner.style.willChange = '';
+		flag = false;
+	})
+
+	// 利用现成的轮子实现
+	new ResizeSensor(contaner, function(){
+		document.getElementById('width_container').innerText = contaner.clientWidth;
+	})
+</script>
+</html>

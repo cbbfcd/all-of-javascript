@@ -57,8 +57,155 @@
 			}
 
 		}
+		// 测试
+		// buyPhone(1, true, 200);
+		// buyPhone(2, false, 200);
 
-		buyPhone(1, true, 200);
+		// 这样可以解决我们的需求，但是代码结构不忍直视。
+		// 我们现在用职责链模式改进一下,入口为 order500, 末尾为 orderMormal
+		// var order500 = function(type, pay, stock){
+		// 	if(type === 1 && pay){
+		// 		console.log('获得500优惠券，购买成功！')
+		// 	}else{
+		// 		order200(type, pay, stock)
+		// 	}
+		// }
+
+		// var order200 = function(type, pay, stock){
+		// 	if(type === 2 && pay){
+		// 		console.log('获得200优惠券，购买成功！')
+		// 	}else{
+		// 		orderNormal(type, pay, stock)
+		// 	}
+		// }
+
+		// var orderNormal = function(type, pay, stock){
+		// 	if(stock > 0){
+		// 		console.log('普通购买成功！')
+		// 	}else{
+		// 		console.log('库存不足！')
+		// 	}
+		// }
+		// 测试
+		// order500(1, true, 2);
+		// order200(2,false,2);
+
+		// 这样的职责链模式代码，比之前的好很多了。结构清晰，维护简单
+		// 但是还是有一个问题，就是如果新增加一个 300 优惠券的情况，还是会改很多代码。
+		// 因为各个职责模块耦合度高，而且不能自定义其链路的顺序。
+
+		// 我们再改进一下, 首先不再直接转到下一个责任模块，降低耦合
+		var order500 = function(type, pay, stock){
+			if(type === 1 && pay){
+				console.log('获得500优惠券，购买成功！')
+			}else{
+				//order200(type, pay, stock)
+				return 'nextSuccessor' // 返回一个标识，表示交给下一个责任块儿
+			}
+		};
+
+		var order200 = function(type, pay, stock){
+			if(type === 2 && pay){
+				console.log('获得200优惠券，购买成功！')
+			}else{
+				//orderNormal(type, pay, stock)
+				return 'nextSuccessor'
+			}
+		};
+
+		var orderNormal = function(type, pay, stock){
+			if(stock > 0){
+				console.log('普通购买成功！')
+			}else{
+				console.log('库存不足！')
+			}
+		};
+
+		// 定义一个责任链，实现灵活的自定义顺序。
+		function Chain(fn){
+			this.fn = fn;
+			this.nextSuccessor = null;
+		};
+
+		Chain.prototype.setNextSuccessor = function(nextSuccessor){
+			return this.nextSuccessor = nextSuccessor;
+		}
+
+		Chain.prototype.passRequest = function(){
+			var ret = this.fn.apply(this, arguments);
+
+			if(ret === 'nextSuccessor'){
+				return this.nextSuccessor 
+				    && this.nextSuccessor.passRequest.apply(this.nextSuccessor, arguments);
+			}
+
+			return ret;
+		}
+
+		// 测试
+		var chainOrder500 = new Chain(order500);
+		var chainOrder200 = new Chain(order200);
+		var chainOrderNormal = new Chain(orderNormal);
+
+		// 定义顺序
+		chainOrder500.setNextSuccessor(chainOrder200);
+		chainOrder200.setNextSuccessor(chainOrderNormal);
+
+		// 执行
+		chainOrder500.passRequest(1, true, 2);
+		chainOrder500.passRequest(2, true, 2);
+
+
+		// 异步职责链
+		// 我们定义一个 next 方法
+		Chain.prototype.next = function(){
+			return this.nextSuccessor 
+				    && this.nextSuccessor.passRequest.apply(this.nextSuccessor, arguments);
+		}
+
+		// 测试
+
+		var fn1 = new Chain(function(){
+			console.log('this is 1');
+			 return 'nextSuccessor';
+		})
+
+		var fn2 = new Chain(function(){
+			console.log('this is 2');
+			var self = this;
+			setTimeout(function(){
+				self.next();
+			}, 2000);
+		})
+
+		var fn3 = new Chain(function(){
+			console.log( 'this is 3' );
+		})
+
+		fn1.setNextSuccessor(fn2).setNextSuccessor(fn3);
+
+		fn1.passRequest()
+
+
+		// 如果觉得上面的实现复杂了，可以使用 AOP 编程更简洁的实现。
+		// 所谓 AOP 编程，在 JS 中的运用其实就是动态的织入一个函数。
+		Function.prototype.after = function(fn){
+			var self = this;
+			return function(){
+				var ret = self.apply( this, arguments);
+				if(ret === 'nextSuccessor'){
+					return fn.apply(this, arguments);
+				}
+				return ret;
+			}
+		}
+
+		var order = order500.after(order200).after(orderNormal);
+
+		order(1, true, 500);
+		order(1, false, 200);
+		order(1, false, 0);
+
 	</script>
 </body>
 </html>

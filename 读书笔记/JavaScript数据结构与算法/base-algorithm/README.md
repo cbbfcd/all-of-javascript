@@ -6,3 +6,4 @@
 
 <a href="stack.html"> 1. 创建一个栈</a></br>
 <a href="queue.html"> 2. 创建一个队列</a></br>
+<a href="link_list.html"> 3. 创建一个链表</a></br>

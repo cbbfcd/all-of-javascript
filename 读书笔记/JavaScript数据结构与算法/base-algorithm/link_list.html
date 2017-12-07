@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>链表</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 链表
+		// 链表存储有序的元素集合，但不同于数组，链表中的元素在内存中并不是连续放置的。每个 元素由一个存储元素本身的节点和一个指向下一个元素的引用（也称指针或链接）组成
+
+
+		// 创建一个基本的链表结构
+		function LinkedList(){
+
+			// 表示链表中的每一个节点，包含要存储的元素和指向下一个元素的指针
+			function Node(element){
+				this.element = element;
+				this.next = null;
+			}
+
+			// 记录长度
+			var length = 0;
+			// 记录链表的头
+			var head = null;
+
+			// API
+			// 向列表尾部添加一个新的项
+			this.append = function(e){
+				var node = new Node(e), current;
+				if(head === null){
+					head = node;
+				}else{
+					current = head;
+					//遍历找到最后一个节点
+					while(current.next){
+						current = current.next;
+						// if(current.next === head){
+						// 	break;
+						// }
+					}
+					current.next = node;// 添加到末尾
+					//--> 循环列表
+					// node.next = head;
+				}
+				length++;
+			}
+
+			// 根据给定位置移除元素并返回
+			this.removeAt = function(position){
+				if( position > -1 && position < length ){
+					var current = head, index = 0, previous; 
+					// 移除第一个
+					if(position === 0){
+						head = current.next;
+					}else{ //移除其他位置
+						while(index++ < position){
+							previous = current;
+							current = current.next;
+						}
+
+						previous.next = current.next;
+					}
+
+					length--;
+
+					return current.element;
+				}else{
+					throw new Error('not valid params, "positon" should range('+0+','+length+')')
+				}
+			}
+
+			// 在任意位置插入一个元素 
+			this.insert = function(position, element){
+				if( position >= 0 && position <= length ){
+					var node = new Node(element);
+					var current = head, index = 0, previous;
+					if(position === 0){
+						node.next = current;
+						head = node;
+					}else{
+						while(index++ < position){
+							previous = current;
+							current = current.next;
+						}
+						node.next = current;
+						previous.next = node;
+					}
+					length++;
+					return true;
+				}else{
+					return false;
+				}
+			}
+
+			// toString方法 
+			this.toString = function(){
+				var current = head, str = '';
+				while(current){
+					str += current.element+'; ';
+					current = current.next;
+				}
+				console.log(str);
+				return str;
+			}
+
+			// indexOf方法 
+			this.indexOf = function(element){
+				var current = head, index = -1;
+				while(current){
+					index++;
+					if(current.element === element){
+						return index;
+					}
+					
+					current = current.next;
+				}
+
+				return -1;
+			}
+
+			// 根据元素删除
+			this.remove = function(element){
+				var index = this.indexOf(element);
+				return this.removeAt(index);
+			}
+
+			// 删除全部
+			this.removeAll = function(){
+				head = null;
+			}
+
+			// isEmpty 
+			this.isEmpty = function(){
+				return length === 0;
+			}
+
+			// size
+			this.size = function(){
+				return length
+			}
+
+			// getHead
+			this.getHead = function(){
+				return head;
+			}
+
+			// print 循环单链表
+			this.print = function(){
+				var c = head;
+				while(c){
+					console.log(c);
+					c = c.next;
+					if( c === head){
+						break;
+					}
+				}
+				console.log('over')
+			}
+
+		}
+
+		// 测试
+		var list = new LinkedList();
+		list.append('A');
+		list.append('B');
+		list.append('C');
+		list.append('D');
+		list.append('E');
+		list.append('F');
+		// list.print(); // 测试循环单链表
+
+		list.toString(); 
+		var res = list.removeAt(0); console.log(res);
+		list.toString();
+
+		var res2 = list.removeAt(3); console.log(res2);
+		list.toString();
+
+		list.insert(0, "A");
+		list.toString();
+
+		list.insert(4, "E");
+		list.toString();
+
+		list.remove('D');
+		list.toString();
+
+
+		// 双向链表 
+		// 顾名思义，就是每个元素有两个指针，一个指向前面的节点，一个指向它的下一个节点。
+
+		function DoublyLinkedList(){
+			function Node(element){
+				this.element = element;
+				this.prev = null;
+				this.next = null;
+			}
+
+			var length = 0;
+			var head = null;
+			var end = null;
+			// 在最后添加
+			this.append = function(element){
+				var node = new Node(element), current;
+				if(!head){
+					head = node;
+					end = node;
+				}else{
+					current = head;
+					while(current.next){
+						current = current.next;
+					}
+					current.next = node;
+					node.prev = current;
+					end = node;
+				}
+				length++
+			}
+			
+			// 在任意位置插入一个新元素 
+			this.insert = function(position, element){
+				if(position >= 0 && position <= length){
+					var current = head, index = 0, previous;
+					var node = new Node(element);
+					if(position === 0){
+						if(!head){
+							head = node;
+							end = node;
+						}else{
+							node.next = current;
+							current.prev = node;
+							head = node;
+						}
+					}else if(position === length){
+						current = end;
+						current.next = node;
+						node.prev = current;
+						end = node;
+					}else{
+						while(index++ < position){
+							previous = current;
+							current = current.next;
+						}
+
+						node.next = current;
+						current.prev = node;
+
+						previous.next = node;
+						node.prev = previous;
+					}
+
+					length++;
+					return true;
+				}else{
+					return false;
+				}
+			}
+
+			// 从任意位置移除元素 
+			this.removeAt = function(position){
+				if(position > -1 && position < length){
+					var current = head, previous, index = 0;
+					if(position === 0 ){
+						head = current.next;
+						if(length === 1){
+							end = null;
+						}else{
+							head.prev = null;
+						}
+					}else if(position === length-1){
+						current = end;
+						end = current.prev;
+						end.next = null;
+					}else{
+						while(index++ < position){
+							previous = current;
+							current = current.next;
+						}
+
+						previous.next = current.next;
+						current.next.prev = previous;
+					}
+					length--;
+					return current.element;
+				}else{
+					return null;
+				}
+			}
+
+			// toString方法 
+			this.toString = function(){
+				var current = head, str = '';
+				while(current){
+					str += current.element+'; ';
+					current = current.next;
+				}
+				console.log(str);
+				return str;
+			}
+
+			// indexOf方法 
+			this.indexOf = function(element){
+				var current = head, index = -1;
+				while(current){
+					index++;
+					if(current.element === element){
+						return index;
+					}
+					
+					current = current.next;
+				}
+
+				return -1;
+			}
+
+			// getEnd
+			this.getEnd = function(){
+				return end;
+			}
+		}
+
+		var d = new DoublyLinkedList();
+		d.append('0');
+		d.append('1');
+		d.append('2');
+		d.append('3');
+		d.append('4');
+		d.append('5');
+		d.append('6');
+		d.toString();
+
+		d.insert(2,'A');
+		d.toString();
+		console.log(d.indexOf('A'))
+		d.removeAt(2);
+		d.toString();
+
+
+		console.log(d.getEnd())
+
+
+		// 双向循环链表
+		// 这个的实现可以基于上面两种链表，就是让最后一个元素指向第一个元素形成闭环。
+		function CircleDoublyLinkedList(){
+			function Node(element){
+				this.element = element;
+				this.prev = null;
+				this.next = null;
+			}
+
+			var length = 0;
+			var head = null;
+			var end = null;
+			// 在最后添加
+			this.append = function(element){
+				var node = new Node(element), current;
+				if(!head){
+					head = node;
+					end = node;
+					head.prev = node;
+					end.next = node;
+				}else{
+					current = head;
+					while(current.next){
+						current = current.next;
+						if(current.next === head){
+							break;
+						}
+					}
+					current.next = node;
+					node.prev = current;
+					end = node;
+					node.next = head;
+					head.prev = node;
+				}
+				length++
+			}
+
+			this.print = function(){
+				var current = head;
+				while(current){
+					console.log(current);
+					current = current.next;
+					if(current === head){
+						break;
+					}
+				}
+			}
+		}
+
+		var f = new CircleDoublyLinkedList();
+		f.append('甲');
+		f.append('乙');
+		f.append('丙');
+		f.append('丁');
+		f.print()
+	</script>
+</body>
+</html>

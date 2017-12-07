@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>对列</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 队列
+		// 队列是遵循FIFO（First In First Out，先进先出，也称为先来先服务）原则的一组有序的项。 队列在尾部添加新元素，并从顶部移除元素。最新添加的元素必须排在队列的末尾
+
+
+		// 创建一个普通队列
+		function Queue(){
+			var arr = [];
+
+			// 进入队列排队
+			this.enqueue = function( ele ){
+				arr.push(ele);
+			}
+
+			// 出队列
+			this.dequeue = function(){
+				return arr.shift();
+			}
+
+			// 返回队列第一个元素，但是不删除。
+			this.front = function(){
+				return arr[0];
+			}
+
+			// 判空
+			this.isEmpty = function(){
+				return arr.length === 0;
+			}
+
+			// size
+			this.size = function (){
+				return arr.length;
+			}
+
+			// 清空
+			this.clear = function (){
+				arr.length = 0;
+			}
+
+		}
+
+
+		// 最小优先队列
+		function PriorityQueue(){
+			var arr = [];
+
+			var QueueElement = function(ele, priority){
+				this.ele = ele;
+				this.priority = priority;
+			}
+
+			// 判空
+			this.isEmpty = function(){
+				return arr.length === 0;
+			}
+
+			// 根据优先级进入队列排队
+			this.enqueue = function (ele, priority){
+				var q = new QueueElement(ele, priority);
+				if(this.isEmpty()){
+					arr.push(q);
+				}else{
+					var flag = arr.some(function(item, index){
+						if(q.priority < item.priority){
+							arr.splice(index, 0, q);
+							return true;
+						}
+					})
+
+					if(!flag){
+						arr.push(q)
+					}
+				}
+			}
+
+			// 打印
+			this.print = function (){
+				console.log(arr)
+			}
+
+			// ...
+		}
+
+		// 测试
+		var proQ = new PriorityQueue();
+		proQ.enqueue('a', 1);
+		proQ.enqueue('b', 2);
+		proQ.enqueue('c', 1);
+		proQ.enqueue('d', 0);
+		proQ.enqueue('e', 2);
+		proQ.enqueue('f', 3);
+		proQ.print();
+
+
+		// 循环队列
+		// 经典的击鼓传花
+		function hitDrumPassFlower(persons, hit_times){
+			if(!persons.length || !hit_times) return;
+			var queue = new Queue();
+			// 加入参加游戏的人员
+			for(var i = 0, person; person = persons[i++];){
+				queue.enqueue(person);
+			}
+			// 接到花传下去，就把这个人移到队列末尾重新排队。到 hit_times ，刚好
+			// 接到花的淘汰
+			while(queue.size() > 1){
+				for(var j = 0; j < hit_times; j++){
+					queue.enqueue(queue.dequeue());
+				}
+				var loser = queue.dequeue();
+				console.log(loser, ' 被淘汰!');
+			}
+
+			// 最后剩下的这个人为胜者
+			return queue.dequeue();
+		}
+
+		// 测试
+		var persons = ['a','b','c','d','e','f','g','h','i','j','k','l'];
+		var winner = hitDrumPassFlower(persons, 5);
+		console.log('winner is: ', winner);
+	</script>
+</body>
+</html>

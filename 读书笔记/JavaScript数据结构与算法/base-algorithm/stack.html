@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>栈</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 栈
+		// 栈是一种遵从后进先出（LIFO）原则的有序集合。新添加的或待删除的元素都保存在栈的 末尾，称作栈顶，另一端就叫栈底。在栈里，新元素都靠近栈顶，旧元素都接近栈底。
+
+
+		// 简单实现一个栈结构
+		var Stack = function(){
+			var arr = [];
+
+			// 添加到栈顶
+			this.push = function(ele){
+				arr.push(ele);
+			}
+
+			// 删除并返回栈顶元素
+			this.pop = function(){
+				return arr.pop();
+			}
+
+			// 返回栈顶元素但是不删除
+			this.peek = function(){
+				return arr[arr.length - 1];
+			}
+
+			// 判空
+			this.isEmpty = function(){
+				return arr.length === 0
+			}
+
+			// 清空
+			this.clear = function(){
+				arr.length = 0;
+			}
+
+			// 返回元素个数
+			this.size = function(){
+				return arr.length
+			}
+
+		}
+
+
+		// 利用栈结构实现十进制转其它进制(2,8,16)。
+		// 实现思路就是依次对2取余，记录下余数和算出来的结果，再对结果进行取余
+		// 比如对 10 转 2 进制，先是 10 % 2 = 5 ... 0; 再 5 % 2 = 2 ... 1; 再 2 % 2 = 1 ... 0;再 1 % 2 = 0 ... 1
+		// 最终结果就是余数拼起来： '1010'
+		function transFunc(target, base){
+			var ret = '', rem, stack = new Stack(), digits = '0123456789ABCDEF';
+
+			while( target > 0 ){
+				rem = Math.floor( target % base );
+				stack.push( rem );
+				target = Math.floor( target / base );
+			}
+
+			while( !stack.isEmpty() ){
+				ret += digits[stack.pop()]
+			}
+
+			return ret;
+		}
+
+
+		// 测试
+		console.log(transFunc(10, 2));
+		console.log(transFunc(16, 8));
+		console.log(transFunc(256, 16));
+	</script>
+</body>
+</html>

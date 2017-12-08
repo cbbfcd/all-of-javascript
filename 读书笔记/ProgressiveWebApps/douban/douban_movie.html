@@ -5,6 +5,7 @@
 	<title>douban</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="manifest" href="manifest.json">
 </head>
 <body>
 	<header>
@@ -37,5 +38,22 @@
 	//    甚至你可以缓存整个页面，这样就实现了离线浏览了。
 	// 4. service-worker的生命周期，依次--> 注册、下载-解析-执行、安装(install)、激活(activate)
 	// 5. 缓存分为动态页面的动态缓存和静态缓存。这个sw.js代码中细说
+
+
+	window.addEventListener('beforeinstallprompt',function(e){
+		// 取消添加到主屏幕提示
+		// e.preventDefault();
+  		// return false;
+
+  		// 判断用户行为
+  		e.userChoice.then(function(result){
+  			console.log(result);
+  			if(result.outcome == 'dismissed'){
+  				console.log('用户并没有安装到主屏幕')
+  			}else{
+  				console.log('用户安装啦！')
+  			}
+  		})
+	})
 </script>
 </html>

@@ -1,0 +1,15 @@
+{
+	"name": "douban movies pwa app",
+	"short_name": "db movies",
+	"start_url": "/douban_movie.html",
+	"display": "standalone",
+	"theme_color": "#e8e8e8",
+	"background_color": "#e8e8e8",
+	"icons": [
+		{
+			"src": "homescreen-144.png",
+			"sizes": "144x144",
+			"type":"image/png"
+		}
+	]
+}

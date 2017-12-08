@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>集合</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 集合
+		// 集合是由一组无序且唯一（即不能重复）的项组成的。
+
+		// 实现一个集合
+		function Set(){
+			var items = {}; // 用对象，因为一个key不能有多个对应的value，从而保证唯一性。
+
+			// has(value); 集合中是不是有这个值
+			this.has = function(value){
+				return items.hasOwnProperty( value );
+			}
+
+			// add
+			this.add = function(value){
+				if(!this.has(value)){
+					items[value] = value;
+					return true;
+				}
+
+				return false;
+			}
+
+			// remove
+			this.remove = function(value){
+				if(this.has(value)){
+					delete items[value];
+					return true;
+				}
+
+				return false;
+			}
+
+			// clear
+			this.clear = function(){
+				items = {};
+			}
+
+			// size
+			this.size = function(){
+				return Object.keys(items).length; // IE9以上
+			}
+
+			// values 提取所有的值，以数组形式返回
+			this.values = function(){
+				return Object.keys(items);
+			}
+
+			// 并集
+			this.union = function(otherSet){
+				var unionSet = new Set();
+				var values = this.values();
+				for(var i = 0, value;value=values[i++];){
+					unionSet.add(value);
+				}
+
+				var otherValues = otherSet.values();
+				for(var j = 0, othervalue;othervalue=otherValues[j++];){
+					unionSet.add(othervalue);
+				}
+
+				return unionSet;
+			}
+
+			// 交集
+			this.intersection = function(otherSet){
+				var intersectionSet = new Set();
+				for(var i = 0, value; value = this.values()[i++];){
+					if(otherSet.has(value)){
+						intersectionSet.add(value);
+					}
+				}
+
+				return intersectionSet;
+			}
+
+			// 差集
+			this.difference = function(otherSet){
+				var differenceSet = new Set();
+				for(var i = 0, value; value = this.values()[i++];){
+					if(!otherSet.has(value)){
+						differenceSet.add(value);
+					}
+				}
+
+				return differenceSet;
+			}
+
+			// 判断是不是子集
+			this.isSub = function(otherSet){
+				if(this.size() > otherSet.size()){
+					return false;
+				}else{
+					for(var i = 0, value; value = this.values()[i++];){
+						if(!otherSet.has(value)){
+							return false;
+						}
+					}
+
+					return true;
+				}
+			}
+
+		}
+
+
+		// 测试
+		var a = new Set();
+		a.add(1);
+		a.add(2);
+		a.add(3);
+		a.add(4);
+		console.log(a.has(2))
+		console.log(a.has(5))
+		a.remove(2)
+		console.log(a.has(2))
+		console.log(a.values())
+
+		var b = new Set();
+		b.add(2);
+
+		var c = a.union(b);
+		console.log(c.values());
+
+		console.log(c.intersection(a).values());
+	</script>
+</body>
+</html>

@@ -8,3 +8,4 @@
 <a href="queue.html"> 2. 创建一个队列</a></br>
 <a href="link_list.html"> 3. 创建一个链表</a></br>
 <a href="collections.html"> 4. 创建一个集合</a></br>
+<a href="dict.html"> 5. 创建一个字典</a></br>

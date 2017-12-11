@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>字典</title>
+</head>
+<body>
+	<script type="text/javascript">
+		// 字典
+		// 键值对的形式，存储不重复的数据
+
+
+		// 实现一个字典
+		function Dictionary(){
+			var items = {};
+
+			// has
+			this.has = function(key){
+				return items.hasOwnProperty( key );
+			}
+
+			// set
+			this.set = function(k,v){
+				items[k] = v;
+			}
+
+			// remove
+			this.remove = function(k){
+				if(this.has(k)){
+					delete items[k];
+					return true;
+				}
+				return false;
+			}
+
+			// get
+			this.get = function(k){
+				return this.has(k) ? items[k] : undefined;
+			}
+
+			// values
+			this.values = function(){
+				var res = [];
+				for(var k in items){
+					if(this.has(k)){
+						res.push(items[k]);
+					}
+				}
+				return res;
+			}
+
+			// clear
+			this.clear = function(){
+				items = {}
+			}
+
+			// size
+			this.size = function(){
+				return this.values().length;
+			}
+		}
+
+
+		// 实现一个散列表
+		// 散列算法的作用是尽可能快地在数据结构中找到一个值。
+		// 这里用的是 "lose lose"的散列算法，就是将key中的元素的ASCII码值相加。
+		// 如果使用散列 函数，就知道值的具体位置，因此能够快速检索到该值。散列函数的作用是给定一个键值，然后 返回值在表中的地址。
+		// 空间换时间
+		function HashTable(){
+			var table = [];
+
+			// 实现"lose lose"的散列算法。
+			var loseloseHashCode = function(key){
+				var hash = 0;
+				for(var i = 0, len = key.length; i<len; i++){
+					hash += key.charCodeAt(i);
+				}
+
+				return  hash % 37; // 为了得到一个比较小的数值
+			}
+
+			// put
+			this.put = function(k,v){
+				var p = loseloseHashCode(k);
+				table[p] = v;
+			}
+
+			// get
+			this.get = function(k){
+				return table[loseloseHashCode(k)];
+			}
+
+			// remove
+			this.remove = function(k){
+				table[loseloseHashCode(k)] = undefined;
+			}
+		}
+
+		// 测试散列表
+		var t = new HashTable();
+		t.put('a', 'hello');
+		t.put('b', 'hello world');
+		console.log(t.get('a'));
+
+
+		// 散列表冲突的解决办法
+		// 所谓冲突就是一些 key 经过散列函数计算出来的结果是一样的
+		// 这种情况很常见，就会造成覆盖。
+		// 解决办法通常有：分离链接 、线性探查和双散列法。
+
+		// 1. 分离链接
+		// 假设有两个 key 计算出的散列值都是5，分别是 5-'hello', 5-'world'那么就会产生覆盖，
+		// 最终存进去的只有 5 - 'world'。
+		// 分离链接就是遇到这种情况的时候建立一个链表存进去，也就是 5 对应的是一个链表，第一个链表元素
+		// 是 5 - 'hello'，然后指向下一个元素 5 - 'world'。
+		function HashTable2(){
+			var table = [];
+
+			// 实现"lose lose"的散列算法。
+			var loseloseHashCode = function(key){
+				var hash = 0;
+				for(var i = 0, len = key.length; i<len; i++){
+					hash += key.charCodeAt(i);
+				}
+
+				return  hash % 37; // 为了得到一个比较小的数值
+			}
+
+			// 实现分离链接需要加一个函数
+			var ValuePair = function(k,v){
+				this.k = k;
+				this.v = v;
+				this.toString = function(){
+					return '[' + this.key + ' - ' + this.value + ']'; 
+				}
+			}
+
+
+			// 实现分离链接的 put
+			this.put = function(k,v){
+				var p = loseloseHashCode(k);
+				if(table[p] == undefined){
+					table[p] = new LinkedList(); // 之前学习过的链表结构，这里就直接拿过来用
+				}
+				table[p].append(new ValuePair(k,v));
+			}
+
+			// 实现分离链接的 get
+			this.get = function(k){
+				var p = loseloseHashCode(k);
+				if(table[p] != undefined){
+					// 找到头
+					var current = table[p].getHead();
+					// 遍历整个链表
+					while(current.next){
+						if(current.element.k === k){
+							return current.element.v;
+						}
+						current = current.next;
+					}
+					// 如果是头或者尾巴的情况
+					if(current.element.k === k){
+						return current.element.v;
+					}
+				}
+				return undefined;
+			}
+
+			// 实现分离链接的 remove
+			this.remove = function(k){
+				var p = loseloseHashCode(k);
+				if(table[p] != undefined){
+					// 找到头
+					var current = table[p].getHead();
+					// 遍历整个链表
+					while(current.next){
+						if(current.element.k === k){
+							table[p].remove(current.element);
+							if(table[p].isEmpty()){
+								table[p] = undefined;
+							}
+							return true;
+						}
+						current = current.next;
+					}
+
+				}
+				return false;
+			}
+		}
+
+		// 2. 线性探查
+		// 当想向表中某个位置加入一个新元素的时候，如果索引 为index的位置已经被占据了，就尝试index+1的位置。
+		// 如果index+1的位置也被占据了，就尝试 index+2的位置，以此类推。
+
+		function HashTable3(){
+			var table = [];
+
+			// 实现"lose lose"的散列算法。
+			var loseloseHashCode = function(key){
+				var hash = 0;
+				for(var i = 0, len = key.length; i<len; i++){
+					hash += key.charCodeAt(i);
+				}
+
+				return  hash % 37; // 为了得到一个比较小的数值
+			}
+
+			// ValuePair
+			var ValuePair = function(k,v){
+				this.k = k;
+				this.v = v;
+				this.toString = function(){
+					return '[' + this.key + ' - ' + this.value + ']'; 
+				}
+			} 
+
+			// put
+			this.put = function(k,v){
+				var p = loseloseHashCode(k);
+				if(table[p] == undefined){
+					table[p] = new ValuePair(k,v);
+				}else{
+					var index = ++p;
+					while(table[index] != undefined){
+						index++;
+					}
+
+					table[index] = new ValuePair(k,v);
+				}
+			}
+
+			// get
+			this.get = function(k){
+				var p = loseloseHashCode(k);
+				if(table[p] !== undefined){
+					if(table[p].k === k){
+						return table[p].v;
+					}else{
+						var index = ++p;
+						while(table[index] === undefined || table[index].k !== k){
+							index++;
+						}
+						if(table[index].k === k){
+							return table[index].v;
+						}
+					}
+				}
+				return undefined;
+			}
+
+			// remove
+			this.remove = function(k){
+				var p = loseloseHashCode(k);
+				if(table[p] !== undefined){
+					if(table[p].k === k){
+						table[p] === undefined;
+						return true;
+					}else{
+						var index = ++p;
+						while(table[index] === undefined || table[index].k !== k){
+							index++;
+						}
+						if(table[index].k === k){
+							table[index] === undefined;
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+		}
+
+		// 社区推荐的比较好的散列函数,散列值重复的可能性低的多啊
+		// 这是公认的好的算法，当然还能在网上找出一堆可能更好的
+		function djb2HashCode(k){
+			var hash = 5381; //并赋值为一个质数
+			for(var i = 0, len = k.length; i < len; i++){
+				hash = hash * 33 + key.charCodeAt(i); 
+			}
+			return hash % 1013;
+		}
+	</script>
+</body>
+</html>

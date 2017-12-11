@@ -442,6 +442,16 @@ foo.bar();
 上边只是涉及 this 指向的一部分内容，主要是提供给大家一个结合规范去分析问题的思考路线，诸如没提到的 with & catch、call、bind、apply、new 这些情况下，确定 this 的指向，同样可以结合规范去分析。
 
 
+# 下一章
+***
+<a href='func.md'>深入理解JavaScript系列（6） -- 函数</a>
+
+
+# 结语
+***
+撸主实力有限，高手历来在民间，希望广提意见，补肾感激。如果喜欢或者有所启发，欢迎star，对我也是一种鼓励。
+
+
 # 参考
 
 <a href="https://github.com/mqyqingfeng/Blog/issues/7">JavaScript深入之从ECMAScript规范解读this</a></br>

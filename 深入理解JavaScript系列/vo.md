@@ -457,7 +457,7 @@ console.log(this instanceof Object);// true
 
 # 下一章
 ***
-<a href='scope.md'>Scope Chain</a>
+<a href='scope.md'>深入理解JavaScript系列（4） -- 作用域链</a>
 
 # 结语
 ***

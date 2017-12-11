@@ -148,7 +148,7 @@ ECStack = []
 
 # 下一章
 
-<a href='vo.md'>执行上下文 1. vo</a>
+<a href='vo.md'>深入理解JavaScript系列（3）-- 变量对象</a>
 
 # 结语
 

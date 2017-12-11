@@ -8,3 +8,4 @@
 <a href='vo.md'>深入理解JavaScript系列（3）-- 变量对象</a></br>
 <a href='scope.md'>深入理解JavaScript系列（4） -- 作用域链</a></br>
 <a href='this.md'>深入理解JavaScript系列（5） -- this</a></br>
+<a href='func.md'>深入理解JavaScript系列（6） -- 函数</a></br>

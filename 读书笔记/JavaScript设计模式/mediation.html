@@ -143,7 +143,7 @@
 		p4.die();
 
 
-		//  demo2 手机购买
+		// demo2 手机购买
 		// 如页面展示
 		// 使用中介者模式实现
 		// 不管是下拉选还是输入框输入，都是与这个中介者进行沟通。
@@ -180,6 +180,12 @@
 		    		if(!number || (~~(number-0) !== (number -0))){
         				nextBtn.disabled = true;                 
 		    			nextBtn.innerHTML = '请输入正确的购买数量';                 
+		    			return;
+		    		}
+
+		    		if(number > stock){
+		    			nextBtn.disabled = true;                 
+		    			nextBtn.innerHTML = '库存不足';                 
 		    			return;
 		    		}
 

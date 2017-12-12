@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>中介者模式</title>
+</head>
+<body>
+
+	选择颜色:  <select id="colorSelect">                       
+			       <option value="">请选择</option>                       
+			       <option value="red">红色</option>                       
+			       <option value="blue">蓝色</option>                    
+			   </select>   
+    输入购买数量:  <input type="text" id="numberInput"/><br/><br/><br/>
+    您选择了颜色:  <div id="colorInfo"></div><br/>      
+    您输入了数量:  <div id="numberInfo"></div><br/>
+    <button id="nextBtn" disabled="true">请选择手机颜色和购买数量</button> 
+	<script type="text/javascript">
+		// 中介者模式
+		// 一个庞大复杂的项目中将会有很多耦合关系密集的对象群。
+		// 中介者模式就是解除对象与对象之间紧耦合关系的。
+		// 把对象之间的关系由多对多，改为一对多。这样每次改变了其中一个对象的细节，不需要告诉与之关联的
+		// 所有对象，而是仅仅只需要告诉中介者就好了。
+
+		
+		// demo1 泡泡堂游戏
+		// 如果不用中介者模式的话，其中一个队伍的一个队员死掉，将会牵扯到很多对象的细节。
+		// 如果有了一个中介者，则每次只需要与这个中介者沟通即可。
+		// 这里用中介者类负责玩家的新增、死亡、赢等等操作，并暴露出一个接口给各个玩家。
+
+		// 玩家类
+		function Player(name, teamColor){
+			this.name = name;
+			this.teamColor = teamColor;
+			this.state = 'alive';
+		}
+
+		Player.prototype.win = function(){
+			console.log(this.name, ' won!');
+		}
+
+		Player.prototype.lose = function(){
+			console.log(this.name, ' lost!');
+		}
+
+		Player.prototype.die = function(){
+			this.state = 'dead';
+			playerDirector.reciveMessage('playerDead', this); // 调用中介者接口
+		}
+
+		Player.prototype.remove = function(){
+			playerDirector.reciveMessage('removePlayer', this); // 调用中介者接口
+		}
+
+		Player.prototype.changeTeam = function(){
+			playerDirector.reciveMessage('changeTeam', this, color); // 调用中介者接口
+		}
+
+		// 玩家工厂
+		var playerFactory = function(name, teamColor){
+			var player = new Player(name, teamColor);
+			playerDirector.reciveMessage('addPlayer', player); // 调用中介者接口
+			return player;
+		}
+
+		// 中介者类
+		var playerDirector = (function(){
+
+			var players = {}, operations = {}; // 保存所有的玩家和所有的操作。
+
+			operations.addPlayer = function(player){
+				var teamColor = player.teamColor;
+				players[teamColor] = players[teamColor] || [];
+				players[teamColor].push(player);
+			}
+
+			operations.removePlayer = function(player){
+				var teamColor = player.teamColor,
+				teamPlayers = players[teamColor] || [];
+				if(teamPlayers.length){
+					for(var i = teamPlayers.length - 1; i >= 0; i--){
+						player === teamPlayers[i] && teamPlayers.splice(i, 1);
+					}
+				}
+			}
+
+			operations.changeTeam = function(player, color){
+				operations.removePlayer(player);
+				player.teamColor = color;
+				operations.addPlayer(player);
+			}
+
+			operations.playerDead = function(player){
+				var teamColor = player.teamColor, teamPlayers = players[teamColor], all_dead = true;
+
+				for(var i = 0, player; player = teamPlayers[i++];){
+					if(player.state !== 'dead'){
+						all_dead = false;
+						break;
+					}
+				}
+
+				if(all_dead === true){
+					for(var i = 0, player; player = teamPlayers[i++];){
+						player.lose();
+					}
+
+					for(var color in players){
+						if(color !== teamColor){
+							var tps = players[color];
+							for(var i = 0, player; player = tps[i++];){
+								player.win();
+							}
+						}
+					}
+				}
+			}
+
+			var reciveMessage = function(){
+				var event = Array.prototype.shift.call(arguments);
+				operations[event].apply(this, arguments);
+			}
+
+			return {
+				reciveMessage: reciveMessage
+			}
+		})()
+
+		// 测试
+		var p1 = playerFactory('han', 'red'),
+			p2 = playerFactory('li', 'red'),
+			p3 = playerFactory('aj', 'red'),
+			p4 = playerFactory('tom', 'red');
+
+		var a1 = playerFactory('mei', 'blue'),
+			a2 = playerFactory('rose', 'blue'),
+			a3 = playerFactory('jack', 'blue'),
+			a4 = playerFactory('kk', 'blue');
+
+		p1.die();
+		p2.die();
+		p3.die();
+		p4.die();
+
+
+		//  demo2 手机购买
+		// 如页面展示
+		// 使用中介者模式实现
+		// 不管是下拉选还是输入框输入，都是与这个中介者进行沟通。
+		var mediator = (function(){
+			// 获取元素
+			var colorSelect = document.getElementById( 'colorSelect' ),         
+			    numberInput = document.getElementById( 'numberInput' ),         
+			    colorInfo = document.getElementById( 'colorInfo' ),         
+			    numberInfo = document.getElementById( 'numberInfo' ),         
+			    nextBtn = document.getElementById( 'nextBtn' );
+
+			var goods = {
+				'red': 3,
+				'blue': 5
+			}
+		    return {
+		    	change: function(obj){
+		    		var color = colorSelect.value,
+		    			number = numberInput.value,
+		    			stock = goods[ color ];
+
+		    		if(obj == colorSelect){
+		    			colorInfo.innerHTML = color;
+		    		}else if(obj === numberInput){
+		    			numberInfo.innerHTML = number;
+		    		}
+
+		    		if(!color){
+		    			nextBtn.disabled = true;                 
+		    			nextBtn.innerHTML = '请选择手机颜色';                 
+		    			return;
+		    		}
+
+		    		if(!number || (~~(number-0) !== (number -0))){
+        				nextBtn.disabled = true;                 
+		    			nextBtn.innerHTML = '请输入正确的购买数量';                 
+		    			return;
+		    		}
+
+		    		nextBtn.disabled = false;
+		    		nextBtn.innerHTML = '放入购物车'; 
+		    		nextBtn.onclick = function(){
+		    			alert('ok!');
+		    		}
+		    	}
+    		}
+		})();
+
+		// 测试
+		document.getElementById( 'colorSelect' ).onchange = function(){
+			mediator.change(this);
+		}
+
+		document.getElementById( 'numberInput' ).oninput = function(){
+			mediator.change(this);
+		}
+	</script>
+</body>
+</html>

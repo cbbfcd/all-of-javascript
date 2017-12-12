@@ -17,6 +17,7 @@ oh! js!
 <a href="./template.html">8. 模板方法模式</a><br/>
 <a href="./flyweight.html">9. 享元模式</a><br/>
 <a href="./duty.html">10. 职责链模式</a><br/>
+<a href="./mediation.html">11. 中介者模式</a><br/>
 
 
 

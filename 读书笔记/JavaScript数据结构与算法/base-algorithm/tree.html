@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>树</title>
+</head>
+<body>
+	
+	<script type="text/javascript">
+		// 树
+		// 非顺序、快速查找的数据结构。树是一种分层数据的抽象模型
+		// 树结构是由节点构成的，每个节点都有父节点，除了根节点。
+		// 至少有一个子节点的节点称为内部节点，没有子元素的节点称为外部节点或叶节点。
+		// 节点的深度取决于它的祖先节点的数量。
+
+
+		// 二叉树和二叉搜索树 
+		// 二叉树就是每个节点最多只能有2个子节点的树。一个是左侧子节点，另一个是右侧子节点。
+		// 二叉搜索树（BST）就是左边子节点的存的数据小于父节点的，右边子节点的数据大于等于父节点的。
+
+
+		// 实现一个二叉搜索树
+		function BinarySearchTree(){
+
+			var Node = function(key){
+				this.left = null;
+				this.right = null;
+				this.key = key;
+			}
+
+			var root = null;
+
+			// insert 一个键（节点）
+			this.insert = function(key){
+				var node = new Node(key);
+				if(root === null){
+					root = node;
+				}else{
+					insertNode(root, node);
+				}
+			}
+
+			function insertNode(node, newNode){
+				if(newNode.key < node.key){
+					if(node.left === null){
+						node.left = newNode
+					}else{
+						insertNode(node.left, newNode);
+					}
+				}else{
+					if(node.right === null){
+						node.right = newNode
+					}else{
+						insertNode(node.right, newNode);
+					}
+				}
+			}
+
+			// 遍历树
+			//1. 中序遍历：就是从小到大的顺序去排序遍历
+			this.inOrderTraverse = function(cb){
+				inOrderTraverseNode(root, cb);
+			}
+
+			function inOrderTraverseNode(node, cb){
+				// 递归的执行原理不太理解可参考深入理解JavaScript系列中的内存空间和执行上下文。
+				if(node != null){
+					inOrderTraverseNode(node.left, cb);
+					cb(node.key);
+					inOrderTraverseNode(node.right, cb);
+				}
+			}
+
+			//2. 先序遍历：先序遍历是以优先于后代节点的顺序访问每个节点的
+
+		}
+
+		// 测试
+		var tree = new BinarySearchTree();
+		tree.insert(11); 
+		tree.insert(7); 
+		tree.insert(15); 
+		tree.insert(5); 
+		tree.insert(3); 
+		tree.insert(9); 
+		tree.insert(8); 
+		tree.insert(10); 
+		tree.insert(13); 
+		tree.insert(12); 
+		tree.insert(14); 
+		tree.insert(20); 
+		tree.insert(18); 
+		tree.insert(25); 
+		tree.insert(6); 
+		function p(v){
+			console.log(v)
+		}
+
+		tree.inOrderTraverse(p);
+
+	</script>
+</body>
+</html>

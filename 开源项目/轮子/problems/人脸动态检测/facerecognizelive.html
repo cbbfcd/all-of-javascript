@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>活体demo</title>
+		<script src="utils.js"></script>
+		<script src="clmtrackr.js"></script>
+		<script src="ccv.js"></script>
+		<script src="numberic.js"></script>
+		<script src="model_pca_20_svm.js"></script>
+	</head>
+	<style>
+		#container{
+			position: relative;
+		}
+		#myPhoto {
+			position : absolute;
+			left : 0;
+			top : 0;
+		}
+	</style>
+	<body>
+		<audio id="media">   
+		</audio>  
+		<div id="container">  
+			<video id="camera" width="600" height="400" autoplay >   
+			</video>  
+			<canvas id="myPhoto" width="600" height="400"></canvas>  
+		</div>      
+		<button id="openit">打开摄像头</button>
+		<button id="takeph">茄子</button>  
+		<br/> 
+		<button id="snap">Snap Photo</button>  
+		  
+		<button id="start">Start</button>  
+		  
+		<button id="showposition">显示</button>  
+		  
+		<button id="hideposition">不显示</button>  
+		  
+		<br/>  
+		  
+		<button id="mouse">张嘴验证</button>   
+		<button id="head">摇头验证</button>   
+		<button id="eye">眨眼验证</button>  
+		  
+		  
+		<div id="tip">  
+		</div>  
+		<div id="result">  
+		</div>  
+		<div id="msg">  
+		</div>  
+		  
+		<div id="positions">  
+		</div> 
+	</body>
+</html>
+<script>
+	'use strict';
+	var CAMERA = document.querySelector('#camera'); //摄像头
+	var CANVAS = document.querySelector('#myPhoto'); //照片
+	var PhohoArr = [];
+	
+	function successCallback(stream) {
+		//兼容性判断
+		navigator.getUserMedia = navigator.getUserMedia ||
+		navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+		var constraints = {
+		  audio: false,
+		  video: true
+		};
+	  window.stream = stream; // stream available to console
+	  var _onVideo = function(stream){
+	  	if (window.URL) {
+		    CAMERA.src = window.URL.createObjectURL(stream);
+		  } else {
+		    CAMERA.src = stream;
+		  }
+	  } 
+	  var _error = function(){
+	  	alert("Hi呀,打开不了摄像头！")
+	  }
+	  navigator.webkitGetUserMedia({video:true}, _onVideo, _error);
+	}
+	var EVENT = {
+		"open" : function(){
+			successCallback();
+//			var ctracker = new clm.tracker();
+//				ctracker.init();
+//				ctracker.start(CAMERA);
+//				function positionLoop() {
+//					requestAnimFrame(positionLoop);
+//					var positions = ctracker.getCurrentPosition();
+//					// do something with the positions ...
+//					// print the positions
+//					var positionString = "";
+//					if (positions) {
+//						for (var p = 0;p < 10;p++) {
+//							positionString += "featurepoint "+p+" : ["+positions[p][0].toFixed(2)+","+positions[p][1].toFixed(2)+"]<br/>";
+//						}
+//						document.getElementById('positions').innerHTML = positionString;
+//					}
+//				}
+//				positionLoop();
+//				var cc = CANVAS.getContext("2d");
+//				function drawLoop() {
+//					requestAnimFrame(drawLoop);
+//					cc.clearRect(0, 0, CANVAS.width, CANVAS.height);
+//					ctracker.draw(CANVAS);
+//				}
+//				drawLoop();
+		},
+		"takephoto" : function(){
+			var _c = CANVAS.getContext("2d");
+			_c.drawImage(CAMERA,0,0,CANVAS.clientWidth,CANVAS.clientHeight);
+			PhohoArr.push(_c.canvas.toDataURL("image/png"));
+			document.querySelector("#mypho").src = PhohoArr[0];
+		},
+		"close" : function(){}
+	}
+	function attachEvent(){
+		document.querySelector("#openit").addEventListener("click", EVENT['open'], false);
+		document.querySelector("#takeph").addEventListener("click", EVENT['takephoto'], false);
+		//document.querySelector("#openit").addEventListener("click", EVENT['open'], false);
+	} 
+	attachEvent();
+	
+// Trigger photo take  
+document.getElementById("snap").addEventListener("click", function() {  
+	context.drawImage(video, 0, 0, 600, 400);  
+});  
+document.getElementById("start").addEventListener("click", function() {  
+	startTrack();  
+});  
+document.getElementById("showposition").addEventListener("click", function() {  
+	showpos=true;  
+});  
+  
+document.getElementById("hideposition").addEventListener("click", function() {  
+	showpos=false;  
+});  
+  
+document.getElementById("mouse").addEventListener("click", function() {  
+	alive_mouse();  
+});  
+document.getElementById("head").addEventListener("click", function() {  
+	alive_head();  
+});  
+  
+document.getElementById("eye").addEventListener("click", function() {  
+	alive_eye();  
+});   
+</script>  
+<script>  
+  //活体  
+var last_time=0;//时间因素  
+var last_nose_left=0;  
+var last_nose_top=0;  
+var showpos = true;
+//张嘴动作  
+var is_mouse_ok=false;   
+var is_alive_mouse=false;  
+var last_dis_eye_norse=0;  
+var last_dis_mouse=0;  
+function alive_mouse(){  
+  
+//var media = document.getElementById("media");  
+//media.src="mp3/alive_mouse.mp3";  
+//media.play();  
+  
+document.getElementById("tip").innerHTML="请张合嘴巴";  
+document.getElementById('result').innerHTML = "";  
+  
+is_mouse_ok=false;  
+last_dis_mouse=0;  
+last_time=0;  
+last_dis_eye_norse=100000000;   
+  
+is_alive_head=false;  
+is_alive_mouse=true;  
+is_alive_eye=false;  
+  
+}  
+//摇头动作  
+var is_head_ok=false;   
+var is_alive_head=false;  
+var last_dis_left_right=100000000;   
+function alive_head(){  
+  
+	//var media = document.getElementById("media");  
+	//media.src="mp3/alive_head.mp3";  
+	//media.play();  
+	  
+	document.getElementById("tip").innerHTML="请在水平方向左右摇头";  
+	document.getElementById('result').innerHTML = "";  
+	  
+	is_head_ok=false;  
+	last_dis_left_right=100000000;   
+	last_time=0;   
+	is_alive_head=true;  
+	is_alive_mouse=false;  
+	is_alive_eye=false;  
+}  
+  
+//眨眼动作  
+var is_alive_eye=false;  
+var is_eye_ok = false;  
+  
+function alive_eye(){  
+//var media = document.getElementById("media");  
+//media.src="mp3/alive_eye.mp3";  
+//media.play();  
+  
+document.getElementById("tip").innerHTML="请眨眼";  
+document.getElementById('result').innerHTML = "";  
+  
+is_eye_ok=false;  
+last_dis_eye_norse=100000000;   
+  
+last_nose_left=0;  
+last_nose_top=0;  
+  
+last_time=0;   
+  
+is_alive_head=false;  
+is_alive_mouse=false;  
+is_alive_eye=true;  
+}  
+  
+  
+function startTrack(){  
+  
+var videoInput = document.getElementById('camera');  
+var ctracker = new clm.tracker();  
+ctracker.init();  
+ctracker.start(videoInput);  
+  
+var canvasInput = document.getElementById('myPhoto');  
+var cc = canvasInput.getContext('2d');  
+cc.lineWidth=3;  
+  
+function drawLoop() {  
+//requestAnimationFrame(drawLoop);  
+  
+  
+cc.clearRect(0, 0, canvasInput.width, canvasInput.height);  
+//ctracker.draw(canvasInput );  
+var positions = ctracker.getCurrentPosition(); 
+
+if (showpos && positions) {  
+var positionString = '';
+for (var p = 0;p < positions.length;p++) {  
+	positionString += "featurepoint "+p+" : ["+positions[p][0].toFixed(2)+","+positions[p][1].toFixed(2) +"]<br/>";  
+}  
+document.getElementById('positions').innerHTML = positionString;  
+  
+  
+}  
+if(positions){  
+  
+for (var p =0;p < 71;p++) {      
+	cc.beginPath();  
+	cc.arc(positions[p][0].toFixed(2), positions[p][1].toFixed(2),2, 0, Math.PI * 2, true);  
+	cc.closePath();  
+	cc.fillStyle = '#00FF00';  
+	cc.fill();  
+}  
+  
+  
+//cc.strokeStyle = 'red';  
+  
+//0-14 轮廓  
+//7 下巴，最下  
+  
+//2 最左边  
+//12 最右边  
+  
+  
+//15-22 眉毛  
+  
+  
+//23-27 左眼睛五个点  
+//27 左眼中间  
+//63-66 左眼四个点  
+  
+//28-32 右眼睛五个点  
+//67-70 右眼四个点  
+  
+  
+//33-43 鼻子  
+//62 鼻中间  
+  
+  
+//44-61 嘴巴  
+//47 嘴巴上  
+//53 嘴巴下  
+  
+///////////////////////////////////////////////////////////////////////////////////////////////  
+  
+//左眼中间  
+for (var p =27;p <=27;p++) {      
+	cc.beginPath();  
+	cc.arc(positions[p][0].toFixed(2), positions[p][1].toFixed(2), 2, 0, Math.PI * 2, true);  
+	cc.closePath();  
+	cc.fillStyle = 'red';  
+	cc.fill();  
+}
+
+// 右眼中间
+// for(var p = 32; p <= 32; p++){
+// 	cc.arc(positions[p][0].toFixed(2), positions[p][1].toFixed(2), 2, 0, Math.PI * 2, true);  
+// 	cc.closePath();  
+// 	cc.fillStyle = 'red';  
+// 	cc.fill();  
+// }
+  
+//鼻子中间  
+for (var p =62;p <=62;p++) {
+	cc.beginPath();  
+	cc.arc(positions[p][0].toFixed(2), positions[p][1].toFixed(2), 2, 0, Math.PI * 2, true);  
+	cc.closePath();  
+	cc.fillStyle = 'red';  
+	cc.fill();  
+}
+//嘴巴上  
+for (var p =57;p <=57;p++) {
+	cc.beginPath();  
+	cc.arc(positions[p][0].toFixed(2), positions[p][1].toFixed(2), 2, 0, Math.PI * 2, true);  
+	cc.closePath();  
+	cc.fillStyle = 'red';  
+	cc.fill();  
+}  
+//嘴巴下  
+for (var p =60;p <=60;p++) {
+	cc.beginPath();  
+	cc.arc(positions[p][0].toFixed(2), positions[p][1].toFixed(2), 2, 0, Math.PI * 2, true);  
+	cc.closePath();  
+	cc.fillStyle = 'red';  
+	cc.fill();  
+}
+//////////////////////////////////////  
+//head  
+if(is_alive_head==true){
+	if(last_time==0 || (new Date().getTime()-last_time>500 && new Date().getTime()-last_time<10000 ) ){  
+		var xdiff_left = positions[62][0] - positions[2][0] ;  
+		var ydiff_left = positions[62][1] - positions[2][1] ;  
+		var dis_left = Math.pow((xdiff_left * xdiff_left + ydiff_left * ydiff_left), 0.5);  
+		  
+		var xdiff_right = positions[12][0] - positions[62][0] ;  
+		var ydiff_right = positions[12][1] - positions[62][1] ;  
+		var dis_right = Math.pow((xdiff_right * xdiff_right + ydiff_right * ydiff_right), 0.5);  
+		  
+		var xdiff_side = positions[12][0] - positions[2][0] ;  
+		var ydiff_side = positions[12][1] - positions[2][1] ;  
+		var dis_side = Math.pow((xdiff_side * xdiff_side + ydiff_side * ydiff_side), 0.5);  
+		  
+		  
+		var dis_left_right = dis_left - dis_right;  
+		document.getElementById('result').innerHTML = dis_left_right;  
+		  
+		  
+		if(last_dis_left_right>0 && dis_left_right > dis_side/3){  
+		  
+			document.getElementById('result').innerHTML = "通过";  
+			  
+			is_head_ok=true;  
+			is_alive_head=false;  
+		}  
+	  
+	  
+	  
+	last_dis_left_right=dis_left_right;   
+	last_time = new Date().getTime();  
+	  
+	}  
+}  
+  
+/////////////////////////////////////  
+//mouse   
+if(is_alive_mouse==true){  
+	if(last_time==0 || (new Date().getTime()-last_time>500 && new Date().getTime()-last_time<10000 ) ){
+	  
+		//眼睛和鼻子距离  
+		var xdiff = positions[62][0] - positions[27][0] ;  
+		var ydiff = positions[62][1] - positions[27][1] ;   
+		var dis_eye_norse = Math.pow((xdiff * xdiff + ydiff * ydiff), 0.5);  
+		  
+		//上嘴唇 和下嘴唇距离  
+		var xdiff_mouse = positions[53][0] - positions[47][0] ;  
+		var ydiff_mouse = positions[53][1] - positions[47][1] ;   
+		var dis_mouse = Math.pow((xdiff_mouse * xdiff_mouse + ydiff_mouse * ydiff_mouse), 0.5);  
+		  
+		//上次的眼鼻距离和这次的眼鼻距离差  
+		var dn= Math.abs(dis_eye_norse-last_dis_eye_norse);  
+		  
+		//上次的嘴距离和本次的嘴距离差  
+		var dm=Math.abs(dis_mouse - last_dis_mouse);  
+	  
+	  
+	  
+	  
+		//鼻子的位置确保变化不大  
+		if(last_nose_left>0 && last_nose_top>0  
+		&& Math.abs(positions[62][0]-last_nose_left)<5  
+		&& Math.abs(positions[62][1]-last_nose_top)<5  
+		){  
+		  
+			document.getElementById('msg').innerHTML = dn;  
+			  
+			if(last_dis_eye_norse>0 && dn < dis_eye_norse*1/50){   
+			  
+			if(last_dis_mouse>0 && dm > dis_mouse/10){  
+			  
+			document.getElementById('result').innerHTML = "通过";  
+			  
+			is_alive_mouse=false;  
+			is_mouse_ok=true;  
+		}  
+	  
+	}  
+}  
+  
+  
+last_dis_mouse = dis_mouse;  
+last_dis_eye_norse = dis_eye_norse;  
+last_time = new Date().getTime();   
+  
+last_nose_left = positions[62][0];  
+last_nose_top = positions[62][1];  
+  
+}  
+}  
+  
+/////////////////////////////////////  
+//eye   
+if(is_alive_eye==true){  
+if(last_time==0 || (new Date().getTime()-last_time>10 ) ){  
+  
+  
+var xdiff1 = positions[62][0] - positions[27][0] ;  
+var ydiff1 = positions[62][1] - positions[27][1] ;   
+var dis_eye_norse1 = Math.pow((xdiff1 * xdiff1 + ydiff1 * ydiff1), 0.5);  
+  
+var xdiff2 = positions[62][0] - positions[32][0] ;  
+var ydiff2 = positions[62][1] - positions[32][1] ;   
+var dis_eye_norse2 = Math.pow((xdiff2 * xdiff2 + ydiff2 * ydiff2), 0.5);  
+  
+var dis_eye_norse = (dis_eye_norse1 + dis_eye_norse2);  
+  
+  
+  
+if(last_nose_left>0 && last_nose_top>0  
+&& Math.abs(positions[62][0]-last_nose_left)<0.5  
+&& Math.abs(positions[62][1]-last_nose_top)<0.5  
+){  
+document.getElementById('msg').innerHTML = Math.abs(dis_eye_norse - last_dis_eye_norse) - dis_eye_norse*1/30;  
+  
+if(last_dis_eye_norse>0 && (Math.abs(dis_eye_norse - last_dis_eye_norse) > dis_eye_norse*1/26 ) ){  
+  
+document.getElementById('result').innerHTML = "通过";  
+  
+is_alive_eye=false;  
+is_eye_ok=true;  
+  
+}  
+}  
+  
+  
+last_nose_left = positions[62][0];  
+last_nose_top = positions[62][1];  
+  
+last_dis_eye_norse = dis_eye_norse;  
+last_time = new Date().getTime();   
+}     
+}    
+}   
+requestAnimationFrame(drawLoop);   
+}  
+drawLoop();   
+}   
+</script>  

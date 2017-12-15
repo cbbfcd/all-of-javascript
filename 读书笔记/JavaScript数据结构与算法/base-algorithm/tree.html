@@ -72,7 +72,128 @@
 			}
 
 			//2. 先序遍历：先序遍历是以优先于后代节点的顺序访问每个节点的
+			this.preOrderTraverse = function(callback){
+				preOrderTraverseNode(root, callback)
+			}
 
+			function preOrderTraverseNode(node, cb){
+				if(node != null){
+					cb(node.key);
+					preOrderTraverseNode(node.left, cb);
+					preOrderTraverseNode(node.right, cb);
+				}
+			}
+
+			//3. 后序遍历
+			this.postOrderTraverse = function(callback){
+				postOrderTraverseNode(root, callback)
+			}
+
+			function postOrderTraverseNode(node, cb){
+				if(node != null){
+					postOrderTraverseNode(node.left, cb);
+					postOrderTraverseNode(node.right, cb);
+					cb(node.key);
+				}
+			}
+
+			// 搜索最小值
+			this.min = function(){
+				return minNode(root);
+			}
+
+			function minNode(node){
+				if(node){
+					while(node && node.left != null){
+						node = node.left;
+					}
+
+					return node.key;
+				}
+				return null;
+			}
+
+			// 搜索最大值
+			this.max = function(){
+				return maxNode(root);
+			}
+
+			function maxNode(node){
+				if(node){
+					while(node && node.right != null){
+						node = node.right;
+					}
+
+					return node.key;
+				}
+				return null;
+			}
+
+			// 搜索特定的值
+			this.search = function(k){
+				return searchNode(root,k);
+			}
+
+			function searchNode(node,k){
+				if(node === null){
+					return false;
+				}
+				if(k<node.key){
+					return searchNode(node.left, k);
+				}else if(k>node.key){
+					return searchNode(node.right, k);
+				}else{
+					return true;
+				}
+			}
+
+			// 移除一个节点
+			this.remove = function(k){
+				root = removeNode(root,k);
+			}
+
+			function findMinNode(node){
+				if(node){
+					while(node && node.left != null){
+						node = node.left;
+					}
+
+					return node;
+				}
+				return null;
+			}
+
+			function removeNode(node,key){
+				if(node === null){
+					return null;
+				}
+				if(key< node.key){
+					return removeNode(node.left, key);
+				}else if(key>node.key){
+					return removeNode(node.right, key);
+				}else{
+					// 是一个叶节点
+					if(node.left === null && node.right === null){
+						node = null;
+						return node;
+					}
+
+					// 只有一个子节点
+					if(node.left === null){
+						node = node.right;
+						return node;
+					}else if(node.right === null){
+						node = node.left;
+						return node;
+					}
+
+					// 两个子节点
+					var t = findMinNode(node.right);
+					node.key = t.key;
+					node.right = removeNode(node.right, t.key);
+					return node;
+				}
+			}
 		}
 
 		// 测试

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>响应式导航条</title>
+	<style type="text/css">
+		body{margin: 0;padding: 0;}
+		ul.sidenav {
+			list-style-type: none;
+			overflow: auto;
+			width: 25%;
+			margin: 0;
+			padding: 0;
+			background-color: #f1f1f1;
+			position: fixed;
+			top:0;
+		}
+
+		div.content{
+			margin-left: 25%;
+			box-sizing: border-box;
+			padding: 0 20px;
+		}
+
+		div.content h2{
+			text-align:  center;
+		}
+
+		
+		ul.sidenav li a{
+			text-decoration: none;
+			display: block;
+			padding: 8px 16px;
+			color: #000;
+		}
+
+		ul.sidenav li a.active {
+			background-color:#4CAF50; 
+			color: white;
+		}
+
+		ul.sidenav li a:hover:not(.active){
+			background-color: #555;
+			color: white;
+		}
+		/*下拉选*/
+		.dropdown {
+			width: 100%;
+		}
+
+		.drop-content {
+			display: none;
+			position: fixed;
+			width: 25%;
+			background-color: #f9f9f9;
+			min-width: 160px;
+			padding: 0;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		
+		.dropdown:hover .drop-content{
+			display: block;
+		}
+
+		/*小于900宽度时候，固定在左边*/
+		@media screen and (max-width: 900px) {
+			ul.sidenav{
+				position: relative;
+				width: 100%;
+				height: auto;
+			}
+
+			ul.sidenav li{
+				float: left;
+			}
+
+			div.content{margin-left: 0;}
+		}
+		/*小于400宽度时候，固定在左边*/
+		@media screen and (max-width: 440px){
+			ul.sidenav li{
+				text-align: center;
+				float: none;
+			}
+
+			.drop-content{
+				width: 100%;
+				padding: 0;
+				margin: 0;
+			}
+		}
+
+	</style>
+</head>
+<body>
+	<ul class="sidenav">
+		<li><a href="#home" class='active'>首页</a></li>
+		<li><a href="#home">新闻</a></li>
+		<li><a href="#home">联系</a></li>
+		<li><a href="#home">关于</a></li>
+		<li>
+			<div class="dropdown">
+				<a href='#drop' class='dropbtn'>下拉菜单</a>
+				<div class='drop-content'>
+					<a href='##'>选项一</a>
+					<a href='##'>选项二</a>
+					<a href='##'>选项三</a>
+				</div>
+			</div>
+		</li>
+		<li><a href="#home">文档</a></li>
+	</ul>
+
+	<div class='content'>
+		<h2>响应式导航条</h2>
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		<h2>响应式导航条</h2>
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		<h2>响应式导航条</h2>
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+	</div>
+</body>
+</html>

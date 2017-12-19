@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>淘宝双飞翼布局</title>
+	<style type="text/css">
+		body{
+			margin: 0;
+			padding: 0;
+			min-width: 650px;
+		}
+		/*淘宝双飞翼布局与圣杯布局前边的步骤一样，只是不再用position*/
+		.header, .footer {
+			position: relative;
+			width: 100%;
+			height: 80px;
+			background-color: #777;
+			color: white;
+			line-height: 80px;
+			text-align: center;
+		}
+
+		.footer::before {
+			content: "";
+			clear: both;
+		}
+
+		
+		/*content*/
+		.content {
+			width: 100%;
+			height: 458px;
+			overflow: hidden;
+		}
+
+		/*center*/
+		.center {
+			width: 100%;
+			height: 100%;
+			float: left;
+			background-color: steelblue;
+			min-height: 30px;
+		}
+
+		/*left*/
+		.left {
+			width: 190px;
+			height: 100%;
+			background-color: orange;
+			float: left;
+			margin-left: -100%; 
+		}
+
+		/*right*/
+		.right {
+			width: 190px;
+			height: 100%;
+			background-color: pink;
+			float: left;
+			margin-left:-190px;
+		}
+		
+		/*区别点在这儿*/
+		.content .center .inner {
+			margin: 0 200px;
+			background-color: steelblue;
+			min-height: 30px;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="header">this is header</div>
+	<div class="content">
+		<div class='center'>
+			<div class='inner'>
+				淘宝的页面布局中，最经典的应该是它的  【子列】  【主列】 【附加列】这三个概念。通过查看淘宝店铺页面的DOM结构及其CSS可以发现：淘宝使用的左中右三列布局采用的方式与我们平常有很大差别淘宝的页面布局中，最经典的应该是它的  【子列】  【主列】 【附加列】这三个概念。通过查看淘宝店铺页面的DOM结构及其CSS可以发现：淘宝使用的左中右三列布局采用的方式与我们平常有很大差别淘宝的页面布局中，最经典的应该是它的  【子列】  【主列】 【附加列】这三个概念。通过查看淘宝店铺页面的DOM结构及其CSS可以发现：淘宝使用的左中右三列布局采用的方式与我们平常有很大差别
+			</div>
+		</div>
+		<div class='left'></div>
+		<div class='right'></div>
+	</div>
+	<div class="footer">this is footer</div>
+</body>
+</html>

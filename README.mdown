@@ -7,6 +7,7 @@
 <a href="./深入理解JavaScript系列/README.md">3. 深入理解JavaScript系列</a><br/>
 <a href="./翻译集/README.md">4. 翻译系列</a><br/>
 <a href="./开源项目/README.md">5. 开源项目系列</a><br/>
+<a href="./基础/README.md">6. 基础</a><br/>
 
 # author
 

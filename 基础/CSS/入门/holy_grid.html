@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>圣杯布局</title>
+	<style type="text/css">
+		body{
+			padding: 0;
+			margin: 0;
+			min-width: 650px;
+		}
+
+		/*header*/
+		.header{
+			width: 100%;
+			background-color: #3E4144;
+			overflow: hidden;
+		}
+
+		.header h1{
+			text-transform: uppercase;
+			color: white;
+			text-align: center;
+		}
+
+		/*container*/
+		.container{
+			overflow: hidden;
+			height: 488px;
+			padding: 0 200px;
+		}
+
+		.center {
+			width: 100%;
+			height: 100%;
+			padding: 0 10px;
+			box-sizing: border-box;
+			background-color: #63A0CF;
+			float: left;
+		}
+
+		.left {
+			width: 200px;
+			height: 100%;
+			padding: 0 10px;
+			box-sizing: border-box;
+			background-color: orange;
+			float: left;
+			margin-left: -100%;
+			position: relative;
+			left: -200px;
+		}
+
+		.right {
+			width: 200px;
+			height: 100%;
+			padding: 0 10px;
+			box-sizing: border-box;
+			background-color: #F46F7A;
+			float: left;
+			margin-left: -200px;
+			position: relative;
+			right: -200px;
+		}
+
+		/*footer*/
+		.footer {
+			width: 100%;
+			background-color: #3E4144;
+			overflow: hidden;
+			clear: both;
+		}
+
+		.footer h1{
+			color: white;
+			text-align: center;
+			text-transform: uppercase;
+		}
+	</style>
+</head>
+<body>
+	<div class='header'><h1>this is header</h1></div>
+	<div class="container">
+		<div class='center'>我们现在的确是硬性的实现了固比固布局。但是要记住，中间盒子是自适应的宽度，所以中间盒子里的内容会被左右盒子给压住一部分。我们现在的确是硬性的实现了固比固布局。但是要记住，中间盒子是自适应的宽度，所以中间盒子里的内容会被左右盒子给压住一部分。我们现在的确是硬性的实现了固比固布局。但是要记住，中间盒子是自适应的宽度，所以中间盒子里的内容会被左右盒子给压住一部分。我们现在的确是硬性的实现了固比固布局。但是要记住，中间盒子是自适应的宽度，所以中间盒子里的内容会被左右盒子给压住一部分。我们现在的确是硬性的实现了固比固布局。但是要记住，中间盒子是自适应的宽度，所以中间盒子里的内容会被左右盒子给压住一部分。</div> <!--让center先加载-->
+		<div class='left'>需要设置其左边距为负的中间盒子的宽度，也就是.left {margin-left:-100%;}。这样左盒子才可以往最左边移动。</div>
+		<div class='right'>需要设置其左边距为负的自己的宽度，也就是.right {margin-left：-200px;}。这样右盒子才可以在一行的最右边显示出自己。</div>
+	</div>
+	<div class='footer'><h1>this is footer</h1></div>
+</body>
+</html>

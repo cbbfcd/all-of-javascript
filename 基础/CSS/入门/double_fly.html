@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>圣杯布局 -- flex实现</title>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		.header {
+			position: relative;
+			top:0;
+			width: 100%;
+			height: 80px;
+			background-color: #777;
+			color: white;
+			text-align: center;
+			line-height: 80px;
+		}
+
+		.footer {
+			clear: both;
+			position: relative;
+			width: 100%;
+			height: 80px;
+			background-color: #777;
+			color: white;
+			text-align: center;
+			line-height: 80px;
+		}
+
+		/*container*/
+		.container {
+			display: flex;
+			height: 500px;
+			justify-content: space-between;
+		}
+
+		.center {
+			padding: 0 10px;
+			height: 100%;
+			box-sizing: border-box;
+			background-color: steelblue;
+			order: 2;
+		}
+
+		.left {
+			width: 200px;
+			height: 100%;
+			background-color: orange;
+			flex-shrink:0; /*缩小比例应该设置为0，表示不进行缩小*/
+			order: 1;
+		}
+
+		.right {
+			width: 150px;
+			height: 100%;
+			background-color: pink;
+			flex-shrink:0;/*缩小比例应该设置为0，表示不进行缩小*/
+			order: 3;
+		}
+	</style>
+</head>
+<body>
+	<div class="header">header</div>
+	<div class="container">
+		<div class='center'>flex布局的优点在于对未来版本的兼容性，并且flex布局本身就是为了实现弹性布局，对于一些其他的需求也可以进行很好的扩展flex布局的优点在于对未来版本的兼容性，并且flex布局本身就是为了实现弹性布局，对于一些其他的需求也可以进行很好的扩展flex布局的优点在于对未来版本的兼容性，并且flex布局本身就是为了实现弹性布局，对于一些其他的需求也可以进行很好的扩展flex布局的优点在于对未来版本的兼容性，并且flex布局本身就是为了实现弹性布局，对于一些其他的需求也可以进行很好的扩展</div>
+		<div class='left'></div>
+		<div class='right'></div>
+	</div>
+	<div class="footer">footer</div>
+</body>
+</html>

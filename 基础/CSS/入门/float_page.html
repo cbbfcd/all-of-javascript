@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>float_page</title>
+	<style>
+		/*body*/
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		/*导航栏*/
+		.top-nav {
+			list-style-type: none;
+			background-color: #777;
+			overflow: hidden;/*BFC 解决高度塌陷*/
+			margin:0;
+			padding: 0;
+		}
+		.top-nav li {
+			float: left;
+		}
+		.top-nav li a {
+			text-decoration: none;
+			color: #fff;
+			padding: 16px;
+			display: inline-block;/*对象是内联对象，但是其内容是块级对象*/
+			text-align: center;
+		}
+
+		.top-nav li a.active {
+			color: white;
+			background-color: #4CAF50;
+		}
+
+		.top-nav li a:hover {
+			background-color: steelblue;
+		}
+
+		/*中间内容块*/
+		.column {
+			float: left;
+			padding: 15px;
+		}
+
+		.content-wrapper::after {
+			content: "";
+			clear: both; /*清除浮动*/
+			display: table;
+		}
+
+		.sidemenu {
+			width: 25%;
+		}
+		
+		.content {
+			width: 75%;
+		}
+
+		.title-container {
+			background-color: #2196F3;
+			color: white;
+			text-align: center;
+			padding: 15px;
+		}
+
+		.sidemenu ul {
+			list-style-type: none;
+			margin:0;
+			padding: 0;
+		}
+
+		.sidemenu ul a {
+			margin-bottom: 4px;
+			display: block;
+			text-decoration: none;
+			color: #666;
+			background-color: #eee;
+			padding: 8px;
+		}
+
+		.sidemenu ul a:hover {
+			background-color: #555;
+    		color: white;
+		}
+
+		.sidemenu ul a.active {
+			background-color: steelblue;
+    		color: white;
+		}
+
+		/*footer*/
+		.footer {
+			color: #fff;
+			background-color: #444;
+			padding: 15px;
+		}
+
+		.footer p{
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<ul class='top-nav'>
+		<li><a href="#home" class='active'>主页</a></li>
+		<li><a href="#news">新闻</a></li>
+		<li><a href="#contact">联系我们</a></li>
+		<li><a href="#about">关于我们</a></li>
+	</ul>
+	
+	<div class='content-wrapper'>
+		<div class='sidemenu column'>
+			<ul>
+				<li><a href="#china">China</a></li>
+				<li><a href="#france">France</a></li>
+				<li><a href="#germany">Germany</a></li>
+				<li><a href="#america">America</a></li>
+				<li><a href="#england">England</a></li>
+				<li><a href="#iceland" class="active">Iceland</a></li>
+				<li><a href="#brasil">Brasil</a></li>
+				<li><a href="#spain">Spain</a></li>
+				<li><a href="#spain">Spain</a></li>
+				<li><a href="#spain">Spain</a></li>
+				<li><a href="#spain">Spain</a></li>
+				<li><a href="#spain">Spain</a></li>
+			</ul>
+		</div>
+		
+		<div class="content column">
+			<div class='title-container'>
+				<h1>The Good News</h1>
+			</div>
+			<h1>China Win!</h1>
+			<p>a football game which is over then china win the champion, do you believe, i believe! so just play your best, and china is the best team!.</p>
+			<p>thus a good news for thounsands chinese people who love this bull-shit team.</p>
+			<p>thus a good news for thounsands chinese people who love this bull-shit team.</p>
+			<p>thus a good news for thounsands chinese people who love this bull-shit team.</p>
+			<p>thus a good news for thounsands chinese people who love this bull-shit team.</p>
+			<p>thus a good news for thounsands chinese people who love this bull-shit team.</p>
+		</div>
+	</div>
+
+	<div class='footer'>
+		<p>CopyRight: XXXXXX</p>
+	</div>
+</body>
+</html>

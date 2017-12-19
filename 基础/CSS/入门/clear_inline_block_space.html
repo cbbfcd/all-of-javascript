@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>去除inline-block间距</title>
+	<style>
+		a{
+			padding: 5px;
+			display: inline-block;
+			background-color: #999;
+			text-decoration: none;
+			color: white;
+		}
+
+		/*方法3*/
+		.test3 {
+			font-size: 0;
+			-webkit-text-size-adjust:none;
+		}
+
+		.test3 a{
+			font-size: 16px;
+		}
+
+		/*栅格（利用letter-spacing或者word-spacding去除间隔）*/
+		ul{
+			padding: 0;
+			margin: 0;
+			width: 100%;
+			display: table;
+			word-spacing: -1em;
+			list-style-type: none;
+		}
+
+		li{
+			display: inline-block;
+			zoom: 1; *display: inline; /* < IE8*/
+			padding: 100px;
+			height: 200px;
+			word-spacing:0;
+		}
+	</style>
+</head>
+<body>
+	<!--inline-block元素之间有空格或者换行就会有间距-->
+	<input type="text" /> <input type='submit'/>
+	<br/>
+	<br/>
+	<br/>
+	<hr/>
+	<!--CSS更改非inline-block水平元素为inline-block水平，也会有该问题-->
+	<div class='test'>
+		<a href='##'>刘德华</a>
+		<a href='##'>张学友</a>
+		<a href='##'>刘德波</a>
+	</div>
+	<br/>
+	<br/>
+	<!-- 1. 移除空格的写法-->
+	<div class='test'>
+		<a href='##'>刘德华</a><a href='##'>张学友</a><a href='##'>刘德波</a>
+	</div>
+
+	<br/>
+	<br/>
+	<!-- 2. 移除空格的写法-->
+	<div class='test'>
+		<a href='##'>刘德华
+		<a href='##'>张学友
+		<a href='##'>刘德波</a>
+	</div>
+
+	<br/>
+	<br/>
+	<!-- 3. font-size:0 -->
+	<div class='test3'>
+		<a href='##'>刘德华</a>
+		<a href='##'>张学友</a>
+		<a href='##'>刘德波</a>
+	</div>
+	<br/>
+	<br/>
+	<!--栅格-->
+	<ul>
+		<li style="background-color: steelblue;"></li>
+		<li style="background-color: orange;"></li>
+		<li style="background-color: pink;"></li>
+		<li style="background-color: gray;"></li>
+	</ul>
+</body>
+</html>

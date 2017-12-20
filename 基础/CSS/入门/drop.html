@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>简单的下拉选</title>
+	<style>
+		.drop-container {
+			display: inline-block;
+			padding: 0;
+			margin: 0;
+			position: relative;
+			top:50px;
+			left:200px;
+		}
+
+		.drop-btn {
+			display: inline-block;
+			text-decoration: none;
+			color:white;
+			background-color: steelblue;
+			padding: 10px 20px;
+		}
+
+		.drop-content {
+			display: none;
+			position: absolute;
+			min-width: 160px;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+
+		.drop-content a{
+			display: block;
+			padding: 8px 16px;
+			text-decoration: none;
+			background-color: #f1f1f1;
+		}
+
+		.drop-content a:hover {
+			color: white;
+			background-color: orange;
+		}
+
+		.drop-container:hover .drop-content{
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<div class='drop-container'>
+		<a href='#' class='drop-btn'>更多</a>
+		<div class='drop-content'>
+			<a href='#'>选择1</a>
+			<a href='#'>选择1</a>
+			<a href='#'>选择1</a>
+		</div>
+	</div>
+</body>
+</html>

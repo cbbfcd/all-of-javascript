@@ -8,18 +8,19 @@
 		ul.sidenav {
 			list-style-type: none;
 			overflow: auto;
-			width: 25%;
 			margin: 0;
 			padding: 0;
 			background-color: #f1f1f1;
-			position: fixed;
-			top:0;
+			width: 25%;
 		}
+
 
 		div.content{
 			margin-left: 25%;
 			box-sizing: border-box;
 			padding: 0 20px;
+			position: absolute;
+			top: 0;
 		}
 
 		div.content h2{
@@ -46,12 +47,12 @@
 		/*下拉选*/
 		.dropdown {
 			width: 100%;
+			display: inline-block;
 		}
 
 		.drop-content {
 			display: none;
-			position: fixed;
-			width: 25%;
+			position: absolute;
 			background-color: #f9f9f9;
 			min-width: 160px;
 			padding: 0;
@@ -62,19 +63,20 @@
 			display: block;
 		}
 
-		/*小于900宽度时候，固定在左边*/
+		/*小于900宽度时候，平铺在顶部*/
 		@media screen and (max-width: 900px) {
 			ul.sidenav{
-				position: relative;
-				width: 100%;
-				height: auto;
+			    width: 100%;
 			}
-
+			
 			ul.sidenav li{
 				float: left;
 			}
 
-			div.content{margin-left: 0;}
+			div.content{
+				margin: 0;
+				position: unset;
+			}
 		}
 		/*小于400宽度时候，固定在左边*/
 		@media screen and (max-width: 440px){
@@ -114,9 +116,31 @@
 	<div class='content'>
 		<h2>响应式导航条</h2>
 		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
-		<h2>响应式导航条</h2>
+		
 		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
-		<h2>响应式导航条</h2>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+	
+		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
+		
 		<p>利用media标签实现响应式的导航条布局，小于900宽度的时候导航条在顶部铺开，大于900的时候是在左侧固定，小于400的时候是垂直铺开。</p>
 	</div>
 </body>

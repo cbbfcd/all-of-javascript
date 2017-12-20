@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>动画实现提示框</title>
+	<style type="text/css">
+		body{margin:0;padding: 0;}
+		.wrapper {
+			position: relative;
+			padding: 20px 15px;
+			background-color: #f1f1f1;
+			width: 200px;
+			margin:300px auto;
+			border-radius: 4px;
+			text-align: center;
+			cursor: pointer;
+		}
+		
+		/*定位到顶部*/
+		.wrapper .tooltip {
+			width: 400px;
+			padding: 20px 0;
+			border: 4px solid #1496bb;
+			border-radius: 8px;
+			text-align: center;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+			opacity: 0;
+			transform: translateY(10px);
+			transition: all 1s ease-out;
+			
+			/*定位*/
+			position: absolute;
+			bottom: 100%;
+			margin-bottom: 20px; 
+			left: 50%;
+			margin-left: -200px;
+		}
+		
+		/*动画与三角形*/
+		.wrapper .tooltip::before {
+			content: '';
+			border-width: 12px;
+			border-style: solid;
+			border-color: #1496bb transparent transparent transparent;
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			margin-left:-12px;
+		}
+
+		.wrapper .tooltip::after {
+			content: '';
+			border-width: 12px;
+			border-style: solid;
+			border-color: white transparent transparent transparent;
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			margin-left:-12px;
+			margin-top:-5.6px;
+		}
+
+		/*移入移出*/
+		.wrapper:hover .tooltip{
+			opacity: 1;
+			pointer-events: auto;
+			transform: translateY(0px);
+		}
+	</style>
+</head>
+<body>
+	<div class="wrapper">
+		顶部提示
+		<div class='tooltip'>
+			hello world
+		</div>
+	</div>
+</body>
+</html>

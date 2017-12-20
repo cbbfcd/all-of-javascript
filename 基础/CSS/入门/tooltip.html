@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>提示框</title>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			margin-top: 150px;
+		}
+
+		.wrapper {
+			width: 200px;
+			margin-left:100px;
+			border: 1px solid #777;
+			background-color: #f1f1f1; 
+			text-align: center;
+			position: relative;
+			border-radius: 4px;
+			cursor: pointer;
+			padding: 20px 0;
+			display: inline-block;
+		}
+
+		.tooltip {
+			visibility:hidden;
+			width: 200px;
+			border: 1px solid #1496bb;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+			text-align: center;
+			padding: 20px 0;
+			opacity: 0;
+			transition: opacity 2s;
+		}
+
+		.top {
+			position: absolute;
+			bottom: 120%;
+		}
+
+		.bottom {
+			position: absolute;
+			top: 120%;
+		}
+
+		.top::after {
+			content: '';
+			border-width: 6px;
+			border-style: solid;
+			border-color: #1496bb transparent transparent transparent;
+			position: absolute;
+			top:100%;
+			left: 50%;
+			margin-left: -6px; 
+		}
+
+		.bottom::after {
+			content: '';
+			border-width: 6px;
+			border-style: solid;
+			border-color:  transparent transparent #1496bb transparent;
+			position: absolute;
+			bottom:100%;
+			left: 50%;
+			margin-left: -6px; 
+		}
+
+		.left {
+			position: absolute;
+			right:105%;
+			top:0;
+		}
+
+		.left::after {
+			content: '';
+			border-width: 6px;
+			border-style: solid;
+			border-color:  transparent transparent transparent #1496bb;
+			position: absolute;
+			left:100%;
+			top: 50%;
+			margin-top: -6px;
+		}
+
+		.right {
+			position: absolute;
+			left: 105%;
+			top:0;
+		}
+
+		.right::after {
+			content: '';
+			border-width: 6px;
+			border-style: solid;
+			border-color:  transparent #1496bb transparent transparent ;
+			position: absolute;
+			right:100%;
+			top: 50%;
+			margin-top: -6px;
+		}
+
+
+		.wrapper:hover .tooltip {
+			visibility: visible;
+			opacity: 1;
+		}
+	</style>
+</head>
+<body>
+	<div class='wrapper'>
+		顶部提示
+		<div class='tooltip top'>
+			hello world
+		</div>
+	</div>
+
+	<div class='wrapper'>
+		底部提示
+		<div class='tooltip bottom'>
+			hello world
+		</div>
+	</div>
+
+	<div class='wrapper'>
+		左边提示
+		<div class='tooltip left'>
+			hello world
+		</div>
+	</div>
+
+	<div class='wrapper'>
+		右边提示
+		<div class='tooltip right'>
+			hello world
+		</div>
+	</div>
+</body>
+</html>

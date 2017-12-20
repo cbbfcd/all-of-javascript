@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>下拉选导航条</title>
+	<style type="text/css">
+		body{
+			margin: 0;
+			padding: 0;
+		}
+
+		ul {
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+			background-color: #999;
+		}
+
+		ul li {
+			float: left;
+		}
+
+		ul li a.active {
+			background-color: steelblue;
+			color: white;
+		}
+
+		ul li a {
+			text-decoration: none;
+			color: black;
+			padding:16px 16px;
+			display: inline-block;
+			text-align: center;
+		}
+
+		li a:hover:not(.active){
+			background-color: orange;
+			color: white;
+		}
+
+
+		/*下拉*/
+		.drop-wrapper {
+			display: inline-block;
+		}
+
+		.drop-content {
+			display: none;
+			position: absolute;
+			background-color:#f9f9f9;
+			min-width: 90px;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+
+		.drop-content a {
+			color:black;
+		    padding:12px 16px;
+		    text-decoration:none;
+		    display:block;
+		}
+
+
+		.drop-wrapper:hover .drop-content{
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<ul>
+		<li><a href='#home' class='active'>首页</a></li>
+		<li><a href='#home'>文档</a></li>
+		<li><a href='#home'>我们</a></li>
+		<li>
+			<div class='drop-wrapper'>
+				<a href='#home' class='drop-btn'>下拉菜单</a>
+				<div class='drop-content'>
+					<a href='##'>选项一</a>
+					<a href='##'>选项二</a>
+					<a href='##'>选项三</a>
+				</div>
+			</div>
+		</li>
+	</ul>
+
+	<h2>有下拉选的导航条</h2>
+	<p>鼠标移动到 "下拉菜单" 链接先显示下拉菜单。</p>
+</body>
+</html>

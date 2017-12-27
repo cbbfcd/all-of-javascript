@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>点击波纹效果</title>
+	<style type="text/css">
+	    body {
+	    	padding: 0;
+	    	margin: 0;
+	    	width: 100%;
+	    	height: 100%;
+	    	text-align: center;
+	    }
+
+	    .h1 {
+	    	color: #1966db;
+	    	font-size: 30px;
+	    }
+		
+
+		.btn {
+			width:13em;
+			height:3em;
+			border-radius: 20px;
+			margin: 20px;
+			text-align: center;
+			line-height: 3em;
+			position: relative;
+			overflow: hidden; 
+			margin: 20px auto;
+		}
+
+		.btn:nth-child(1) {
+			background-color: pink;
+		}
+		.btn:nth-child(2) {
+			background-color: steelblue;
+		}
+		.btn:nth-child(3) {
+			background-color: #999;
+		}
+		.btn:nth-child(4) {
+			background-color: #1966db;
+		}
+		.btn:nth-child(5) {
+			background-color: orange;
+		}
+		.btn:nth-child(6) {
+			background-color: #9FA2F5;
+		}
+		.btn:nth-child(7) {
+			background-color: #6BD57B;
+		}
+		.btn:nth-child(8) {
+			background-color: #FA82DD;
+		}
+		.btn:nth-child(9) {
+			border: 1px solid #1966db;
+		}
+		.btn:nth-child(10) {
+			background-color: #F8D16C;
+		}
+
+		.ripple {
+			position: absolute;
+			background: red;
+			border-radius: 100%;
+			transform: scale(0);
+			pointer-events: none;
+			display: block;
+		}
+
+		.show {
+			animation: ripple .75s ease-out;
+		}
+
+		@keyframes ripple {
+			to {transform: scale(2); opacity: 0;}
+		}
+	</style>
+</head>
+<body>
+	<h1>点击波纹</h1>
+	<div class='btn-group'>
+		<div class='btn'>1</div>
+		<div class='btn'>2</div>
+		<div class='btn'>3</div>
+		<div class='btn'>4</div>
+		<div class='btn'>5</div>
+		<div class='btn'>6</div>
+		<div class='btn'>7</div>
+		<div class='btn'>8</div>
+		<div class='btn'>9</div>
+		<div class='btn'>10</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var addRippleEffect = function (e) {
+	    var target = e.target;
+	    if (target.className.toLowerCase() !== 'btn') return false;
+	    var rect = target.getBoundingClientRect();
+	    var ripple = target.querySelector('.ripple');
+	    if (!ripple) {
+	        ripple = document.createElement('span');
+	        ripple.className = 'ripple';
+	        ripple.style.height = ripple.style.width = Math.max(rect.width, rect.height) + 'px';
+	        target.appendChild(ripple);
+	    }
+	    ripple.classList.remove('show');
+	    // clientX和clientY是不算滚动距离的。pageX和pageY是要加上滚动距离的。
+	    // var top = e.clientY - rect.top - ripple.offsetHeight / 2;
+	    // var left = e.clientX - rect.left - ripple.offsetWidth / 2;
+	    // 等价于下边
+	    var top = e.pageY - rect.top - ripple.offsetHeight / 2 - document.documentElement.scrollTop;
+	    var left = e.pageX - rect.left - ripple.offsetWidth / 2 - document.documentElement.scrollLeft;
+	    ripple.style.top = top + 'px';
+	    ripple.style.left = left + 'px';
+	    ripple.classList.add('show');
+	    return false;
+	}
+	document.addEventListener('click', addRippleEffect, false);
+</script>
+</html>

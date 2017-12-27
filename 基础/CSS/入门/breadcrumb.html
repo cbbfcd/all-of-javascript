@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>面包屑</title>
+	<style type="text/css">
+		ul.breadcrumb {
+			padding: 8px 16px;
+			list-style: none;
+			background: #eee;
+		}
+
+		ul.breadcrumb li {
+			display: inline;
+		}
+
+		ul.breadcrumb li a {
+			color: #4CAF50;
+			text-decoration: none;
+		}
+
+		ul.breadcrumb li+li:before {
+			content: '/\00a0';
+			padding: 8px;
+			color: black;
+		}
+	</style>
+</head>
+<body>
+	<ul class='breadcrumb'>
+		<li><a href='#'>首页</a></li>
+		<li><a href='#'>前端</a></li>
+		<li><a href='#'>JavaScript</a></li>
+		<li>Promise</li>
+	</ul>
+</body>
+</html>

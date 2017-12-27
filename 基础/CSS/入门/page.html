@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>分页</title>
+	<style type="text/css">
+		.pagenation {
+			padding: 0;
+			margin: 0;
+		}
+
+		.pagenation li {
+			display: inline-block;
+			list-style-type: none;
+		}
+
+		.pagenation li a {
+			float: left;
+			border: 1px solid #ddd;
+			padding: 8px 16px;
+			margin: 0 4px;
+			text-decoration: none;
+			color: black;
+			border-radius: 4px;
+			transition: transform .3s ease-out;
+		}
+
+		.pagenation li a:hover:not(.active) {
+			transform: scale(1.1);
+		}
+
+		.pagenation li a.active {
+			background: #4CAF50;
+			color: white;
+		}
+
+		/*pagenation 2*/
+		.pagenation2 {
+			padding: 0;
+			margin: 0;
+		}
+
+		.pagenation2 li {
+			display: inline-block;
+			list-style-type: none;
+		}
+
+		.pagenation2 li a {
+			padding: 0;
+			width: 35px;
+			height: 35px;
+			line-height: 35px;
+			text-align: center;
+			text-decoration: none;
+			border-radius: 100%;
+			color: black;
+			display: block;
+			margin: 0 2px;
+			animation: background .3s ease-out;
+		}
+
+		.pagenation2 li a.active {
+			background: #37B247;
+			color: white;
+		}
+
+		.pagenation2 li a:hover:not(.active){
+			background: #4DAD16;
+			color: white;
+		}
+	
+		/*pagenation 3*/
+		.pagenation3 {
+			padding: 0px;
+			margin: 0px;
+			width: 500px;
+			text-align: center;
+			background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 40%,rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0) 100%);
+		}
+
+		.pagenation3 li {
+			display: inline-block;
+			list-style-type: none;
+		}
+
+		.pagenation3 li a {
+			padding: 0;
+			width: 35px;
+			height: 35px;
+			line-height: 35px;
+			text-align: center;
+			text-decoration: none;
+			border-radius: 100%;
+			color: black;
+			display: block;
+			margin: 0 2px;
+			animation: background .3s ease-out;
+		}
+
+		.pagenation3 li a.active {
+			background: #37B247;
+			color: white;
+		}
+
+		.pagenation3 li a:hover:not(.active){
+			background: #4DAD16;
+			color: white;
+		}}
+	</style>
+</head>
+<body>
+	<ul class='pagenation'>
+		<li><a href='#'>«</a></li>
+		<li><a href='#' class='active'>1</a></li>
+		<li><a href='#'>2</a></li>
+		<li><a href='#'>3</a></li>
+		<li><a href='#'>4</a></li>
+		<li><a href='#'>5</a></li>
+		<li><a href='#'>6</a></li>
+		<li><a href='#'>7</a></li>
+		<li><a href='#'>»</a></li>
+	</ul>
+	
+	<div style='width: 100%;height: 50px;'></div>
+	
+
+	<ul class='pagenation2'>
+		<li><a href='#'>«</a></li>
+		<li><a href='#' class='active'>1</a></li>
+		<li><a href='#'>2</a></li>
+		<li><a href='#'>3</a></li>
+		<li><a href='#'>4</a></li>
+		<li><a href='#'>5</a></li>
+		<li><a href='#'>6</a></li>
+		<li><a href='#'>7</a></li>
+		<li><a href='#'>»</a></li>
+	</ul>
+
+	<div style='width: 100%;height: 50px;'></div>
+	
+
+	<ul class='pagenation3 model3'>
+		<li><a href='#'>«</a></li>
+		<li><a href='#' class='active'>1</a></li>
+		<li><a href='#'>2</a></li>
+		<li><a href='#'>3</a></li>
+		<li><a href='#'>4</a></li>
+		<li><a href='#'>5</a></li>
+		<li><a href='#'>6</a></li>
+		<li><a href='#'>7</a></li>
+		<li><a href='#'>»</a></li>
+	</ul>
+</body>
+</html>

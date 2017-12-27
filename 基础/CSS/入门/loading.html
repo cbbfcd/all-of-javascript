@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>进度条</title>
+	<style type="text/css">
+		* {box-sizing: border-box;}
+		.container-1 {
+			background: #ddd;
+			width: 100%;
+		}
+		
+		.loading1 {
+			width: 90%;
+			background: pink;
+		}
+
+		.skills {
+			text-align: right;
+			line-height: 40px;
+			padding-right: 20px;
+			color: white; 
+		}
+
+
+		.wrapper {
+			list-style-type: none;
+			position: relative;
+			padding: 30px 0;
+			line-height: 2em;
+			margin: 50px auto 0;
+			width: 500px;
+			font-size: 12px;
+		}
+
+		.wrapper li {
+			background: #e9e5e2;
+			margin-bottom: 50px;
+			border-radius: 50px;
+			box-shadow: 0 1px 0px #bebbb9 inset, 0 1px 0 #fcfcfc;
+			background: linear-gradient(to top, #e1ddd9, #e9e5e2);
+			height: 20px;
+		}
+
+		.wrapper li h3 {
+			position: relative;
+			top: -25px;
+			left:8px;
+		}
+
+		.bar {
+			height: 18px;
+			margin: 1px 2px;
+			position: absolute;
+			border-radius:25px;
+			box-shadow: 0 1px 0px #fcfcfc inset, 0 1px 0 #bebbb9;
+		}
+
+		.a-style {
+			width: 60%;
+			background: #f674a4;
+			animation: astyle 2s ease-out;
+		}
+
+		.b-style {
+			width: 89%;
+			background: #f0bb4b;
+			animation: bstyle 2s ease-out;
+		}
+
+		.c-style {
+			width: 100%;
+			background: #a1ce5b;
+			animation: cstyle 2s ease-out;
+		}
+
+		.d-style {
+			width: 75%;
+			background: #66b3cc;
+			animation: dstyle 2s ease-out;
+		}
+
+		@keyframes astyle {
+			0% {width: 0px;}
+			100% {width: 60%;}
+		}
+		@keyframes bstyle {
+			0% {width: 0px;}
+			100% {width: 89%;}
+		}
+		@keyframes cstyle {
+			0% {width: 0px;}
+			100% {width: 100%;}
+		}
+		@keyframes dstyle {
+			0% {width: 0px;}
+			100% {width: 75%;}
+		}
+
+	</style>
+</head>
+<body>
+	<div class='container-1'>
+		<div class='skills loading1'>90%</div>
+	</div>
+
+	<ul class='wrapper'>
+		<li><span class='bar a-style'></span><h3>A</h3></li>
+		<li><span class='bar b-style'></span><h3>B</h3></li>
+		<li><span class='bar c-style'></span><h3>C</h3></li>
+		<li><span class='bar d-style'></span><h3>D</h3></li>
+	</ul>
+</body>
+</html>

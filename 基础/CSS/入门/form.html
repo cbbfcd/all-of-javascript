@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>表单</title>
+	<style type="text/css">
+		* {box-sizing: border-box;}
+		h1 {
+			text-align: center;
+			color: #1966db;
+			font-size: 40px;
+		}
+		/*表单*/
+		
+		.container {
+			background-color: #eee;
+			width: 100%;
+			height: 500px;
+		}
+
+		input[type=text], select, textarea {
+			width: 100%;
+			padding: 12px;
+			border-radius: 4px;
+			border: 1px solid #ccc;
+			box-sizing: border-box;
+			margin-top: 6px;
+			margin-bottom: 16px; 
+		}
+
+		textarea{
+			height: 200px;
+			resize:none;
+		}
+
+		input[type=submit] {
+			border-radius: 4px;
+			padding: 12px 20px;
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			cursor: pointer;
+		}
+
+		input[type=submit]:hover {
+			background-color: #45a049;
+		}
+
+	</style>
+</head>
+<body>
+	<h1>表单</h1>
+	<hr/>
+	<div class='container'>
+		<form>
+			<label for="username" class='label-t'>姓名</label>
+			<input type="text" name="username" id='username' placeholder="请输入姓名...">
+			<label for="email" class='label-t'>邮箱</label>
+			<input type="text" name="email" id='email' placeholder="请输入邮箱...">
+			<label for="city" class='label-t'>城市</label>
+			<select id='city'>
+				<option value="bj">成都</option>
+			  	<option value="canada">上海</option>
+	      		<option value="usa">厦门</option>
+	    	</select>
+	    	<label for='description'>说明</label>
+	    	<textarea id='description'></textarea>
+	    	<input type="submit" name="提交">
+		</form>
+	</div>
+	
+</body>
+</html>

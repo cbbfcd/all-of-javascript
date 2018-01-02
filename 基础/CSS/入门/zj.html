@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>杂集</title>
+	<style type="text/css">
+		* {box-sizing: border-box;}
+		h1 {
+			text-align: center;
+			color: #1966db;
+			font-size: 40px;
+		}
+		/*箭头*/
+		.arrow {
+			border: solid #555;
+			padding: 3px;
+			border-width: 0px 3px 3px 0px;
+			display: inline-block;
+		}
+
+		.left {
+			transform: rotate(-45deg);
+		}
+
+		.up {
+			transform: rotate(-135deg);
+		}
+
+		.down {
+			transform: rotate(45deg);
+		}
+
+		.right {
+			transform: rotate(135deg);
+		}
+		/*搜索*/
+		input[type=text] {
+			margin-top: 50px;
+			width: 130px;
+			border: 2px solid #ccc;
+			border-radius: 4px;
+			padding: 12px 20px 12px 40px;
+			font-size: 16px;
+			background-color: white;
+			box-sizing: border-box;
+			transition: width .5s ease-out;
+		}
+
+		input[type=text]:focus {
+			width: 80%;
+		}
+		/*loading*/
+		.loading {
+			margin: 50px auto;
+			width: 80px;
+			height: 80px;
+			border-radius: 100%;
+			border: 5px solid #eee;
+			border-top: 5px solid green;
+			border-bottom: 5px solid pink;
+			border-left: 5px solid blue;
+			border-right: 5px solid red;
+			animation: spin 2s linear infinite;
+		}
+		
+		@-webkit-keyframes spin {
+			0% { -webkit-transform: rotate(0deg); }
+			100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+		/*便签*/
+		.container a {
+			position: absolute;
+			left: -80px;
+			width: 150px;
+			font-size: 20px;
+			color: white;
+			border-radius: 0 5px 5px 0;
+			padding: 15px 8px;
+			text-align: left;
+			text-decoration: none;
+			transition: .3s;
+		}
+
+		.container a:hover {
+			left: 0;
+		}
+
+		.about {
+			top: 1080px;
+			background-color: #2196F3;
+		}
+
+		.home {
+			top: 1140px;
+			background-color: #f44336;
+		}
+
+		.contact {
+			top: 1200px;
+			background-color: #4CAF50;
+		}
+
+
+		/*开关*/
+		.wrapper {
+			position: relative;
+			height: 100px;
+			background-color: #f7f7f7;
+		}
+
+		.switch {
+			position: relative;
+			width: 60px;
+			height: 34px;
+			display: inline-block;
+			left: 50%;
+			margin-left: -30px;
+			margin-top: 30px;
+		}
+
+		.switch input {
+			display: none;
+		}
+
+		.slider {
+			position: absolute;
+			cursor: pointer;
+			left: 0;
+			right: 0;
+			top:0;
+			bottom: 0;
+			background-color: #ccc;
+			transition:.4s;
+		}
+		
+		.slider:before {
+			content: '';
+			position: absolute;
+			height: 26px;
+			width: 26px;
+			left:4px;
+			bottom:4px;
+			background-color: white;
+			transition: .4s;
+		}
+
+		input:checked + .slider {
+			background-color: #2196F3;
+		}
+
+		input:focus + .slider {
+			box-shadow: 0 0 1px #2196F3;
+		}
+
+		input:checked + .slider:before {
+			transform: translateX(26px);
+		}
+
+		.round {
+			border-radius: 34px; 
+		}
+
+		.round:before {
+			border-radius: 50%;
+		}
+
+	</style>
+</head>
+<body>
+	<h1>CSS画箭头</h1>
+	<hr/>
+	<p>左边：<i class='arrow left'></i></p>
+	<p>右边：<i class='arrow right'></i></p>
+	<p>上边：<i class='arrow up'></i></p>
+	<p>下边：<i class='arrow down'></i></p>
+	<h1>搜索框</h1>
+	<hr/>
+	<form>
+		<input type="text" name="ss" placeholder="搜索...">
+	</form>
+	<h1>loading</h1>
+	<hr/>
+	<div class='loading'></div>
+	<h1 class='aa'>开关</h1>
+	<hr/>
+	<div class='wrapper'>
+		<label class='switch'>
+			<input type="checkbox">
+			<div class='slider round'></div>
+		</label>
+	</div>
+	<h1>便签</h1>
+	<hr/>
+	<div class='container'>
+		<a href='#' class='about'>about</a>
+		<a href='#' class='home'>home</a>
+		<a href='#' class='contact'>contact</a>
+	</div>
+	
+</body>
+</html>

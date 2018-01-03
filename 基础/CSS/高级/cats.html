@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>图片等比铺满</title>
+	<style type="text/css">
+		/*inspired by xieran*/
+		section {
+			display: flex;
+			flex-flow: wrap;
+		}
+	
+		img {
+			position: absolute;
+			top: 0;
+			width: 100%;
+			vertical-align: bottom;
+		}
+
+		i{
+		    display: block;
+		}
+
+		div {
+			margin: 2px;
+			background-color: violet;
+			position: relative;
+		}
+
+		section::after {
+			content: '';
+			flex-grow: 99999999;
+			/*min-width: 200px;
+			height: 0;*/
+		}
+
+	</style>
+</head>
+<body>
+	<section id='wrapper'>
+		
+	</section>
+	<script type="text/javascript">
+		var xhr = null;
+	    if(window.XMLHttpRequest){
+	        xhr = new XMLHttpRequest();
+	    }else if(window.ActiveXObject){
+	        xhr = new ActiveXObject()
+	    }else{
+	        xhr = null;
+	    }
+	    if(xhr){
+	        xhr.open('GET','https://xieranmaya.github.io/images/cats/cats.json');
+	        xhr.onreadystatechange = function(){
+	            if(xhr.readyState == 4 && xhr.status == 200){
+	                let imgs = JSON.parse(xhr.responseText);
+	                for(let i = 0, img; img = imgs[i++];){
+	                	var divNode = document.createElement('div');
+	                	divNode.style.width = img.width*200 / img.height + 'px';
+	                	divNode.style.flexGrow = img.width*200 / img.height;
+	                	var iNode = document.createElement('i');
+	                	// margin和padding设置百分比的时候是相对于父元素（容器）宽度为参照
+	                	iNode.style.paddingBottom = img.height/img.width*100+ '%';
+	                	divNode.appendChild(iNode);
+	                	var imgNode = document.createElement('img');
+	                	imgNode.src = 'https://xieranmaya.github.io/images/cats/'+img.url;
+	                	divNode.appendChild(imgNode);
+	                	document.querySelector('#wrapper').appendChild(divNode);
+	                }
+	                xhr = null;
+	            }
+	        }
+	        xhr.send(null);
+	    }
+	</script>
+</body>
+</html>

@@ -20,7 +20,8 @@
 [15.面包屑][15]</br>
 [16.进度条][16]</br>
 [17.表单][17]</br>
-[18.杂集][18]</br>
+[18.开关][18]</br>
+[19.杂集][19]</br>
 
 
 [1]: ./float_page.html
@@ -39,5 +40,6 @@
 [14]: ./page.html
 [15]: ./breadcrumb.html
 [16]: ./loading.html
-[17]: ./form.html 
-[18]: ./zj.html
+[17]: ./form.html
+[18]: ./close.html
+[19]: ./zj.html

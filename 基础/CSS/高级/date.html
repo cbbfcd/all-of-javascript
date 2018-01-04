@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>日历</title>
+	<style type="text/css">
+		* { box-sizing: border-box; margin: 0px;}
+		html body {
+			padding: 0;
+			margin: 0;
+		}
+		.container {
+			width: 400px;
+			margin: 20px auto 0px;
+			border-radius: 4px;
+			border: none;
+			box-shadow: 0px 0px 2px 2px rgba(0,0,0,0.2);
+			background-color:rgba(42,42,41,0.6);
+		}
+
+		.header {
+			border-bottom: 1px solid #D6D5D5;
+			padding: 20px 0px 18px 20px;
+		}
+
+		.header p:first-child{
+			color: white;
+			font-size: 40px;
+		}
+
+		.header p:first-child ~p {
+			color: #4CAF50;
+		}
+
+		.content-header {
+			position: relative;
+			height: 30px;
+			line-height: 30px;
+		}
+
+		.content {
+			padding: 10px 5px 0px 20px;
+			color: white;
+		}
+
+		.up {
+			display: inline-block;
+			padding: 6px;
+			border: 1px solid transparent;
+			border-right:1px solid white!important;
+			border-bottom:1px solid white!important;
+			position: absolute;
+			right: 50px;
+			top:11.5px;
+			transform: rotate(-135deg);
+		}
+
+		.down {
+			display: inline-block;
+			padding: 6px;
+			border: 1px solid transparent;
+			border-right:1px solid white!important;
+			border-bottom:1px solid white!important;
+			position: absolute;
+			right:5px;
+			top:4.5px;
+			transform: rotate(45deg);
+		}
+
+		.content-body ul{
+			margin: 10px 0px;
+			display: flex;
+			justify-content: space-between;
+			padding: 0px;
+		}
+
+		.content-body {
+			overflow: auto;
+		}
+
+		.content-body ul li {
+			list-style-type: none;
+			display: inline-block;
+			width: 53.5px;
+		    height: 53.5px;
+		    text-align: center;
+		    line-height: 53.5px;
+		    border: 2px solid transparent;
+		}
+
+		.date-wrapper ul li:hover {
+			border:2px solid #4CAF50;
+		}
+
+	</style>
+</head>
+<body>
+	<section class='container'>
+		<section class='header'>
+			<p></p>
+			<p></p>
+		</section>
+		<section class='content'>
+			<section class='content-header'>
+				<a></a>
+				<a class='up'></a>
+				<a class='down'></a>
+			</section>
+			<section class='content-body'>
+				<ul>
+					<li>一</li>
+					<li>二</li>
+					<li>三</li>
+					<li>四</li>
+					<li>五</li>
+					<li>六</li>
+					<li>日</li>
+				</ul>
+			</section>
+			<section class='content-body date-wrapper'>
+				
+			</section>
+		</section>
+	</section>
+</body>
+<script type="text/javascript">
+	window.onload = function(){
+		// 初始渲染
+		let date = new Date();
+		let year = date.getFullYear(), 
+		           month = date.getMonth()+1, 
+		           day = date.getDay();
+		document.querySelector('.header p:last-child').innerHTML = year +'年'+ month +'月'+ day +'日';
+		document.querySelector('.content-header a:first-child').innerHTML = year + '年' + month + '月';
+		document.querySelector('.header p:first-child').innerHTML = date.getHours() + ':' + date.getMinutes() +':' + date.getSeconds();
+
+		// 日历上下翻页
+		document.querySelector('.content-header a:first-child + a').onclick = function(){
+			month -= 1;
+			date.setMonth(month);
+			if(date.getMonth() === 0){
+				month = 12;
+				year -= 1;
+			}
+			document.querySelector('.content-header a:first-child').innerHTML = year + '年' + month + '月';
+			document.querySelector('.date-wrapper').innerHTML = "";
+			drawCalendar(year,month,day);
+		}
+		document.querySelector('.content-header a:last-child').onclick = function(){
+			month += 1;
+			date.setMonth(month);
+			if(month === 13){
+				month = 1;
+				year += 1;
+			}
+			document.querySelector('.content-header a:first-child').innerHTML = year + '年' + month + '月';
+			document.querySelector('.date-wrapper').innerHTML = "";
+			drawCalendar(year,month,day);
+		}
+
+		// 时分秒
+		let timer = setInterval(function(){
+			let date = new Date(), 
+			    hour = date.getHours() < 10 ? '0'+date.getHours(): date.getHours(), 
+			    minutes = date.getMinutes() < 10 ? '0'+date.getMinutes(): date.getMinutes(), 
+			    seconds = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+			document.querySelector('.header p:first-child').innerHTML = hour + ':' + minutes +':' + seconds;
+		}, 1000);
+
+		// 日历
+		drawCalendar(year, month, day);
+
+
+	}
+
+	// 统计一个月的天数
+	function getMouthDays(year,month){
+		let curDate = new Date();
+		month = month === 13 ? 1 : month;
+		curDate.setMonth(month);
+		curDate.setDate(0);
+		return year % 4 === 0 && month === 2 ? 29 : curDate.getDate();
+	}
+
+	// 计算某月第一天是星期几
+	function getWeekDay(year,month,day){
+		let week = new Date(year, month-1, day).getDay();
+		return week === 0 ? 7 : week;
+	}
+
+	// 日历
+	function drawCalendar(year,month,day){
+		let j = 1, n = 1,
+		    days = getMouthDays(year,month), 
+		    week = getWeekDay(year,month,1),
+
+		    preDays = getMouthDays(year,month-1);
+		while( j < 7){
+			let ul = document.createElement('ul');
+			for(let i = 1, len = 8; i < len; i++){
+				if(i < week && j === 1){
+					let li = document.createElement('li');
+					let c = preDays - week + i + 1;
+					li.innerHTML = c;
+					li.style.color = '#555';
+					ul.appendChild(li);
+				}else {
+					let li = document.createElement('li');
+					let count = (j-1) * 7 + (i-week+1);
+					if(count === day && month === new Date().getMonth()+1){
+						li.style.backgroundColor = '#4CAF50';
+					}
+					if(count > days){
+						count = n++;
+						li.style.color = '#555';
+					}
+					li.innerHTML = count;
+					ul.appendChild(li);
+				}
+			}
+			document.querySelector('.date-wrapper').appendChild(ul);
+			j++;
+		}
+	}
+</script>
+</html>

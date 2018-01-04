@@ -169,20 +169,17 @@
 
 		// 日历
 		drawCalendar(year, month, day);
-
-
 	}
 
 	// 统计一个月的天数
 	function getMouthDays(year,month){
-		let curDate = new Date();
 		month = month === 13 ? 1 : month;
-		curDate.setMonth(month);
+		let curDate = new Date(year,month);
 		curDate.setDate(0);
-		return year % 4 === 0 && month === 2 ? 29 : curDate.getDate();
+		return curDate.getDate();
 	}
 
-	// 计算某月第一天是星期几
+	// 计算某年某月某天是星期几
 	function getWeekDay(year,month,day){
 		let week = new Date(year, month-1, day).getDay();
 		return week === 0 ? 7 : week;

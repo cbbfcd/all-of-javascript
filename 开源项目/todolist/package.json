@@ -1,0 +1,19 @@
+{
+  "name": "todolist",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel src/index.html -p 8080",
+    "build": "parcel build entry.js"
+  },
+  "dependencies": {
+    "@hyperapp/router": "^0.4.1",
+    "autoprefixer": "^7.2.4",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
+    "hyperapp": "^1.0.1",
+    "picostyle": "^0.2.0",
+    "postcss-modules": "^1.1.0"
+  }
+}

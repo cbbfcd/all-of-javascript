@@ -1,0 +1,46 @@
+{
+  "name": "postcss-modules",
+  "version": "1.1.0",
+  "description": "PostCSS plugin to use CSS Modules everywhere",
+  "main": "build/index.js",
+  "keywords": [
+    "postcss",
+    "css",
+    "postcss-plugin",
+    "modules",
+    "css modules",
+    "components"
+  ],
+  "author": "Alexander Madyankin <alexander@madyankin.name>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/css-modules/postcss-modules.git"
+  },
+  "dependencies": {
+    "css-modules-loader-core": "^1.1.0",
+    "generic-names": "^1.0.2",
+    "postcss": "^6.0.1",
+    "string-hash": "^1.1.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.6.0",
+    "ava": "^0.22.0",
+    "babel": "^6.5.2",
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.21.0",
+    "babel-eslint": "^8.0.1",
+    "babel-preset-env": "^1.6.0",
+    "eslint": "^4.8.0",
+    "eslint-config-airbnb-base": "^12.0.2",
+    "eslint-plugin-import": "^2.2.0"
+  },
+  "scripts": {
+    "pretest": "$(npm bin)/eslint src test",
+    "test": "$(npm bin)/babel-node $(npm bin)/ava",
+    "transpile": "$(npm bin)/babel src -d build",
+    "prepublish": "npm run transpile",
+    "postpublish": "rm -rf build && git push --follow-tags"
+  },
+  "require": "babel-core/register"
+}

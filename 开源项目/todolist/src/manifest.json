@@ -1,0 +1,28 @@
+{
+	"short_name": "todolist",
+	"name": "todolist",
+	"description": "a todolist demo with hyperapp and parcel",
+	"display": "fullscreen",
+	"scope": "/",
+	"start_url": "/index.html",
+	"orientation":"portrait",
+	"theme_color": "#fff",
+	"background_color": "#fff",
+	"icons": [
+		{
+			"src": "./icons/todo144x144.png",
+			"sizes": "144x144",
+			"type":"image/png"
+		},
+		{
+			"src": "./icons/todo192x192.png",
+			"sizes": "192x192",
+			"type":"image/png"
+		},
+		{
+			"src": "./icons/todo512x512.png",
+			"sizes": "512x512",
+			"type":"image/png"
+		}
+	]
+}

@@ -2,7 +2,7 @@
 * @Author: 28906
 * @Date:   2018-01-10 09:55:44
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-16 19:16:49
+* @Last Modified time: 2018-01-20 22:26:24
 * @Description: todo view
 */
 import { h } from "hyperapp";
@@ -21,7 +21,7 @@ const userInput = (e, actions) => {
 		let val = e.target.value || '', key = uuid();
 		if (val === '') return;
 		let todo = new TODO(key, val, false);
-		store.setItem(key, val);
+		store.setItem(key, todo);
 		actions.add(todo);
 	}
 	e.stopPropagation();
@@ -32,7 +32,7 @@ const userClick = (e, actions) => {
 	let val = document.querySelector('#user-input').value || '', key = uuid();
 	if(val === '') return;
 	let todo = new TODO(key, val, false);
-	store.setItem(key, val);
+	store.setItem(key, todo);
 	actions.add(todo);
 	e.stopPropagation();
 }

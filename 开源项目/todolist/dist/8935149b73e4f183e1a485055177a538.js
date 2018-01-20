@@ -69,7 +69,7 @@ require = (function (modules, cache, entry) {
 
   // Override the current require with this new one
   return newRequire;
-})({18:[function(require,module,exports) {
+})({13:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -353,7 +353,7 @@ function app(state, actions, view, container) {
     return element;
   }
 }
-},{}],23:[function(require,module,exports) {
+},{}],25:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -419,7 +419,7 @@ function parse(decls, child, media, className) {
   insert(createRule(concat(className, child), decls, media));
   return className;
 }
-},{}],6:[function(require,module,exports) {
+},{}],7:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -466,7 +466,7 @@ var Wrapper = style('section')({
 });
 
 exports.default = Wrapper;
-},{"hyperapp":18,"picostyle":23}],13:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],17:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -522,7 +522,7 @@ var Input = style('input')({
 });
 
 exports.default = Input;
-},{"hyperapp":18,"picostyle":23}],25:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],22:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -575,7 +575,7 @@ common['del'] = {
 };
 
 exports.default = common;
-},{}],24:[function(require,module,exports) {
+},{}],18:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -611,7 +611,7 @@ var InputClear = style('a')(Object.assign({
 }, _common2.default['del']));
 
 exports.default = InputClear;
-},{"hyperapp":18,"picostyle":23,"../../utils/common.js":25}],14:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"../../utils/common.js":22}],19:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -671,7 +671,7 @@ var Add = style('a')({
 });
 
 exports.default = Add;
-},{"hyperapp":18,"picostyle":23}],8:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],8:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -715,7 +715,7 @@ var TODO = function () {
 }();
 
 exports.default = TODO;
-},{}],9:[function(require,module,exports) {
+},{}],10:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -741,7 +741,7 @@ var uuid = function uuid() {
 };
 
 exports.default = uuid;
-},{}],7:[function(require,module,exports) {
+},{}],9:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -754,7 +754,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 * @Author: 28906
 * @Date:   2018-01-16 16:55:16
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-16 17:20:49
+* @Last Modified time: 2018-01-21 00:02:07
 * @Description: simple implements a localStorage
 */
 
@@ -764,8 +764,9 @@ if (window.localStorage) {
   store.setItem = function (k, v) {
     if ((typeof v === "undefined" ? "undefined" : _typeof(v)) === 'object') {
       localStorage.setItem(k, JSON.stringify(v));
+    } else {
+      localStorage.setItem(k, v);
     }
-    localStorage.setItem(k, v);
   };
 
   store.getItem = function (k) {
@@ -774,7 +775,7 @@ if (window.localStorage) {
 
   store.forEach = function (callback) {
     for (var i = 0, len = localStorage.length; i < len; i++) {
-      return callback(localStorage.key(i));
+      callback(localStorage.getItem(localStorage.key(i)));
     }
   };
 
@@ -785,10 +786,16 @@ if (window.localStorage) {
   store.remove = function (key) {
     localStorage.removeItem(key);
   };
+
+  store.update = function (key) {
+    var temp = JSON.parse(localStorage.getItem(key));
+    temp.completed = true;
+    localStorage.setItem(key, JSON.stringify(temp));
+  };
 }
 
 exports.default = store;
-},{}],12:[function(require,module,exports) {
+},{}],11:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -832,7 +839,7 @@ var userInput = function userInput(e, actions) {
         key = (0, _uuid2.default)();
     if (val === '') return;
     var todo = new _todo2.default(key, val, false);
-    _store2.default.setItem(key, val);
+    _store2.default.setItem(key, todo);
     actions.add(todo);
   }
   e.stopPropagation();
@@ -843,7 +850,7 @@ var userInput = function userInput(e, actions) {
 * @Author: 28906
 * @Date:   2018-01-10 09:55:44
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-16 19:16:49
+* @Last Modified time: 2018-01-20 22:26:24
 * @Description: todo view
 */
 var userClick = function userClick(e, actions) {
@@ -851,7 +858,7 @@ var userClick = function userClick(e, actions) {
       key = (0, _uuid2.default)();
   if (val === '') return;
   var todo = new _todo2.default(key, val, false);
-  _store2.default.setItem(key, val);
+  _store2.default.setItem(key, todo);
   actions.add(todo);
   e.stopPropagation();
 };
@@ -894,7 +901,7 @@ var TodoHeader = function TodoHeader(_ref) {
 };
 
 exports.default = TodoHeader;
-},{"hyperapp":18,"./input.js":13,"./inputclear.js":24,"./add.js":14,"../../entity/todo.js":8,"../../utils/uuid.js":9,"../../utils/store.js":7}],15:[function(require,module,exports) {
+},{"hyperapp":13,"./input.js":17,"./inputclear.js":18,"./add.js":19,"../../entity/todo.js":8,"../../utils/uuid.js":10,"../../utils/store.js":9}],14:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -930,11 +937,11 @@ var TdWrapper = style('section')({
 });
 
 exports.default = TdWrapper;
-},{"hyperapp":18,"picostyle":23}],19:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],20:[function(require,module,exports) {
 module.exports="/dist/4f420c4e7fb96d7421394a50a23c1824.png";
-},{}],20:[function(require,module,exports) {
+},{}],21:[function(require,module,exports) {
 module.exports="/dist/17ba9af4eb4b49bbb5d5f13b24814e25.png";
-},{}],16:[function(require,module,exports) {
+},{}],15:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1033,7 +1040,7 @@ var Label = function Label(state, actions) {
 };
 
 exports.default = Label;
-},{"hyperapp":18,"picostyle":23,"../../icons/todo.png":19,"../../icons/completed.png":20}],22:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"../../icons/todo.png":20,"../../icons/completed.png":21}],24:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1100,7 +1107,7 @@ var Pagination = function Pagination() {
 };
 
 exports.default = Pagination;
-},{"hyperapp":18,"picostyle":23}],21:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],23:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1131,7 +1138,7 @@ var style = (0, _picostyle2.default)(_hyperapp.h); /*
                                                    * @Author: 28906
                                                    * @Date:   2018-01-11 15:29:53
                                                    * @Last Modified by:   28906
-                                                   * @Last Modified time: 2018-01-16 19:07:19
+                                                   * @Last Modified time: 2018-01-21 00:34:23
                                                    * @Description: content body component
                                                    */
 
@@ -1159,10 +1166,45 @@ var ContentDeleteLabel = style('a')(Object.assign({
   position: 'relative'
 }, _common2.default['del']));
 
+var CompletedLabel = style('a')({
+  display: 'inline-block',
+  float: 'right',
+  position: 'relative',
+  width: '20px',
+  height: '20px',
+  borderRadius: '50%',
+  border: '1px solid #E3CBCD',
+  transition: 'all .4s ease-out',
+  cursor: 'pointer',
+  margin: '0 0 0 10px',
+  '::before': {
+    content: "''",
+    position: 'absolute',
+    width: '40%',
+    height: '70%',
+    left: '50%',
+    borderBottom: '1px solid #E3CBCD',
+    borderRight: '1px solid #E3CBCD',
+    top: '0',
+    transform: 'translateX(-50%) rotate(45deg)',
+    display: 'block',
+    backgroundColor: '#fff'
+  },
+  ':hover': {
+    transform: 'scale(1.3)',
+    '-webkit-transform': 'scale(1.3)'
+  }
+});
+
 // delete todo item
 var delItem = function delItem(item, state, actions) {
   actions.del(item);
   _store2.default.remove(item.id);
+};
+
+// completed item
+var completedItem = function completedItem(item, state, actions) {
+  actions.completed(item.id);
 };
 
 var ContentList = function ContentList(_ref) {
@@ -1177,12 +1219,15 @@ var ContentList = function ContentList(_ref) {
       state.todos.map(function (item) {
         return (0, _hyperapp.h)(
           ContentListItem,
-          { key: "" + item.id },
+          { key: item.id },
           (0, _hyperapp.h)(
             "span",
             null,
             item.title
           ),
+          (0, _hyperapp.h)(CompletedLabel, { onclick: function onclick() {
+              return completedItem(item, state, actions);
+            } }),
           (0, _hyperapp.h)(ContentDeleteLabel, { onclick: function onclick() {
               return delItem(item, state, actions);
             } })
@@ -1194,7 +1239,7 @@ var ContentList = function ContentList(_ref) {
 };
 
 exports.default = ContentList;
-},{"hyperapp":18,"picostyle":23,"./pagination.js":22,"../../utils/store.js":7,"../../utils/common.js":25}],17:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"./pagination.js":24,"../../utils/store.js":9,"../../utils/common.js":22}],16:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1252,7 +1297,7 @@ var ContentWrapper = function ContentWrapper(_ref) {
 };
 
 exports.default = ContentWrapper;
-},{"hyperapp":18,"picostyle":23,"./contentbody.js":21}],11:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"./contentbody.js":23}],12:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1273,29 +1318,41 @@ var _content = require("./content.js");
 
 var _content2 = _interopRequireDefault(_content);
 
+var _store = require("../../utils/store.js");
+
+var _store2 = _interopRequireDefault(_store);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/*
-* @Author: 28906
-* @Date:   2018-01-11 11:05:52
-* @Last Modified by:   28906
-* @Last Modified time: 2018-01-11 21:43:32
-* @Description: todo view body
-*/
+// get todos from web storage
+var handleLocalStorageTodos = function handleLocalStorageTodos(state, actions) {
+  actions.empty();
+  _store2.default.forEach(function (item) {
+    actions.add(JSON.parse(item));
+  });
+}; /*
+   * @Author: 28906
+   * @Date:   2018-01-11 11:05:52
+   * @Last Modified by:   28906
+   * @Last Modified time: 2018-01-21 00:33:00
+   * @Description: todo view body
+   */
 
 var TdBody = function TdBody(_ref) {
   var state = _ref.state,
       actions = _ref.actions;
   return (0, _hyperapp.h)(
     _container2.default,
-    null,
+    { oncreate: function oncreate(e) {
+        return handleLocalStorageTodos(state, actions);
+      } },
     (0, _hyperapp.h)(_label2.default, null),
     (0, _hyperapp.h)(_content2.default, { state: state, actions: actions })
   );
 };
 
 exports.default = TdBody;
-},{"hyperapp":18,"./container.js":15,"./label.js":16,"./content.js":17}],4:[function(require,module,exports) {
+},{"hyperapp":13,"./container.js":14,"./label.js":15,"./content.js":16,"../../utils/store.js":9}],4:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1330,12 +1387,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * @Author: 28906
 * @Date:   2018-01-06 01:33:37
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-16 19:29:14
+* @Last Modified time: 2018-01-21 00:30:00
 * @Description: entry view wrapper
 */
 
 var style = (0, _picostyle2.default)(_hyperapp.h);
-
 var Container = style('section')({
   position: 'absolute',
   top: '90px',
@@ -1345,20 +1401,13 @@ var Container = style('section')({
   padding: '20px'
 });
 
-// get todos from web storage
-var handleLocalStorageTodos = function handleLocalStorageTodos(state) {};
-
 var view = function view(state, actions) {
   return (0, _hyperapp.h)(
     _wrapper2.default,
     null,
     (0, _hyperapp.h)(
       Container,
-      {
-        oncreate: function oncreate(e) {
-          return handleLocalStorageTodos(state);
-        }
-      },
+      null,
       (0, _hyperapp.h)(_tdHeader2.default, {
         state: state,
         actions: actions
@@ -1372,23 +1421,32 @@ var view = function view(state, actions) {
 };
 
 exports.default = view;
-},{"hyperapp":18,"picostyle":23,"./wrapper.js":6,"./td-header/":12,"./td-body/":11,"../utils/store.js":7}],10:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"./wrapper.js":7,"./td-header/":11,"./td-body/":12,"../utils/store.js":9}],6:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-/*
-* @Author: 28906
-* @Date:   2018-01-06 01:07:45
-* @Last Modified by:   28906
-* @Last Modified time: 2018-01-16 17:29:00
-* @Description: actions, change the state must use actions!
-*/
+
+var _store = require("../utils/store.js");
+
+var _store2 = _interopRequireDefault(_store);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /*
+                                                                                                                                                                                                    * @Author: 28906
+                                                                                                                                                                                                    * @Date:   2018-01-06 01:07:45
+                                                                                                                                                                                                    * @Last Modified by:   28906
+                                                                                                                                                                                                    * @Last Modified time: 2018-01-21 00:26:27
+                                                                                                                                                                                                    * @Description: actions, change the state must use actions!
+                                                                                                                                                                                                    */
+
+
 var actions = {
   add: function add(todo) {
     return function (state) {
-      return state.todos.push(todo);
+      return { todos: [].concat(_toConsumableArray(state.todos), [todo]) };
     };
   },
   del: function del(todo) {
@@ -1397,11 +1455,26 @@ var actions = {
         return item.id !== todo.id;
       });
     };
+  },
+  empty: function empty() {
+    return function (state) {
+      return state.todos = [];
+    };
+  },
+  completed: function completed(key) {
+    return function (state) {
+      [].concat(_toConsumableArray(state.todos)).map(function (item) {
+        if (item.id === key) {
+          item.completed = true;
+          _store2.default.update(key);
+        }
+      });
+    };
   }
 };
 
 exports.default = actions;
-},{}],5:[function(require,module,exports) {
+},{"../utils/store.js":9}],5:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1431,7 +1504,7 @@ var state = {
 };
 
 exports.default = state;
-},{"../entity/todo.js":8,"../utils/uuid.js":9}],2:[function(require,module,exports) {
+},{"../entity/todo.js":8,"../utils/uuid.js":10}],2:[function(require,module,exports) {
 "use strict";
 
 var _hyperapp = require("hyperapp");
@@ -1459,7 +1532,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 */
 
 (0, _hyperapp.app)(_todos2.default, _actions2.default, _index2.default, document.body);
-},{"hyperapp":18,"./views/index.js":4,"./actions/":10,"./states/todos.js":5}],0:[function(require,module,exports) {
+},{"hyperapp":13,"./views/index.js":4,"./actions/":6,"./states/todos.js":5}],0:[function(require,module,exports) {
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
 function Module() {
@@ -1477,7 +1550,7 @@ function Module() {
 module.bundle.Module = Module;
 
 if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
-  var ws = new WebSocket('ws://' + window.location.hostname + ':62719/');
+  var ws = new WebSocket('ws://' + window.location.hostname + ':57888/');
   ws.onmessage = function(event) {
     var data = JSON.parse(event.data);
 

@@ -2,7 +2,7 @@
 * @Author: 28906
 * @Date:   2018-01-16 16:55:16
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-16 17:20:49
+* @Last Modified time: 2018-01-21 00:02:07
 * @Description: simple implements a localStorage
 */
 
@@ -12,8 +12,9 @@ if(window.localStorage){
 	store.setItem = (k, v) => {
 		if(typeof v === 'object'){
 			localStorage.setItem(k, JSON.stringify(v));
+		}else{
+			localStorage.setItem(k, v);
 		}
-		localStorage.setItem(k, v);
 	}
 
 	store.getItem = (k) => {
@@ -22,7 +23,7 @@ if(window.localStorage){
 
 	store.forEach = (callback) => {
 		for(let i = 0, len = localStorage.length; i < len; i++){
-			return callback(localStorage.key(i));
+			callback(localStorage.getItem(localStorage.key(i)));
 		}
 	}
 
@@ -32,6 +33,12 @@ if(window.localStorage){
 
 	store.remove = (key) => {
 		localStorage.removeItem(key);
+	}
+
+	store.update = (key) => {
+		let temp = JSON.parse(localStorage.getItem(key));
+		temp.completed = true;
+		localStorage.setItem(key, JSON.stringify(temp));
 	}
 }
 

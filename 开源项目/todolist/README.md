@@ -28,5 +28,5 @@ yarn start   // 8080 可以在package.json 中"parcel src/index.html -p 8080"修
 3. 简单的分页
 4. 已完成和未完成的分类选择
 
-[1]:[https://hyperapp.js.org]
-[2]:[http://www.css88.com/doc/parcel]
+[1]:https://hyperapp.js.org
+[2]:http://www.css88.com/doc/parcel

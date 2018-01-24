@@ -466,7 +466,7 @@ var Wrapper = style('section')({
 });
 
 exports.default = Wrapper;
-},{"hyperapp":13,"picostyle":25}],17:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],14:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -522,7 +522,7 @@ var Input = style('input')({
 });
 
 exports.default = Input;
-},{"hyperapp":13,"picostyle":25}],22:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],20:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -575,7 +575,7 @@ common['del'] = {
 };
 
 exports.default = common;
-},{}],18:[function(require,module,exports) {
+},{}],15:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -611,7 +611,7 @@ var InputClear = style('a')(Object.assign({
 }, _common2.default['del']));
 
 exports.default = InputClear;
-},{"hyperapp":13,"picostyle":25,"../../utils/common.js":22}],19:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"../../utils/common.js":20}],16:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -901,7 +901,7 @@ var TodoHeader = function TodoHeader(_ref) {
 };
 
 exports.default = TodoHeader;
-},{"hyperapp":13,"./input.js":17,"./inputclear.js":18,"./add.js":19,"../../entity/todo.js":8,"../../utils/uuid.js":10,"../../utils/store.js":9}],14:[function(require,module,exports) {
+},{"hyperapp":13,"./input.js":14,"./inputclear.js":15,"./add.js":16,"../../entity/todo.js":8,"../../utils/uuid.js":10,"../../utils/store.js":9}],17:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -937,11 +937,11 @@ var TdWrapper = style('section')({
 });
 
 exports.default = TdWrapper;
-},{"hyperapp":13,"picostyle":25}],20:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25}],22:[function(require,module,exports) {
 module.exports="/dist/4f420c4e7fb96d7421394a50a23c1824.png";
 },{}],21:[function(require,module,exports) {
 module.exports="/dist/17ba9af4eb4b49bbb5d5f13b24814e25.png";
-},{}],15:[function(require,module,exports) {
+},{}],18:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1040,7 +1040,7 @@ var Label = function Label(state, actions) {
 };
 
 exports.default = Label;
-},{"hyperapp":13,"picostyle":25,"../../icons/todo.png":20,"../../icons/completed.png":21}],24:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"../../icons/todo.png":22,"../../icons/completed.png":21}],24:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1059,7 +1059,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * @Author: 28906
 * @Date:   2018-01-11 16:41:39
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-11 16:59:16
+* @Last Modified time: 2018-01-24 00:23:21
 * @Description: pagenation component
 */
 
@@ -1080,7 +1080,7 @@ var commonStyle = {
   cursor: 'pointer',
   transition: 'all .4s ease-out',
   ':hover': {
-    transform: 'scale(1.3)'
+    transform: 'scale(1.8)'
   }
 
   // mixin the common style
@@ -1096,13 +1096,24 @@ var DownPage = style('a')(Object.assign({
   borderBottom: '8px solid transparent'
 }, commonStyle));
 
+// simple implements pagenation
+// page up
+var pageUp = function pageUp(state, actions) {};
+// page dowm
+var pageDown = function pageDown(state, actions) {};
 // view
-var Pagination = function Pagination() {
+var Pagination = function Pagination(_ref) {
+  var state = _ref.state,
+      actions = _ref.actions;
   return (0, _hyperapp.h)(
     PaginationWrapper,
     null,
-    (0, _hyperapp.h)(UpPage, null),
-    (0, _hyperapp.h)(DownPage, null)
+    (0, _hyperapp.h)(UpPage, { onclick: function onclick() {
+        return pageUp(state, actions);
+      } }),
+    (0, _hyperapp.h)(DownPage, { onclick: function onclick() {
+        return pageDown(state, actions);
+      } })
   );
 };
 
@@ -1138,7 +1149,7 @@ var style = (0, _picostyle2.default)(_hyperapp.h); /*
                                                    * @Author: 28906
                                                    * @Date:   2018-01-11 15:29:53
                                                    * @Last Modified by:   28906
-                                                   * @Last Modified time: 2018-01-21 00:34:23
+                                                   * @Last Modified time: 2018-01-24 00:24:10
                                                    * @Description: content body component
                                                    */
 
@@ -1188,12 +1199,19 @@ var CompletedLabel = style('a')({
     top: '0',
     transform: 'translateX(-50%) rotate(45deg)',
     display: 'block',
-    backgroundColor: '#fff'
+    backgroundColor: 'rgba(245, 245, 245, 0.5)'
   },
   ':hover': {
     transform: 'scale(1.3)',
     '-webkit-transform': 'scale(1.3)'
   }
+});
+
+var NoData = style('h4')({
+  textAlign: 'center',
+  fontSize: '20px',
+  color: '#E3CBCD',
+  paddingTop: '60px'
 });
 
 // delete todo item
@@ -1234,12 +1252,12 @@ var ContentList = function ContentList(_ref) {
         );
       })
     ),
-    (0, _hyperapp.h)(_pagination2.default, null)
+    (0, _hyperapp.h)(_pagination2.default, { state: state, actions: actions })
   );
 };
 
 exports.default = ContentList;
-},{"hyperapp":13,"picostyle":25,"./pagination.js":24,"../../utils/store.js":9,"../../utils/common.js":22}],16:[function(require,module,exports) {
+},{"hyperapp":13,"picostyle":25,"./pagination.js":24,"../../utils/store.js":9,"../../utils/common.js":20}],19:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1334,7 +1352,7 @@ var handleLocalStorageTodos = function handleLocalStorageTodos(state, actions) {
    * @Author: 28906
    * @Date:   2018-01-11 11:05:52
    * @Last Modified by:   28906
-   * @Last Modified time: 2018-01-21 00:33:00
+   * @Last Modified time: 2018-01-24 00:13:06
    * @Description: todo view body
    */
 
@@ -1352,7 +1370,7 @@ var TdBody = function TdBody(_ref) {
 };
 
 exports.default = TdBody;
-},{"hyperapp":13,"./container.js":14,"./label.js":15,"./content.js":16,"../../utils/store.js":9}],4:[function(require,module,exports) {
+},{"hyperapp":13,"./container.js":17,"./label.js":18,"./content.js":19,"../../utils/store.js":9}],5:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1438,7 +1456,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                                                                                                                                                                                                     * @Author: 28906
                                                                                                                                                                                                     * @Date:   2018-01-06 01:07:45
                                                                                                                                                                                                     * @Last Modified by:   28906
-                                                                                                                                                                                                    * @Last Modified time: 2018-01-21 00:26:27
+                                                                                                                                                                                                    * @Last Modified time: 2018-01-24 00:23:09
                                                                                                                                                                                                     * @Description: actions, change the state must use actions!
                                                                                                                                                                                                     */
 
@@ -1474,7 +1492,7 @@ var actions = {
 };
 
 exports.default = actions;
-},{"../utils/store.js":9}],5:[function(require,module,exports) {
+},{"../utils/store.js":9}],4:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1495,7 +1513,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * @Author: 28906
 * @Date:   2018-01-06 00:47:18
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-16 19:28:22
+* @Last Modified time: 2018-01-24 00:23:28
 * @Description: state, compare with React state
 */
 var state = {
@@ -1532,7 +1550,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 */
 
 (0, _hyperapp.app)(_todos2.default, _actions2.default, _index2.default, document.body);
-},{"hyperapp":13,"./views/index.js":4,"./actions/":6,"./states/todos.js":5}],0:[function(require,module,exports) {
+},{"hyperapp":13,"./views/index.js":5,"./actions/":6,"./states/todos.js":4}],0:[function(require,module,exports) {
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
 function Module() {
@@ -1550,7 +1568,7 @@ function Module() {
 module.bundle.Module = Module;
 
 if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
-  var ws = new WebSocket('ws://' + window.location.hostname + ':57888/');
+  var ws = new WebSocket('ws://' + window.location.hostname + ':51677/');
   ws.onmessage = function(event) {
     var data = JSON.parse(event.data);
 

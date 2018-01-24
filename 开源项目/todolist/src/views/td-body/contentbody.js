@@ -2,7 +2,7 @@
 * @Author: 28906
 * @Date:   2018-01-11 15:29:53
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-21 00:34:23
+* @Last Modified time: 2018-01-24 00:24:10
 * @Description: content body component
 */
 
@@ -62,12 +62,19 @@ const CompletedLabel = style('a')({
 		top: '0',
 		transform: 'translateX(-50%) rotate(45deg)',
 		display: 'block',
-		backgroundColor: '#fff',
+		backgroundColor: 'rgba(245, 245, 245, 0.5)',
 	},
 	':hover': {
 		transform: 'scale(1.3)',
 		'-webkit-transform':'scale(1.3)',
 	}
+})
+
+const NoData = style('h4')({
+	textAlign: 'center',
+	fontSize: '20px',
+	color:'#E3CBCD',
+	paddingTop: '60px'
 })
 
 // delete todo item
@@ -94,7 +101,7 @@ const ContentList = ({state,actions}) => (
 				))
 			}
 		</ul>
-		<Pagination />
+		<Pagination state={state} actions={actions}/>
 	</ContentBody>
 )
 

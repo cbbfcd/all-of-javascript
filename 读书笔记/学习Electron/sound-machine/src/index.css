@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+   /* 可拖拽，但是里面的按钮不可以点击了。必须将按钮标记为 non-draggable, 否则用户将无法单击它们 */
+  -webkit-app-region: drag;
+  background-color: #0C7CA2;
+}
+
+* {
+	box-sizing: border-box;
+}
+

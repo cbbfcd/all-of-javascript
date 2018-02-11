@@ -1,0 +1,48 @@
+{
+  "name": "sound-machine",
+  "version": "0.1.0",
+  "private": true,
+  "main": "public/main.js",
+  "homepage": "./",
+  "author": "波比小金刚",
+  "description": "a simple demo for electron with cra+ts",
+  "dependencies": {
+    "electron-is-dev": "^0.3.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-router-dom": "^4.2.2",
+    "react-scripts-ts": "2.13.0"
+  },
+  "build": {
+    "appId": "com.example.${name}",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
+  },
+  "scripts": {
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
+    "electron-compile": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "pack": "build --em.main=build/main.js",
+    "release": "build --em.main=build/main.js --publish=always"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.1",
+    "@types/jest": "^22.1.1",
+    "@types/node": "^9.4.2",
+    "@types/react": "^16.0.36",
+    "@types/react-dom": "^16.0.3",
+    "@types/react-router-dom": "^4.2.3",
+    "electron": "^1.8.2",
+    "electron-builder": "^19.56.0",
+    "typescript": "^2.7.1",
+    "wait-on": "^2.1.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "electron-quick-start-demo",
+  "version": "1.0.0",
+  "description": "参考: https://electronjs.org/docs/tutorial/quick-start",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC"
+}

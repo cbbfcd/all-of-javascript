@@ -1,0 +1,180 @@
+.App {
+  background: #1DCCEB;
+  height: 700px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+  overflow: hidden;
+}
+
+.header{
+	width: 100%;
+}
+
+.header-c1{
+	padding-top: 50px;
+    text-align: center;
+}
+
+.header-c1 img{
+	width: 274px;
+	height: 194px;
+}
+.header h1{
+    color: #fff;
+    padding-right: 6px;
+    padding-top: 5px;
+    text-align: right;
+    text-indent: -10000px;
+}
+.header h1 img{
+	width: 195px;
+	height: 31px;
+}
+
+.header-setting{
+	position: relative;
+	top: 0;
+	height: 35px;
+	width: 100%;
+}
+
+.header-setting a{
+	float: right;
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+  vertical-align: middle;
+}
+
+.setting{
+	background: url("./static/img/settings.png") no-repeat;
+	background-size: cover;
+  margin-right: 10px;
+  -webkit-app-region: no-drag;
+}
+
+.close{
+	background: url("./static/img/close.png") no-repeat;
+	background-size: cover;
+  -webkit-app-region: no-drag;
+}
+
+.header-setting a:hover{
+	transform: scale(1.05);
+}
+
+.btns {
+	padding:20px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.btn-s {
+	background-color: #0C7CA2;
+    border-radius: 100%;
+    cursor: pointer;
+    display: inline-block;
+    height: 24px;
+    margin-top: 57px;
+    position: relative;
+    width: 24px;
+    box-shadow: 0 4px 0 #044D7F;
+    -webkit-app-region: no-drag;
+}
+
+.button-icon {
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    height: 50px;
+    left: -2px;
+    position: absolute;
+    top: -40px;
+    width: 30px;
+    -webkit-app-region: no-drag;
+}
+
+.btn-s:hover {
+	box-shadow: 0 2px 0 #044D7F;
+	top: 2px;
+}
+
+.setting-page {
+  position: absolute;
+  animation: openpage 2s ease-out;
+  height: 100%;
+  width: 100%;
+  background-color: #044D7F;
+}
+
+@keyframes openpage
+{
+from {opacity: 0}
+to {opacity: 1}
+}
+
+.setting-header {
+  position: absolute;
+  top:10px;
+  height: 35px;
+  width: 100%;
+}
+
+.setting-header a {
+  display: inline-block;
+}
+
+.setting-header a:first-child {
+  color: white;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 15px;
+  font-size: 20px;
+}
+
+.setting-header-link{
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 15px;
+  width: 32px;
+  height: 32px;
+  background: url("./static/img/close.png") no-repeat;
+  background-size: cover;
+  -webkit-app-region: no-drag;
+}
+
+
+.setting-content {
+  position: absolute;
+  top: 50px;
+  width: 100%;
+}
+
+.setting-content p {
+  color: #fff;
+  padding: 5px 0px 10px 15px;
+  font-size: 14px;
+}
+
+.setting-content ul{
+  list-style-type: none;
+}
+
+.setting-content ul li {
+  padding: 10px 0px;
+}
+
+.setting-content ul li input{
+  -webkit-app-region: no-drag;
+}
+
+.setting-content ul li label{
+  padding-left: 8px;
+  color: #fff;
+  -webkit-app-region: no-drag;
+}

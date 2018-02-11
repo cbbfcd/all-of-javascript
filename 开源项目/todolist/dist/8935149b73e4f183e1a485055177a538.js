@@ -69,7 +69,7 @@ require = (function (modules, cache, entry) {
 
   // Override the current require with this new one
   return newRequire;
-})({13:[function(require,module,exports) {
+})({10:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79,82 +79,85 @@ exports.h = h;
 exports.app = app;
 function h(name, props) {
   var node;
+  var rest = [];
   var children = [];
+  var length = arguments.length;
 
-  for (var stack = [], i = arguments.length; i-- > 2;) {
-    stack.push(arguments[i]);
-  }
-
-  while (stack.length) {
-    if (Array.isArray(node = stack.pop())) {
-      for (var i = node.length; i--;) {
-        stack.push(node[i]);
+  while (length-- > 2) {
+    rest.push(arguments[length]);
+  }while (rest.length) {
+    if (Array.isArray(node = rest.pop())) {
+      for (length = node.length; length--;) {
+        rest.push(node[length]);
       }
-    } else if (node == null || node === true || node === false) {} else {
+    } else if (node != null && node !== true && node !== false) {
       children.push(node);
     }
   }
 
-  return typeof name === "string" ? {
+  return typeof name === "function" ? name(props || {}, children) : {
     name: name,
     props: props || {},
     children: children
-  } : name(props || {}, children);
+  };
 }
 
 function app(state, actions, view, container) {
-  var patchLock;
-  var lifecycle = [];
-  var root = container && container.children[0];
-  var node = vnode(root, [].map);
+  var renderLock;
+  var invokeLaterStack = [];
+  var rootElement = container && container.children[0] || null;
+  var lastNode = rootElement && toVNode(rootElement, [].map);
+  var globalState = copy(state);
+  var wiredActions = copy(actions);
 
-  repaint(init([], state = copy(state), actions = copy(actions)));
+  scheduleRender(wireStateToActions([], globalState, wiredActions));
 
-  return actions;
+  return wiredActions;
 
-  function vnode(element, map) {
-    return element && {
+  function toVNode(element, map) {
+    return {
       name: element.nodeName.toLowerCase(),
       props: {},
       children: map.call(element.childNodes, function (element) {
-        return element.nodeType === 3 ? element.nodeValue : vnode(element, map);
+        return element.nodeType === 3 ? element.nodeValue : toVNode(element, map);
       })
     };
   }
 
-  function render(next) {
-    patchLock = !patchLock;
-    next = view(state, actions);
+  function render() {
+    renderLock = !renderLock;
 
-    if (container && !patchLock) {
-      root = patch(container, root, node, node = next);
+    var next = view(globalState, wiredActions);
+    if (container && !renderLock) {
+      rootElement = patch(container, rootElement, lastNode, lastNode = next);
     }
 
-    while (next = lifecycle.pop()) {
+    while (next = invokeLaterStack.pop()) {
       next();
     }
   }
 
-  function repaint() {
-    if (!patchLock) {
-      patchLock = !patchLock;
+  function scheduleRender() {
+    if (!renderLock) {
+      renderLock = !renderLock;
       setTimeout(render);
     }
   }
 
-  function copy(a, b) {
-    var target = {};
+  function copy(target, source) {
+    var obj = {};
 
-    for (var i in a) {
-      target[i] = a[i];
-    }for (var i in b) {
-      target[i] = b[i];
-    }return target;
+    for (var i in target) {
+      obj[i] = target[i];
+    }for (var i in source) {
+      obj[i] = source[i];
+    }return obj;
   }
 
-  function set(path, value, source, target) {
+  function set(path, value, source) {
+    var target = {};
     if (path.length) {
-      target[path[0]] = 1 < path.length ? set(path.slice(1), value, source[path[0]], {}) : value;
+      target[path[0]] = path.length > 1 ? set(path.slice(1), value, source[path[0]]) : value;
       return copy(source, target);
     }
     return value;
@@ -167,23 +170,22 @@ function app(state, actions, view, container) {
     return source;
   }
 
-  function init(path, slice, actions) {
+  function wireStateToActions(path, state, actions) {
     for (var key in actions) {
       typeof actions[key] === "function" ? function (key, action) {
         actions[key] = function (data) {
-          slice = get(path, state);
-
           if (typeof (data = action(data)) === "function") {
-            data = data(slice, actions);
+            data = data(get(path, globalState), actions);
           }
 
-          if (data && data !== slice && !data.then) {
-            repaint(state = set(path, copy(slice, data), state, {}));
-          }
+          if (data && data !== (state = get(path, globalState)) && !data.then // Promise
+          ) {
+              scheduleRender(globalState = set(path, copy(state, data), globalState));
+            }
 
           return data;
         };
-      }(key, actions[key]) : init(path.concat(key), slice[key] = slice[key] || {}, actions[key] = copy(actions[key]));
+      }(key, actions[key]) : wireStateToActions(path.concat(key), state[key] = state[key] || {}, actions[key] = copy(actions[key]));
     }
   }
 
@@ -191,22 +193,20 @@ function app(state, actions, view, container) {
     return node && node.props ? node.props.key : null;
   }
 
-  function setElementProp(element, name, value, oldValue) {
+  function setElementProp(element, name, value, isSVG, oldValue) {
     if (name === "key") {} else if (name === "style") {
       for (var i in copy(oldValue, value)) {
         element[name][i] = value == null || value[i] == null ? "" : value[i];
       }
     } else {
-      try {
+      if (typeof value === "function" || name in element && !isSVG) {
         element[name] = value == null ? "" : value;
-      } catch (_) {}
+      } else if (value != null && value !== false) {
+        element.setAttribute(name, value);
+      }
 
-      if (typeof value !== "function") {
-        if (value == null || value === false) {
-          element.removeAttribute(name);
-        } else {
-          element.setAttribute(name, value);
-        }
+      if (value == null || value === false) {
+        element.removeAttribute(name);
       }
     }
   }
@@ -216,7 +216,7 @@ function app(state, actions, view, container) {
 
     if (node.props) {
       if (node.props.oncreate) {
-        lifecycle.push(function () {
+        invokeLaterStack.push(function () {
           node.props.oncreate(element);
         });
       }
@@ -226,22 +226,22 @@ function app(state, actions, view, container) {
       }
 
       for (var name in node.props) {
-        setElementProp(element, name, node.props[name]);
+        setElementProp(element, name, node.props[name], isSVG);
       }
     }
 
     return element;
   }
 
-  function updateElement(element, oldProps, props) {
+  function updateElement(element, oldProps, props, isSVG) {
     for (var name in copy(oldProps, props)) {
       if (props[name] !== (name === "value" || name === "checked" ? element[name] : oldProps[name])) {
-        setElementProp(element, name, props[name], oldProps[name]);
+        setElementProp(element, name, props[name], isSVG, oldProps[name]);
       }
     }
 
     if (props.onupdate) {
-      lifecycle.push(function () {
+      invokeLaterStack.push(function () {
         props.onupdate(element, oldProps);
       });
     }
@@ -276,7 +276,7 @@ function app(state, actions, view, container) {
     if (node === oldNode) {} else if (oldNode == null) {
       element = parent.insertBefore(createElement(node, isSVG), element);
     } else if (node.name && node.name === oldNode.name) {
-      updateElement(element, oldNode.props, node.props);
+      updateElement(element, oldNode.props, node.props, isSVG = isSVG || node.name === "svg");
 
       var oldElements = [];
       var oldKeyed = {};
@@ -364,15 +364,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 exports.default = function (h) {
   return function (type) {
+    var cache = {};
     return function (decls) {
-      var parsed;
       var isDeclsFunction = typeof decls === "function";
-      !isDeclsFunction && (parsed = parse(decls));
+
       return function (props, children) {
         props = props || {};
-        isDeclsFunction && (parsed = parse(decls(props)));
+        var key = serialize(props);
+        cache[key] || (cache[key] = isDeclsFunction && parse(decls(props)) || parse(decls));
         var node = h(type, props, children);
-        node.props.class = ((node.props.class || "") + " " + (props.class || "") + " " + parsed).trim();
+        node.props.class = [props.class, cache[key]].filter(Boolean).join(" ");
         return node;
       };
     };
@@ -381,6 +382,7 @@ exports.default = function (h) {
 
 var _id = 0;
 var sheet = document.head.appendChild(document.createElement("style")).sheet;
+var serialize = JSON.stringify.bind(null);
 
 function hyphenate(str) {
   return str.replace(/[A-Z]/g, "-$&").toLowerCase();
@@ -419,7 +421,7 @@ function parse(decls, child, media, className) {
   insert(createRule(concat(className, child), decls, media));
   return className;
 }
-},{}],7:[function(require,module,exports) {
+},{}],9:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -466,7 +468,7 @@ var Wrapper = style('section')({
 });
 
 exports.default = Wrapper;
-},{"hyperapp":13,"picostyle":25}],14:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25}],14:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -522,7 +524,7 @@ var Input = style('input')({
 });
 
 exports.default = Input;
-},{"hyperapp":13,"picostyle":25}],20:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25}],20:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -611,7 +613,7 @@ var InputClear = style('a')(Object.assign({
 }, _common2.default['del']));
 
 exports.default = InputClear;
-},{"hyperapp":13,"picostyle":25,"../../utils/common.js":20}],16:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25,"../../utils/common.js":20}],16:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -671,7 +673,7 @@ var Add = style('a')({
 });
 
 exports.default = Add;
-},{"hyperapp":13,"picostyle":25}],8:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25}],7:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -715,7 +717,7 @@ var TODO = function () {
 }();
 
 exports.default = TODO;
-},{}],10:[function(require,module,exports) {
+},{}],8:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -741,7 +743,7 @@ var uuid = function uuid() {
 };
 
 exports.default = uuid;
-},{}],9:[function(require,module,exports) {
+},{}],11:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -795,7 +797,7 @@ if (window.localStorage) {
 }
 
 exports.default = store;
-},{}],11:[function(require,module,exports) {
+},{}],12:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -850,7 +852,7 @@ var userInput = function userInput(e, actions) {
 * @Author: 28906
 * @Date:   2018-01-10 09:55:44
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-20 22:26:24
+* @Last Modified time: 2018-01-24 23:18:50
 * @Description: todo view
 */
 var userClick = function userClick(e, actions) {
@@ -901,7 +903,7 @@ var TodoHeader = function TodoHeader(_ref) {
 };
 
 exports.default = TodoHeader;
-},{"hyperapp":13,"./input.js":14,"./inputclear.js":15,"./add.js":16,"../../entity/todo.js":8,"../../utils/uuid.js":10,"../../utils/store.js":9}],17:[function(require,module,exports) {
+},{"hyperapp":10,"./input.js":14,"./inputclear.js":15,"./add.js":16,"../../entity/todo.js":7,"../../utils/uuid.js":8,"../../utils/store.js":11}],17:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -937,9 +939,9 @@ var TdWrapper = style('section')({
 });
 
 exports.default = TdWrapper;
-},{"hyperapp":13,"picostyle":25}],22:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25}],22:[function(require,module,exports) {
 module.exports="/dist/4f420c4e7fb96d7421394a50a23c1824.png";
-},{}],21:[function(require,module,exports) {
+},{}],23:[function(require,module,exports) {
 module.exports="/dist/17ba9af4eb4b49bbb5d5f13b24814e25.png";
 },{}],18:[function(require,module,exports) {
 "use strict";
@@ -1040,7 +1042,7 @@ var Label = function Label(state, actions) {
 };
 
 exports.default = Label;
-},{"hyperapp":13,"picostyle":25,"../../icons/todo.png":22,"../../icons/completed.png":21}],24:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25,"../../icons/todo.png":22,"../../icons/completed.png":23}],24:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1059,7 +1061,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * @Author: 28906
 * @Date:   2018-01-11 16:41:39
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-24 00:23:21
+* @Last Modified time: 2018-01-24 23:14:13
 * @Description: pagenation component
 */
 
@@ -1118,7 +1120,7 @@ var Pagination = function Pagination(_ref) {
 };
 
 exports.default = Pagination;
-},{"hyperapp":13,"picostyle":25}],23:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25}],21:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1149,7 +1151,7 @@ var style = (0, _picostyle2.default)(_hyperapp.h); /*
                                                    * @Author: 28906
                                                    * @Date:   2018-01-11 15:29:53
                                                    * @Last Modified by:   28906
-                                                   * @Last Modified time: 2018-01-24 00:24:10
+                                                   * @Last Modified time: 2018-01-24 23:40:28
                                                    * @Description: content body component
                                                    */
 
@@ -1257,7 +1259,7 @@ var ContentList = function ContentList(_ref) {
 };
 
 exports.default = ContentList;
-},{"hyperapp":13,"picostyle":25,"./pagination.js":24,"../../utils/store.js":9,"../../utils/common.js":20}],19:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25,"./pagination.js":24,"../../utils/store.js":11,"../../utils/common.js":20}],19:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1315,7 +1317,7 @@ var ContentWrapper = function ContentWrapper(_ref) {
 };
 
 exports.default = ContentWrapper;
-},{"hyperapp":13,"picostyle":25,"./contentbody.js":23}],12:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25,"./contentbody.js":21}],13:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1344,15 +1346,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // get todos from web storage
 var handleLocalStorageTodos = function handleLocalStorageTodos(state, actions) {
-  actions.empty();
+  var arr = [];
   _store2.default.forEach(function (item) {
-    actions.add(JSON.parse(item));
+    arr.push(JSON.parse(item));
   });
+  actions.pushLocalStorageData(arr);
 }; /*
    * @Author: 28906
    * @Date:   2018-01-11 11:05:52
    * @Last Modified by:   28906
-   * @Last Modified time: 2018-01-24 00:13:06
+   * @Last Modified time: 2018-01-24 23:26:05
    * @Description: todo view body
    */
 
@@ -1370,7 +1373,7 @@ var TdBody = function TdBody(_ref) {
 };
 
 exports.default = TdBody;
-},{"hyperapp":13,"./container.js":17,"./label.js":18,"./content.js":19,"../../utils/store.js":9}],5:[function(require,module,exports) {
+},{"hyperapp":10,"./container.js":17,"./label.js":18,"./content.js":19,"../../utils/store.js":11}],4:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1439,7 +1442,7 @@ var view = function view(state, actions) {
 };
 
 exports.default = view;
-},{"hyperapp":13,"picostyle":25,"./wrapper.js":7,"./td-header/":11,"./td-body/":12,"../utils/store.js":9}],6:[function(require,module,exports) {
+},{"hyperapp":10,"picostyle":25,"./wrapper.js":9,"./td-header/":12,"./td-body/":13,"../utils/store.js":11}],6:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1456,7 +1459,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                                                                                                                                                                                                     * @Author: 28906
                                                                                                                                                                                                     * @Date:   2018-01-06 01:07:45
                                                                                                                                                                                                     * @Last Modified by:   28906
-                                                                                                                                                                                                    * @Last Modified time: 2018-01-24 00:23:09
+                                                                                                                                                                                                    * @Last Modified time: 2018-01-25 00:13:00
                                                                                                                                                                                                     * @Description: actions, change the state must use actions!
                                                                                                                                                                                                     */
 
@@ -1488,11 +1491,32 @@ var actions = {
         }
       });
     };
+  },
+  pushLocalStorageData: function pushLocalStorageData(arr) {
+    return function (state) {
+      state.todos = [];
+      return { todos: arr };
+    };
+  },
+  goPage: function goPage() {
+    var pageNo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    var pageSize = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 5;
+    return function (state) {
+      var startPageNo = 1,
+          offset = (pageNo - 1) * pageSize,
+          size = state.todos.length,
+          pages = size / pageSize,
+          endPageNo = pages > ~~pages ? ~~pages + 1 : ~~pages;
+
+      if (pageNo >= startPageNo && pageNo <= endPageNo) {
+        return offset + pageSize > size ? state.todos.slice(offset, size) : state.todos.slice(offset, pageSize);
+      }
+    };
   }
 };
 
 exports.default = actions;
-},{"../utils/store.js":9}],4:[function(require,module,exports) {
+},{"../utils/store.js":11}],5:[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1513,7 +1537,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * @Author: 28906
 * @Date:   2018-01-06 00:47:18
 * @Last Modified by:   28906
-* @Last Modified time: 2018-01-24 00:23:28
+* @Last Modified time: 2018-01-24 23:36:19
 * @Description: state, compare with React state
 */
 var state = {
@@ -1522,7 +1546,7 @@ var state = {
 };
 
 exports.default = state;
-},{"../entity/todo.js":8,"../utils/uuid.js":10}],2:[function(require,module,exports) {
+},{"../entity/todo.js":7,"../utils/uuid.js":8}],2:[function(require,module,exports) {
 "use strict";
 
 var _hyperapp = require("hyperapp");
@@ -1550,7 +1574,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 */
 
 (0, _hyperapp.app)(_todos2.default, _actions2.default, _index2.default, document.body);
-},{"hyperapp":13,"./views/index.js":5,"./actions/":6,"./states/todos.js":4}],0:[function(require,module,exports) {
+},{"hyperapp":10,"./views/index.js":4,"./actions/":6,"./states/todos.js":5}],0:[function(require,module,exports) {
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
 function Module() {
@@ -1568,7 +1592,7 @@ function Module() {
 module.bundle.Module = Module;
 
 if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
-  var ws = new WebSocket('ws://' + window.location.hostname + ':51677/');
+  var ws = new WebSocket('ws://' + window.location.hostname + ':60284/');
   ws.onmessage = function(event) {
     var data = JSON.parse(event.data);
 

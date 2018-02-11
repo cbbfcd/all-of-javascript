@@ -1,4 +1,4 @@
-# Hyperapp + picostyle + parcel + webStorage + PWA + MST todolist demo 
+# Hyperapp + picostyle + parcel + webStorage + PWA todolist demo 
 
 偶然看到一个很酷的库，大小只有 1kb，对，没错，你没看错。
 
@@ -24,9 +24,8 @@ yarn start   // 8080 可以在package.json 中"parcel src/index.html -p 8080"修
 # todo
 
 1. PWA
-2. 通过 MST 管理state tree
-3. 简单的分页
-4. 已完成和未完成的分类选择
+2. 简单的分页
+3. 已完成和未完成的分类选择
 
 [1]:https://hyperapp.js.org
 [2]:http://www.css88.com/doc/parcel

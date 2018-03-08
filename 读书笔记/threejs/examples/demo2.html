@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>demo2</title>
+	<script src="https://cdn.bootcss.com/three.js/90/three.js"></script>
+</head>
+<body >
+	
+</body>
+
+<script type="text/javascript">
+	// three.js 三大组件： 场景（scene）、相机（camera）、渲染器（renderer）
+	// 所做的事情一句话概括就是：使用相机将场景渲染到页面上去。
+	// 1. 建立场景只有一个方式，场景是所有物体的容器。
+	let scene = new THREE.Scene();
+	// 2. 相机有很多种，不同的相机取景不同，呈现的效果也不一样。就像人的眼睛看东西一样，不同的角度
+	// 看到的是不同的景色，这些‘角度’对应的就是不同的参数
+	// 这里使用一个 透视相机
+	let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+	// 3. 渲染器决定了渲染的结果应该画在页面的什么元素上面，并且以怎样的方式来绘制。
+	let renderer = new THREE.WebGLRenderer();
+	renderer.setSize(window.innerWidth, window.innerHeight); // 设置渲染器大小
+	document.body.appendChild(renderer.domElement); // 挂载渲染器画布
+	// 4. 添加物体到场景中
+	var geometry = new THREE.CubeGeometry(1,1,1); // 定义一个立方体
+	var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+	var cube = new THREE.Mesh(geometry, material);
+	camera.position.z = 5;
+	scene.add(cube);
+	// 5. 渲染
+	// 渲染分为实时渲染和离线渲染，区别就在于是不是实时的不停渲染还是事先渲染好的
+	function render(){
+		window.requestAnimationFrame(render);
+		cube.rotation.x += 0.1;
+		cube.rotation.y += 0.1;
+		renderer.render(scene, camera);
+	}
+
+	render();
+</script>
+</html>

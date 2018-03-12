@@ -63,7 +63,7 @@ willLeave = () => ensureSpring(this.props.willLeave)
 didLeave = (styleThatLeft) => this.props.didLeave && this.props.didLeave(styleThatLeft)
 ```
 
-最终我们需要的 <Route> <Swith> 组件可以作为子组件放进去， 通过 createElement, cloneElement 方法。
+最终我们需要的 ```<Route> <Swith>``` 组件可以作为子组件放进去， 通过 createElement, cloneElement 方法。
 
 ```jsx
 renderRoute = (config) => {
@@ -105,10 +105,10 @@ export const TransitionRoute = ({component, exact, path, ...rest}) => {
                         exact = {exact}
                         component = {component}
                         location = {location}
-                    \/>
-                <\/TransitionModel>
+                    />
+                </TransitionModel>
             )}
-        \/>
+        />
     )
 }
 ```
@@ -129,7 +129,7 @@ const SwitchWrapper = (props) => {
             children={({location})=>(
                 <TransitionSwitch location={location} {...props} \/>
             )}
-        \/>
+        />
     )
 }
 ```
@@ -141,15 +141,18 @@ const SwitchWrapper = (props) => {
 
 Route:
 
-![transition-route](./g1.gif)
+![transition-route](./g2.gif)
 
 
 Switch:
 
-![transition-switch](./g2.gif)
+![transition-switch](./g1.gif)
 
+## 源码
 
+[here][3]
 
 [1]: https://github.com/chenglou/react-motion
 [2]: https://segmentfault.com/a/1190000004224778
+[3]: https://github.com/cbbfcd/all-of-javascript/tree/master/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE/react-router-motion
 

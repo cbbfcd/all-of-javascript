@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>网格</title>
+	<script src="https://cdn.bootcss.com/three.js/90/three.js"></script>
+	<style type="text/css">
+		#root{
+			width: 100%;
+			height: 600px;
+			background-color: #eee;
+			border: none;
+            cursor: pointer;
+		}
+	</style>
+	<script type="text/javascript">
+		let renderer, 
+			camera, 
+			width, 
+			height, 
+			scene,
+			light;
+
+		// 初始化渲染器
+		function initRenderer(){
+			width = document.querySelector('div#root').clientWidth;
+			height = document.querySelector('div#root').clientHeight;
+			renderer = new THREE.WebGLRenderer({antialias : true}/*抗锯齿，平滑*/);
+			renderer.setSize(width, height);
+			document.querySelector('div#root').appendChild(renderer.domElement);
+			renderer.setClearColor(0xFFFFFF, 1.0);
+		}
+
+		// 初始化相机
+		function initCamera(){
+			// 参数1： 视野角度 参数2：宽高比 参数3：相机离物体允许的最近距离 参数4：....允许的最远距离
+			camera = new THREE.PerspectiveCamera(45, width/height, 1, 10000);
+			camera.position.set(0, 1000, 0); // 设置相机的位置在 y 轴 1000 处
+			//设置相机往上抬的时候沿着的是 y 方向
+			camera.up.x = 0;
+			camera.up.y = 0;
+			camera.up.z = 1;
+			//设置相机镜头的朝向原点
+			camera.lookAt(0, 0, 0);
+		}
+
+		// 初始化场景
+		function initScene(){
+			scene = new THREE.Scene();
+		}
+
+		// 初始化光源
+		function initLight(){
+			// 参数是光源的颜色和强度
+			light = new THREE.DirectionalLight(0xFF0000, 1.0);
+			light.position.set(100, 100, 200);
+			scene.add(light);
+		}
+
+		// 初始化对象
+		function initObject(){
+			let geometry = new THREE.Geometry(); //创建一个几何体
+			let material = new THREE.LineBasicMaterial({vertexColors: true, opacity: 0.2}); // 基础线条材料
+			let color1 = new THREE.Color(0x444444),
+				color2 = new THREE.Color(0xFF0000);
+			// 定义一个平行于 x 轴的线条
+			let p1 = new THREE.Vector3(-500, 0, 0);
+			let p2 = new THREE.Vector3(500, 0, 0);
+			geometry.vertices.push(p1);
+			geometry.vertices.push(p2);
+			// 顶点着色
+			geometry.colors.push(color1, color2);
+			// 定义线条
+			for(let i = 0; i < 20; i++){
+				let line1 = new THREE.Line(geometry, material, THREE.LineSegments);
+				line1.position.z = (i * 50) - 500;
+				scene.add(line1);
+
+				let line2 = new THREE.Line(geometry, material, THREE.LineSegments);
+				line2.position.x = (i * 50) - 500;
+				line2.rotation.y = Math.PI / 2; // 旋转90度
+				scene.add(line2);
+			}
+		}
+
+		// render
+		function render(){
+			renderer.clear();
+			renderer.render(scene, camera);
+		}
+
+		// start
+		function threeStart(){
+			initRenderer();
+			initCamera();
+			initScene();
+			initLight();
+			initObject();
+			render();
+		}
+	</script>
+</head>
+<body onload="threeStart();">
+	<div id='root'></div>
+</body>
+</html>

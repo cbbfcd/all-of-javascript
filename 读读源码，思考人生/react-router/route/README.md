@@ -128,11 +128,11 @@ path | location.pathname | matches?
 
 当和 exact 搭配使用(both true):
 
-path | location.pathname | matches?
-- | :-: | -: 
-/one | /one | yes
-/one | /one/ | no
-/one | /one/two | no
+|path | location.pathname | matches?|
+|- | :-: | -: |
+|/one | /one | yes|
+|/one | /one/ | no|
+|/one | /one/two | no|
 
 ### location: object
 

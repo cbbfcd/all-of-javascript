@@ -112,7 +112,7 @@ Note: children 优先级较之前两个是最低的！
 path 是否精确匹配 location.pathname
 
 |path | location.pathname | exact | matches?|
-|- | :-: | -: |
+|- | :-: | -:| -:|
 |/one | /one/two | true | no|
 |/one | /one/two | false |  yes|
 
@@ -185,7 +185,7 @@ Note:
 是否区分大小写
 
 |path | location.pathname | sensitive | matches?|
-|- | :-: | -:|
+|- | :-: | -:| -:|
 |/one | /one | true | yes|
 |/One | /one | true | no|
 |/One | /one | false | yes|

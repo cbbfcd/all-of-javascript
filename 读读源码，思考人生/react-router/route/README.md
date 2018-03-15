@@ -14,7 +14,14 @@ Route 组件中提供了 3 种渲染的方式：
 * render
 * children
 
-这三种方式都被赋予了一样的参数: ({match, location, history})
+这三种方式都被赋予了一样的参数: ({match, location, history});
+
+源码：
+
+```jsx
+const props = { match, location, history, staticContext }; // <===
+if (component) return match ? React.createElement(component, props ) : null;
+```
 
 ### component (PropTypes.func)
 
@@ -192,11 +199,108 @@ Note:
 
 # 源码分析
 
+router 的实现原理实质都是监听例如 hashchange, popState 等触发新的渲染。
 
+这里有一个[简易的 router 实现][6]。
 
+然后，我们来看看 react-router 中 Route 组件的源码实现：
+
+## propTypes
+
+```jsx
+  static propTypes = {
+    computedMatch: PropTypes.object, // private, from <Switch>
+    path: PropTypes.string,
+    exact: PropTypes.bool,
+    strict: PropTypes.bool,
+    sensitive: PropTypes.bool,
+    component: PropTypes.func,
+    render: PropTypes.func,
+    children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
+    location: PropTypes.object
+  };
+```
+
+为什么参数都不是 isRequired ?
+
+## contextTypes
+
+react-router 是利用 React 中的 Context 实现层级组件之间的通信的。
+
+首先熟悉一下 context 的用法。很简单，就是 context provider 组件(一般就是【顶层】父组件)中定义 getChildContext、childContextTypes, 然后在需要接收这个 context 的子组件中定义 contextTypes 进行接收。
+
+注意：如果不定义 contextTypes ，this.context = {};
+
+```jsx
+// 接收 context
+static contextTypes = {
+  router: PropTypes.shape({
+    route: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired,
+    staticContext: PropTypes.object
+  })
+}
+// 定义 childContextTypes
+static childContextTypes = {
+  router: PropTypes.object.isRequired
+}
+// 定义 context 的内容
+getChildContext(){
+  return {
+    router: {
+      ...this.context.router,
+      route: {
+        location: this.props.location || this.context.router.route.location,
+        match: this.state.match
+      }
+    }
+  }
+}
+```
+这段代码的含义就是接收外面定义的 context, 这个 context 中包含了 history,route,staticContext。然后 Route 组件自己作为 context provider 向下传递一个 new context, 这个 new context 其实就是往 context 中 mixin了新的 location(如果有)、match。
+
+## state
+
+```jsx
+state = {
+  match: this.computeMatch(this.props, this.context.router)
+}
+```
+
+## computedMatch
+
+```jsx
+  computeMatch(
+    { computedMatch, location, path, strict, exact, sensitive },
+    router
+  ) {
+    // <Switch> already computed the match for us
+    if (computedMatch) return computedMatch;
+    // Route 组件必须包裹在 Router 中
+    invariant(
+      router,
+      "You should not use <Route> or withRouter() outside a <Router>"
+    );
+    const { route } = router;
+    const pathname = (location || route.location).pathname;
+    // matchPath 就是一个使用正则去匹配的方法。
+    return matchPath(pathname, { path, strict, exact, sensitive },route.match);
+  }
+```
+
+使用的是这个库：[正则匹配路径][4]。
+
+## componentWillMount
+
+这里面主要是一些判断，避免同时使用了 component、render、children。
+
+## componentWillReceiveProps(nextProps, nextContext)
+
+这里面说明了重新计算 matchPath 的条件是之前定义了 location，并且 nextProps.location 也存在。
 
 [1]: https://reacttraining.com/react-router/web/api/Route
 [2]: https://github.com/cbbfcd/all-of-javascript/blob/master/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE/react-router-motion/src/lib/TransitionRoute.js
 [3]: https://github.com/cbbfcd/all-of-javascript/blob/master/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE/react-router-motion/src/lib/TransitionSwitch.js
 [4]: https://github.com/pillarjs/path-to-regexp
 [5]: https://github.com/ReactTraining/react-router/blob/master/packages/react-router/docs/guides/blocked-updates.md
+[6]: ./fade-router.html

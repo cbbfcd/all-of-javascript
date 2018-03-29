@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>光源-1</title>
+	<script src="https://cdn.bootcss.com/three.js/90/three.js"></script>
+	<script src="https://cdn.bootcss.com/stats.js/r17/Stats.js"></script>
+	<style type="text/css">
+		#root{
+			width: 100%;
+			height: 600px;
+			background-color: #eee;
+			border: none;
+            cursor: pointer;
+		}
+	</style>
+	<script type="text/javascript">
+		let renderer, 
+			camera, 
+			width, 
+			height, 
+			scene,
+			mesh,
+			stats,
+			light;
+
+		// 初始化渲染器
+		function initRenderer(){
+			width = document.querySelector('div#root').clientWidth;
+			height = document.querySelector('div#root').clientHeight;
+			renderer = new THREE.WebGLRenderer({antialias : true}/*抗锯齿，平滑*/);
+			renderer.setSize(width, height);
+			document.querySelector('div#root').appendChild(renderer.domElement);
+			renderer.setClearColor(0xFFFFFF, 1.0);
+
+			// 初始化性能监控模块
+			stats = new Stats();
+			stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.left = '0px';
+			stats.domElement.style.right = '0px';
+			document.querySelector('div#root').appendChild(stats.domElement);
+		}
+
+		// 初始化相机
+		function initCamera(){
+			camera = new THREE.PerspectiveCamera(45, width/height, 1, 10000);
+			camera.position.set(600, 0, 600); // 设置相机的位置在 y 轴 1000 处
+			//设置相机往上抬的时候沿着的是 y 方向
+			camera.up.x = 0;
+			camera.up.y = 1;
+			camera.up.z = 0;
+			//设置相机镜头的朝向原点
+			camera.lookAt(0, 0, 0);
+		}
+
+		// 初始化场景
+		function initScene(){
+			scene = new THREE.Scene();
+		}
+
+		// 初始化光源
+		function initLight(){
+			light = new THREE.AmbientLight(0x00FF00);
+		  scene.add(light);
+
+      light = new THREE.DirectionalLight(0xFF0000);
+      light.position.set(0, 0, 1);
+      scene.add(light);
+      // 有两种光源的时候，是光源颜色简单相加 0x00FF00 + 0xFF0000 = 0xFFFF00
+		}
+
+		// 初始化对象
+		function initObject(){
+			let geometry = new THREE.CubeGeometry(200, 100, 50,4,4);
+			// lambert 材质是表面均匀且粗糙的。就像是纸张一样。不会产生镜面效果。 
+			let material = new THREE.MeshLambertMaterial({ color:0xCBDDE4}); 
+			mesh = new THREE.Mesh(geometry, material);
+			mesh.position.set(0, 0, 0);
+			scene.add(mesh);
+
+			let geometry2 = new THREE.CubeGeometry(200, 100, 50,4,4);
+			// lambert 材质是表面均匀且粗糙的。就像是纸张一样。不会产生镜面效果。 
+			let material2 = new THREE.MeshLambertMaterial({ color:0xCBDDE4}); 
+			let mesh2 = new THREE.Mesh(geometry2, material2);
+			mesh2.position.set(-300, 0, 0);
+			scene.add(mesh2);
+
+			let geometry3 = new THREE.CubeGeometry(200, 100, 50,4,4);
+			// lambert 材质是表面均匀且粗糙的。就像是纸张一样。不会产生镜面效果。 
+			let material3 = new THREE.MeshLambertMaterial({ color:0xCBDDE4}); 
+			let mesh3 = new THREE.Mesh(geometry2, material2);
+			mesh3.position.set(300, 0, 0);
+			scene.add(mesh3);
+
+			let geometry4 = new THREE.CubeGeometry(200, 100, 50,4,4);
+			// lambert 材质是表面均匀且粗糙的。就像是纸张一样。不会产生镜面效果。 
+			let material4 = new THREE.MeshLambertMaterial({ color:0xCBDDE4}); 
+			let mesh4 = new THREE.Mesh(geometry2, material2);
+			mesh4.position.set(0, 150, 0);
+			scene.add(mesh4);
+
+			let geometry5 = new THREE.CubeGeometry(200, 100, 50,4,4);
+			// lambert 材质是表面均匀且粗糙的。就像是纸张一样。不会产生镜面效果。 
+			let material5 = new THREE.MeshLambertMaterial({ color:0xCBDDE4}); 
+			let mesh5 = new THREE.Mesh(geometry2, material2);
+			mesh5.position.set(0, -150, 0);
+			scene.add(mesh5);
+
+			let geometry6 = new THREE.CubeGeometry(200, 100, 50,4,4);
+			// lambert 材质是表面均匀且粗糙的。就像是纸张一样。不会产生镜面效果。 
+			let material6 = new THREE.MeshLambertMaterial({ color:0xCBDDE4}); 
+			let mesh6 = new THREE.Mesh(geometry2, material2);
+			mesh6.position.set(0, 0, -100);
+			scene.add(mesh6);
+		}
+
+		// render
+		function render(){
+			renderer.clear();
+			// 第一种方式：通过相机的移动使得场景动起来。
+			// camera.position.x += 1;
+
+			// 第二种方式：让物体动起来，相机不动
+			//mesh.position.x -= 1;
+			renderer.render(scene, camera);
+			//性能监控
+			stats.update();
+			//window.requestAnimationFrame(render);
+		}
+
+		// start
+		function threeStart(){
+			initRenderer();
+			initCamera();
+			initScene();
+			initLight();
+			initObject();
+			render();
+		}
+	</script>
+</head>
+<body onload="threeStart();">
+	<div id='root'></div>
+</body>
+</html>

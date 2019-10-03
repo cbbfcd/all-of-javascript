@@ -1,5 +1,7 @@
 # oh! js
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/cbbfcd/all-of-javascript.svg)](https://greenkeeper.io/)
+
 # 目录
 
 <a href="./读书笔记/README.md">1. 读书笔记</a><br/>

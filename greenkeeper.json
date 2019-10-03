@@ -1,0 +1,13 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "开源项目/css-filter/css-filter/package.json",
+        "开源项目/react-router-motion/package.json",
+        "开源项目/todolist/package.json",
+        "读书笔记/学习Electron/electron-quick-start-demo/package.json",
+        "读书笔记/学习Electron/sound-machine/package.json"
+      ]
+    }
+  }
+}
